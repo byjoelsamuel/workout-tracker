@@ -1,4 +1,8 @@
-# workout-tracker
+# 🏋️ Workout Tracker
+
+  ![GitHub last commit](https://img.shields.io/github/last-commit/byjoelsamuel/workout-tracker)
+  ![GitHub license](https://img.shields.io/github/license/byjoelsamuel/workout-tracker)
+  
 Personalized workout tracker that logs and suggests workouts based on your body type, goals and preference!
 
 Create a profile, log exercises by body group, and watch a front-view
