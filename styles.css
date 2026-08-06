@@ -37,7 +37,7 @@ body {
 
 .eyebrow {
     font-size: 19px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-secondary);
     letter-spacing: -0.01em;
     margin-bottom: 8px;
@@ -67,7 +67,7 @@ body {
     font-weight: 400;
     color: #fff;
     background-color: var(--accent);
-    border: none;
+    border: 2px solid var(--accent);
     border-radius: 980px;
     padding: 12px 28px;
     margin-top: 40px;
