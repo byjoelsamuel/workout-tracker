@@ -27,3 +27,17 @@ document.addEventListener("DOMContentLoaded", () => {
     dashboardLink.href = `dashboard.html?user=${lastUserId}`;
   }
 });
+
+// Theme toggle. The initial theme is already applied by theme-init.js
+// (before paint); this just flips it on click and remembers the choice.
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("themeToggle");
+  if (!toggle) return;
+
+  toggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("workoutTracker.theme", next);
+  });
+});
