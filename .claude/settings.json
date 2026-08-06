@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p public/shared)",
+      "Bash(git mv *)",
+      "Bash(node server.js)",
+      "Bash(disown)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

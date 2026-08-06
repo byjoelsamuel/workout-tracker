@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Dashboard — Workout Tracker</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">Workout Tracker</a>
+            <div class="nav-links">
+                <a href="dashboard.html" id="navDashboard">Dashboard</a>
+                <a href="compare.html">Compare</a>
+            </div>
+        </nav>
+
+        <main class="page">
+            <div class="page-header">
+                <h1 id="greeting">Your Progress</h1>
+                <p class="subhead">Every logged exercise shades its body group a little more orange.</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div id="bodyMap" class="body-map-wrap"></div>
+                    <ul class="summary-list" id="summaryList"></ul>
+                </div>
+
+                <div class="card">
+                    <h2>Log an exercise</h2>
+                    <form id="logForm" class="form">
+                        <label>Body group
+                            <select name="bodyGroup" id="groupSelect" required></select>
+                        </label>
+                        <label>Exercise
+                            <input type="text" name="exerciseName" placeholder="e.g. Bench press" required>
+                        </label>
+                        <p class="form-error" id="logError" hidden></p>
+                        <button type="submit" class="button start">Add exercise</button>
+                    </form>
+
+                    <h2 class="section-spacer">Recent activity</h2>
+                    <ul class="history-list" id="historyList"></ul>
+                </div>
+            </div>
+        </main>
+
+        <script src="app.js"></script>
+        <script src="bodymap.js"></script>
+        <script src="dashboard.js"></script>
+    </body>
+</html>
