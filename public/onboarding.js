@@ -4,47 +4,45 @@ const returningForm = document.getElementById("returningForm");
 const profileError = document.getElementById("profileError");
 
 // Populates the "returning user" dropdown from every profile that
-// currently exists in the database.
-async function loadExistingUsers() {
-  const users = await fetchJSON("/api/users");
+// currently exists in this browser's localStorage.
+function loadExistingUsers() {
+  const users = listUsers();
   userSelect.innerHTML = users.length
     ? users.map((u) => `<option value="${u.id}">${u.name}</option>`).join("")
     : `<option value="">No profiles yet</option>`;
 }
 
 // Creating a profile is the "information seeker" flow: collect the
-// basics, POST them, then redirect straight to that profile's dashboard.
-profileForm.addEventListener("submit", async (event) => {
+// basics, save them, then go straight to that profile's dashboard.
+profileForm.addEventListener("submit", (event) => {
   event.preventDefault();
   profileError.hidden = true;
   const formData = new FormData(profileForm);
+  const name = formData.get("name");
 
-  try {
-    const user = await fetchJSON("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        bodyweight: formData.get("bodyweight") || null,
-        height: formData.get("height") || null,
-        age: formData.get("age") || null,
-      }),
-    });
-    localStorage.setItem("lastUserId", user.id);
-    window.location.href = `dashboard.html?user=${user.id}`;
-  } catch (err) {
-    profileError.textContent = err.message;
+  if (!name || !name.trim()) {
+    profileError.textContent = "Name is required.";
     profileError.hidden = false;
+    return;
   }
+
+  const user = createUser({
+    name,
+    bodyweight: formData.get("bodyweight"),
+    height: formData.get("height"),
+    age: formData.get("age"),
+  });
+  localStorage.setItem("workoutTracker.lastUserId", user.id);
+  window.location.href = `dashboard.html?user=${user.id}`;
 });
 
-// Picking an existing profile skips creation entirely — no POST needed,
-// just navigate with the chosen id in the query string.
+// Picking an existing profile skips creation entirely — just navigate
+// with the chosen id in the query string.
 returningForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const id = userSelect.value;
   if (!id) return;
-  localStorage.setItem("lastUserId", id);
+  localStorage.setItem("workoutTracker.lastUserId", id);
   window.location.href = `dashboard.html?user=${id}`;
 });
 

@@ -5,7 +5,17 @@
       "Bash(git mv *)",
       "Bash(node server.js)",
       "Bash(disown)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(gh api *)",
+      "Bash(command -v chromium-cli)",
+      "Bash(echo \"exit:$?\")",
+      "Read(//tmp/claude-1000/bundled-skills/2.1.223/**)",
+      "Bash(find / -maxdepth 4 -iname \"*chromium-cli*\")",
+      "Bash(npm ls *)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(npx playwright *)",
+      "Bash(node shot.js)",
+      "Bash(pkill -f \"node server.js\")"
     ]
   }
 }

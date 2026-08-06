@@ -1,7 +1,7 @@
 const compareGridEl = document.getElementById("compareGrid");
 
-async function loadCompare() {
-  const users = await fetchJSON("/api/compare");
+function render() {
+  const users = getCompareData();
 
   if (!users.length) {
     compareGridEl.innerHTML = `<p class="empty">No profiles yet. <a href="onboarding.html">Create one</a> to get started.</p>`;
@@ -23,4 +23,4 @@ async function loadCompare() {
     .join("");
 }
 
-loadCompare();
+render();
