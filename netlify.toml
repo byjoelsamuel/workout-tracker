@@ -1,2 +1,11 @@
 [build]
-  publish = "public"
+  command = "npm run build"
+  publish = "dist"
+
+# Single-page app: every route is served by index.html and resolved
+# client-side. Without this, deep links like /dashboard?user=… 404 on a
+# hard refresh, since no such file exists on disk.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
