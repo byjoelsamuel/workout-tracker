@@ -28,6 +28,13 @@ export function About() {
           dashboard shows your all-time totals; the compare page narrows to the last
           seven days.
         </p>
+        <p>
+          Exercises come from a built-in library rather than free text, so the same
+          movement is always named the same way. Each entry records sets and reps
+          alongside the weight you used. Movements that carry no external load, like
+          push-ups and pull-ups, skip the weight field, and holds like the plank ask
+          for seconds instead of repetitions.
+        </p>
 
         <h2>Where your data lives</h2>
         <p>
@@ -53,6 +60,46 @@ export function About() {
         </p>
         <p>
           Source: <code>github.com/byjoelsamuel/workout-tracker</code>
+        </p>
+
+        <h2>Licence</h2>
+        <p>
+          Tsyoku-naru is released under the{" "}
+          <a href="https://github.com/byjoelsamuel/workout-tracker/blob/main/LICENSE">
+            MIT Licence
+          </a>
+          . You're free to use, modify and redistribute it, including commercially,
+          provided the copyright notice and licence text travel with it. It comes
+          with no warranty.
+        </p>
+        <p>
+          It builds on four open-source projects, each MIT licensed:{" "}
+          <a href="https://react.dev">React</a>,{" "}
+          <a href="https://vite.dev">Vite</a>,{" "}
+          <a href="https://reactrouter.com">React Router</a>, and{" "}
+          <a href="https://motion.dev">Motion</a>.
+        </p>
+
+        <h2>Standards</h2>
+        <p>
+          The markup and stylesheet are written to W3C standards. These links run the
+          live site through the official validators — they check{" "}
+          <code>tsyoku-naru.netlify.app</code> on demand rather than displaying a
+          stored result, so what you see is current.
+        </p>
+        <p className="badge-row">
+          <a
+            className="badge"
+            href="https://validator.w3.org/nu/?doc=https%3A%2F%2Ftsyoku-naru.netlify.app%2F"
+          >
+            Validate HTML
+          </a>
+          <a
+            className="badge"
+            href="https://jigsaw.w3.org/css-validator/validator?uri=https%3A%2F%2Ftsyoku-naru.netlify.app%2F"
+          >
+            Validate CSS
+          </a>
         </p>
       </Card>
     </motion.main>

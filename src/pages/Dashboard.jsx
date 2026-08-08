@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
+import { HistoryList } from "../components/HistoryList.jsx";
+import { LogForm } from "../components/LogForm.jsx";
 import { OnboardingGuide } from "../components/OnboardingGuide.jsx";
 import {
   AnimatedList,
   AnimatedListItem,
-  Button,
   Card,
   PageHeader,
   StatRow,
@@ -18,24 +19,11 @@ import { onGuideReplay } from "../lib/guideBus.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { setLastUserId } from "../lib/store.js";
 
-function relativeTime(isoString) {
-  const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  return `${Math.round(diffHr / 24)}d ago`;
-}
-
 export function Dashboard() {
   const userId = useSearchParams()[0].get("user");
   const user = useUser(userId);
   const { logs, summary, log } = useExerciseLog(userId);
   const guide = useOnboardingGuide(userId, logs.length);
-
-  const [bodyGroup, setBodyGroup] = useState(BODY_GROUPS[0].id);
-  const [exerciseName, setExerciseName] = useState("");
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) setLastUserId(user.id);
@@ -47,17 +35,6 @@ export function Dashboard() {
   // No profile, or one that doesn't exist in this browser — there's nothing
   // to show, so send them somewhere they can pick or make one.
   if (!user) return <Navigate to="/onboarding" replace />;
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    if (!exerciseName.trim()) {
-      setError("Give the exercise a name.");
-      return;
-    }
-    log({ bodyGroup, exerciseName });
-    setExerciseName("");
-    setError("");
-  }
 
   const ranked = BODY_GROUPS.map((group) => ({
     ...group,
@@ -91,35 +68,10 @@ export function Dashboard() {
             <StatRow user={user} />
           </Card>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className="dashboard-column">
             <Card data-guide="log-form">
               <h2>Log an exercise</h2>
-              <form className="form" onSubmit={handleSubmit}>
-                <label>
-                  Muscle group
-                  <select value={bodyGroup} onChange={(e) => setBodyGroup(e.target.value)}>
-                    {BODY_GROUPS.map((group) => (
-                      <option key={group.id} value={group.id}>
-                        {group.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Exercise
-                  <input
-                    type="text"
-                    value={exerciseName}
-                    onChange={(e) => setExerciseName(e.target.value)}
-                    placeholder="e.g. Bench press"
-                    autoComplete="off"
-                  />
-                </label>
-                {error && <p className="form-error">{error}</p>}
-                <Button type="submit" block>
-                  Add exercise
-                </Button>
-              </form>
+              <LogForm onLog={log} />
             </Card>
 
             <Card>
@@ -138,19 +90,7 @@ export function Dashboard() {
 
             <Card>
               <h2>Recent activity</h2>
-              {logs.length === 0 ? (
-                <p className="empty">Nothing logged yet — add your first exercise above.</p>
-              ) : (
-                <AnimatedList>
-                  {logs.slice(0, 8).map((entry) => (
-                    <AnimatedListItem key={entry.id}>
-                      <span className="log-name">{entry.exerciseName}</span>
-                      <span className="log-group">{entry.bodyGroup}</span>
-                      <span className="log-time">{relativeTime(entry.loggedAt)}</span>
-                    </AnimatedListItem>
-                  ))}
-                </AnimatedList>
-              )}
+              <HistoryList logs={logs.slice(0, 8)} />
             </Card>
           </div>
         </div>

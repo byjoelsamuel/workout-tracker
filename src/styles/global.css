@@ -286,6 +286,17 @@ body {
     gap: 12px;
 }
 
+/* Weight drops out for bodyweight movements, so the row reflows to two. */
+.form-row.two {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.field-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: -4px;
+}
+
 .form label {
     display: flex;
     flex-direction: column;
@@ -510,24 +521,37 @@ body {
     opacity: 0.5;
 }
 
-.log-name {
+.log-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
     flex: 1;
+}
+
+.log-name {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.log-group {
+.log-detail {
+    font-size: 12px;
     color: var(--text-secondary);
-    text-transform: capitalize;
-    font-size: 13px;
+    font-variant-numeric: tabular-nums;
 }
 
 .log-time {
     color: var(--text-secondary);
     font-size: 12px;
     white-space: nowrap;
+}
+
+.dashboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .empty {
@@ -609,6 +633,29 @@ body {
 
 .prose a {
     color: var(--accent);
+}
+
+.badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.badge {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    border-radius: 980px;
+    padding: 6px 14px;
+    transition: background-color 0.2s ease;
+}
+
+.badge:hover {
+    background: var(--accent-soft);
 }
 
 /* ---- Onboarding guide overlay ---- */

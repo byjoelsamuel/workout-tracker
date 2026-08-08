@@ -44,13 +44,19 @@ export function getUser(id) {
   return read(STORAGE_KEYS.users).find((u) => u.id === id) || null;
 }
 
-export function addLog(userId, { bodyGroup, exerciseName }) {
+// sets/reps/weight are newer than the app itself, so they're written as
+// nullable rather than required — logs saved before they existed are still
+// valid rows and simply render without them.
+export function addLog(userId, { bodyGroup, exerciseName, sets, reps, weight }) {
   const logs = read(STORAGE_KEYS.logs);
   const log = {
     id: crypto.randomUUID(),
     userId,
     bodyGroup,
     exerciseName: exerciseName.trim(),
+    sets: sets ? Number(sets) : null,
+    reps: reps ? Number(reps) : null,
+    weight: weight ? Number(weight) : null,
     loggedAt: new Date().toISOString(),
   };
   logs.push(log);
