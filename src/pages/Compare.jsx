@@ -42,7 +42,11 @@ export function Compare() {
                   <p className="subhead small">
                     {total} {total === 1 ? "session" : "sessions"}
                   </p>
-                  <BodyMap summary={user.summary} />
+                  {/* Needs the toggle as much as the dashboard does: back and
+                      hamstrings only exist on the posterior view, so without
+                      it someone who trained nothing but back reads as an
+                      untouched body. */}
+                  <BodyMap summary={user.summary} showToggle />
                   <Button to={`/dashboard?user=${user.id}`} variant="secondary" size="small">
                     View dashboard
                   </Button>
