@@ -1,4 +1,4 @@
-# 🏋️ Workout Tracker
+# 🏋️ Workout Tracker - Tsyoku-Naru
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/byjoelsamuel/workout-tracker)
 ![GitHub license](https://img.shields.io/github/license/byjoelsamuel/workout-tracker)
