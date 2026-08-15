@@ -5,11 +5,16 @@
 import { useCallback, useState } from "react";
 import {
   addLog,
+  endWorkout,
+  getActiveWorkout,
   getCompareData,
   getLogsForUser,
   getSummary,
+  getUnit,
   getUser,
+  getWorkoutLogs,
   listUsers,
+  setUnit,
 } from "../lib/store.js";
 
 export function useUsers() {
@@ -27,20 +32,48 @@ export function useCompareData() {
   return data;
 }
 
-// Bundles the three things the dashboard needs together, so logging an
-// exercise refreshes the history list and the body map in one go.
+// Bundles what the dashboard needs together, so logging an exercise refreshes
+// the history list, the body map and the in-progress workout in one go.
 export function useExerciseLog(userId) {
   const [logs, setLogs] = useState(() => getLogsForUser(userId));
   const [summary, setSummary] = useState(() => getSummary(userId, "all"));
+  const [workout, setWorkout] = useState(() => getActiveWorkout(userId));
 
   const log = useCallback(
     (entry) => {
       addLog(userId, entry);
       setLogs(getLogsForUser(userId));
       setSummary(getSummary(userId, "all"));
+      // addLog opens a workout when none is running, so re-read rather than
+      // assuming the previous value still holds.
+      setWorkout(getActiveWorkout(userId));
     },
     [userId]
   );
 
-  return { logs, summary, log };
+  // Hands back the finished workout so the caller can show its summary; the
+  // session itself is gone from storage by the time this resolves.
+  const finish = useCallback(() => {
+    const finished = endWorkout(userId);
+    setWorkout(null);
+    return finished;
+  }, [userId]);
+
+  const workoutLogs = workout ? getWorkoutLogs(userId, workout.id) : [];
+
+  return { logs, summary, log, workout, workoutLogs, finish };
+}
+
+// Display unit for weights, mirrored into localStorage so it survives a
+// reload. Kept here rather than in each component so the log form, history
+// list and workout summary can't disagree about what "60" means.
+export function useUnit() {
+  const [unit, setUnitState] = useState(getUnit);
+
+  const change = useCallback((next) => {
+    setUnit(next);
+    setUnitState(next);
+  }, []);
+
+  return [unit, change];
 }

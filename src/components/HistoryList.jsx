@@ -1,5 +1,5 @@
 import { AnimatedList, AnimatedListItem } from "./primitives.jsx";
-import { findExercise } from "../lib/exercises.js";
+import { formatWeight } from "../lib/units.js";
 
 function relativeTime(isoString) {
   const diffMin = Math.round((Date.now() - new Date(isoString).getTime()) / 60000);
@@ -13,14 +13,13 @@ function relativeTime(isoString) {
 // "3 × 10 · 60 kg", or "3 × 45s" for holds. Returns null for logs saved
 // before sets/reps existed, so those rows just show the exercise name
 // instead of inventing numbers for them.
-function describeSets(log) {
+function describeSets(log, unit) {
   if (!log.sets || !log.reps) return null;
-  const unit = findExercise(log.bodyGroup, log.exerciseName)?.timed ? "s" : "";
-  const volume = `${log.sets} × ${log.reps}${unit}`;
-  return log.weight ? `${volume} · ${log.weight} kg` : volume;
+  const volume = `${log.sets} × ${log.reps}${log.timed ? "s" : ""}`;
+  return log.weight ? `${volume} · ${formatWeight(log.weight, unit)}` : volume;
 }
 
-export function HistoryList({ logs }) {
+export function HistoryList({ logs, unit = "kg" }) {
   if (logs.length === 0) {
     return <p className="empty">Nothing logged yet — add your first exercise above.</p>;
   }
@@ -28,7 +27,7 @@ export function HistoryList({ logs }) {
   return (
     <AnimatedList>
       {logs.map((log) => {
-        const detail = describeSets(log);
+        const detail = describeSets(log, unit);
         return (
           <AnimatedListItem key={log.id}>
             <span className="log-main">

@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { Button } from "./primitives.jsx";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { EXERCISES, findExercise } from "../lib/exercises.js";
+import { UNITS, fromKg, toKg } from "../lib/units.js";
 
 const DEFAULT_GROUP = BODY_GROUPS[0].id;
 
-export function LogForm({ onLog }) {
+export function LogForm({ onLog, unit, onUnitChange }) {
   const [bodyGroup, setBodyGroup] = useState(DEFAULT_GROUP);
   const [exerciseName, setExerciseName] = useState(EXERCISES[DEFAULT_GROUP][0].name);
   const [sets, setSets] = useState("3");
@@ -26,6 +27,17 @@ export function LogForm({ onLog }) {
   useEffect(() => {
     setExerciseName(EXERCISES[bodyGroup][0].name);
   }, [bodyGroup]);
+
+  // Switching units mid-entry converts what's already typed. Leaving the
+  // number alone would silently reinterpret 100 lb as 100 kg.
+  function handleUnitChange(next) {
+    if (next === unit) return;
+    if (weight) {
+      const converted = fromKg(toKg(weight, unit), next);
+      setWeight(String(Math.round(converted * 10) / 10));
+    }
+    onUnitChange(next);
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -49,7 +61,10 @@ export function LogForm({ onLog }) {
       sets,
       reps,
       // Bodyweight movements carry no load; storing 0 would imply one.
-      weight: bodyweight ? null : weight,
+      // Everything else is normalised to kg on the way into storage.
+      weight: bodyweight || !weight ? null : toKg(weight, unit),
+      timed,
+      bodyweight,
     });
 
     setError("");
@@ -106,7 +121,22 @@ export function LogForm({ onLog }) {
         </label>
         {!bodyweight && (
           <label>
-            Weight (kg)
+            <span className="label-row">
+              Weight
+              <span className="unit-toggle" role="group" aria-label="Weight unit">
+                {UNITS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`unit-option ${unit === option.id ? "active" : ""}`}
+                    aria-pressed={unit === option.id}
+                    onClick={() => handleUnitChange(option.id)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </span>
+            </span>
             <input
               type="number"
               min="0"

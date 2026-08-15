@@ -388,11 +388,29 @@ body {
 
 /* ---- Body map ---- */
 
+.body-map-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
 .body-map {
     width: 100%;
     max-width: 210px;
     display: block;
     margin: 0 auto;
+}
+
+/* The anatomical polygons abut each other, so without a separating stroke a
+   fully-trained body reads as one solid orange mass. Stroking in the card
+   colour draws the muscle boundaries as negative space. */
+.body-map .region,
+.body-map .neutral {
+    stroke: var(--card-bg);
+    stroke-width: 0.4;
+    stroke-linejoin: round;
+    transition: stroke 0.25s ease;
 }
 
 .body-map .region {
@@ -402,6 +420,62 @@ body {
 .body-map .neutral {
     fill: var(--text-secondary);
     opacity: 0.25;
+}
+
+/* ---- Segmented toggles (body view, weight unit) ---- */
+
+.view-toggle,
+.unit-toggle {
+    display: inline-flex;
+    padding: 2px;
+    gap: 2px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    background: var(--surface);
+}
+
+.view-toggle-option,
+.unit-option {
+    border: 0;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    border-radius: 999px;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.view-toggle-option {
+    padding: 5px 16px;
+    font-size: 12px;
+    font-weight: 550;
+    letter-spacing: 0.03em;
+}
+
+.unit-option {
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.view-toggle-option:hover,
+.unit-option:hover {
+    color: var(--text-primary);
+}
+
+.view-toggle-option.active,
+.unit-option.active {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Pairs a field label with its inline unit toggle, keeping the control on the
+   baseline of the label rather than pushing the input out of the row. */
+.label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .map-card {
@@ -742,6 +816,125 @@ body {
     left: 50%;
     bottom: 48px;
     transform: translateX(-50%);
+}
+
+/* ---- End workout ---- */
+
+.end-workout {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--card-border));
+}
+
+.end-workout-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.end-workout-total {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/* ---- Workout summary ---- */
+
+.summary-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: color-mix(in srgb, var(--background) 72%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+}
+
+.summary-panel {
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    background: var(--card-bg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+.summary-header h2 {
+    font-size: 20px;
+    font-weight: 650;
+    margin-top: 4px;
+}
+
+/* The one number the session is really about, so it gets the size. */
+.summary-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 22px 16px;
+    border-radius: 14px;
+    background: var(--accent-soft);
+}
+
+.summary-hero-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+}
+
+.summary-hero-value {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--accent);
+}
+
+.summary-hero-alt {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.summary-top {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.summary-top strong {
+    color: var(--text-primary);
+    font-weight: 650;
+}
+
+.summary-section h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+@media (max-width: 560px) {
+    .end-workout {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .summary-panel {
+        padding: 22px 18px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
