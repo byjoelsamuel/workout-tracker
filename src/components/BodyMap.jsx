@@ -5,19 +5,28 @@
 // drawn front and back. Because there's a genuine posterior view now, back and
 // hamstrings are shown where they actually are rather than approximated onto
 // the front of the body.
+//
+// Every muscle is drawn twice: once into a base layer in a neutral tone, then
+// again into a heat layer that fades accent in over the top. Tinting a single
+// layer by opacity alone meant an untrained body was near-invisible accent on
+// white, while the head and knees — drawn in flat grey — came out darker than
+// the muscles and pulled the eye to the parts that mean nothing. Splitting the
+// layers lets the muscles stay legible at zero sessions and keeps structure
+// quieter than anatomy in both themes.
 import { useState } from "react";
 import { motion } from "motion/react";
 import { ANTERIOR, BODY_VIEWBOX, POSTERIOR } from "../lib/bodySvg.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { fillTransition } from "../lib/motionVariants.js";
 
-// Five sessions saturates a group. Below that the ramp starts faint but
-// still visible, so an untouched body reads as an outline rather than blank.
+// Five sessions saturates a group. A single session still has to be obvious
+// at a glance, so the ramp starts well up rather than at a hairline tint.
 const MAX_INTENSITY = 5;
-const BASE_OPACITY = 0.08;
+const FLOOR = 0.28;
 
 function intensity(count) {
-  return BASE_OPACITY + (Math.min(count, MAX_INTENSITY) / MAX_INTENSITY) * 0.82;
+  if (!count) return 0;
+  return FLOOR + (Math.min(count, MAX_INTENSITY) / MAX_INTENSITY) * (1 - FLOOR);
 }
 
 const VIEWS = [
@@ -49,42 +58,56 @@ export function BodyMap({ summary = {}, showToggle = false, className = "" }) {
         </div>
       )}
 
-      <svg
-        viewBox={BODY_VIEWBOX}
-        xmlns="http://www.w3.org/2000/svg"
-        className="body-map"
-        role="img"
-        aria-label={`${view === "anterior" ? "Front" : "Back"} body map showing which muscle groups have been trained`}
-      >
-        {regions.map(({ muscle, group, points }) =>
-          points.map((polygon, i) => {
-            // Head, neck and knees carry no group — they're drawn so the
-            // silhouette reads as a body, but nothing logs against them.
-            if (!group) {
-              return (
-                <polygon key={`${muscle}-${i}`} className="neutral" points={polygon} />
-              );
-            }
+      {/* The plate is a div rather than a rect inside the SVG so it can fill
+          whatever height the card gives it. As an SVG rect it was locked to
+          the figure's 1:2 aspect ratio and left the card bottom-heavy. */}
+      <div className="body-map-plate">
+        <svg
+          viewBox={BODY_VIEWBOX}
+          xmlns="http://www.w3.org/2000/svg"
+          className="body-map"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label={`${view === "anterior" ? "Front" : "Back"} body map showing which muscle groups have been trained`}
+        >
+          <g className="body-base">
+            {regions.map(({ muscle, group, points }) =>
+              points.map((polygon, i) => (
+                <polygon
+                  key={`${muscle}-${i}`}
+                  className={group ? "muscle" : "structural"}
+                  points={polygon}
+                />
+              ))
+            )}
+          </g>
 
-            const count = summary[group] || 0;
-            return (
-              <motion.polygon
-                key={`${muscle}-${i}`}
-                className="region"
-                data-group={group}
-                points={polygon}
-                initial={{ fillOpacity: BASE_OPACITY }}
-                animate={{ fillOpacity: intensity(count) }}
-                transition={fillTransition}
-              >
-                <title>
-                  {`${GROUP_LABELS[group] ?? group}: ${count} ${count === 1 ? "session" : "sessions"}`}
-                </title>
-              </motion.polygon>
-            );
-          })
-        )}
-      </svg>
+          <g className="body-heat">
+            {regions.map(({ muscle, group, points }) => {
+              // Head, neck and knees carry no group — they're drawn in the
+              // base layer so the silhouette reads as a body, but nothing
+              // logs against them, so they never take heat.
+              if (!group) return null;
+              const count = summary[group] || 0;
+              return points.map((polygon, i) => (
+                <motion.polygon
+                  key={`${muscle}-${i}`}
+                  className="region"
+                  data-group={group}
+                  points={polygon}
+                  initial={{ fillOpacity: 0 }}
+                  animate={{ fillOpacity: intensity(count) }}
+                  transition={fillTransition}
+                >
+                  <title>
+                    {`${GROUP_LABELS[group] ?? group}: ${count} ${count === 1 ? "session" : "sessions"}`}
+                  </title>
+                </motion.polygon>
+              ));
+            })}
+          </g>
+        </svg>
+      </div>
     </div>
   );
 }

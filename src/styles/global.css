@@ -5,6 +5,10 @@
 }
 
 :root {
+    /* Height of the sticky nav. Anything that pins itself below the nav
+       offsets by this rather than hard-coding a number that drifts when the
+       nav's padding changes. */
+    --nav-offset: 61px;
     --text-primary: #0a0a0a;
     --text-secondary: #6b6b70;
     --accent: #ff6a00;
@@ -16,6 +20,12 @@
     --card-border: rgba(0, 0, 0, 0.09);
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     --danger: #e5342a;
+    /* Body map. The plate is a surface for the figure to sit on; muscle is
+       the untrained tone the accent fades in over; structure (head, knees)
+       has to stay quieter than muscle so it never out-weighs the anatomy. */
+    --map-plate: #f1f1f3;
+    --map-muscle: #c6c6ce;
+    --map-structure: #dcdce1;
 }
 
 /* Theme comes from public/theme-init.js before first paint; the toggle just
@@ -33,6 +43,9 @@
     --card-border: rgba(255, 255, 255, 0.1);
     --card-shadow: none;
     --danger: #ff5b52;
+    --map-plate: #0b0b0c;
+    --map-muscle: #35353c;
+    --map-structure: #202024;
 }
 
 html, body, #root {
@@ -395,31 +408,48 @@ body {
     gap: 14px;
 }
 
-.body-map {
+.body-map-plate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    max-width: 210px;
+    padding: 18px;
+    border-radius: 14px;
+    background: var(--map-plate);
+    transition: background-color 0.25s ease;
+}
+
+.body-map {
     display: block;
+    width: 100%;
+    max-width: 250px;
+    max-height: 100%;
     margin: 0 auto;
 }
 
 /* The anatomical polygons abut each other, so without a separating stroke a
-   fully-trained body reads as one solid orange mass. Stroking in the card
+   fully-trained body reads as one solid orange mass. Stroking in the plate
    colour draws the muscle boundaries as negative space. */
-.body-map .region,
-.body-map .neutral {
-    stroke: var(--card-bg);
+.body-map polygon {
+    stroke: var(--map-plate);
     stroke-width: 0.4;
     stroke-linejoin: round;
-    transition: stroke 0.25s ease;
+    transition: stroke 0.25s ease, fill 0.25s ease;
 }
 
-.body-map .region {
+.body-base .muscle {
+    fill: var(--map-muscle);
+}
+
+.body-base .structural {
+    fill: var(--map-structure);
+}
+
+/* Heat sits over the base, so it carries no fill of its own until a group
+   has been trained — fillOpacity is animated from 0 in BodyMap.jsx. */
+.body-heat .region {
     fill: var(--accent);
-}
-
-.body-map .neutral {
-    fill: var(--text-secondary);
-    opacity: 0.25;
+    stroke: none;
 }
 
 /* ---- Segmented toggles (body view, weight unit) ---- */
@@ -481,6 +511,25 @@ body {
 .map-card {
     display: flex;
     flex-direction: column;
+}
+
+/* The log form, breakdown and history stacked in the right column are far
+   taller than this card, and stretching it only trades a white gap for a grey
+   one — the figure can't grow past the column width, so a full-height card
+   just frames it in empty plate. Sticking it below the nav instead keeps the
+   body in view for the whole scroll, which is what the space was wanted for.
+   `top` clears the sticky nav; --nav-offset keeps the two in step. */
+.map-card {
+    position: sticky;
+    top: calc(var(--nav-offset) + 24px);
+}
+
+@media (max-width: 760px) {
+    /* Single column: the map sits above the form rather than beside it, so
+       pinning it would cover the fields the user is filling in. */
+    .map-card {
+        position: static;
+    }
 }
 
 .map-legend {
@@ -658,9 +707,19 @@ body {
     font-weight: 650;
 }
 
+.compare-card .body-map-wrap {
+    margin: 14px 0 18px;
+}
+
+/* Keeps the plate close to the figure at this size — full card width would
+   leave the small body adrift in a large panel. */
+.compare-card .body-map-plate {
+    max-width: 210px;
+    padding: 14px;
+}
+
 .compare-card .body-map {
     max-width: 150px;
-    margin: 14px auto 18px;
 }
 
 .compare-card .button {
