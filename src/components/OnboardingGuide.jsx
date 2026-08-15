@@ -14,6 +14,12 @@ import { drawTransition, snappy } from "../lib/motionVariants.js";
 const ARROW_MIN_WIDTH = 860;
 const NOTE_WIDTH = 210;
 const EDGE = 14;
+const HEAD_LENGTH = 12;
+const HEAD_SPREAD = 0.42; // radians off the shaft, per barb
+// Notes are two or three lines at a fixed width, so this only has to be a
+// safe ceiling — it exists to keep a note from running off the top on a
+// short viewport, not to position it precisely.
+const NOTE_MAX_HEIGHT = 120;
 
 const STEPS = [
   {
@@ -24,7 +30,6 @@ const STEPS = [
     place: "below",
     noteSide: "right",
     tipAt: 0.4,
-    bend: 46,
   },
   {
     id: "map",
@@ -34,7 +39,6 @@ const STEPS = [
     place: "above",
     noteSide: "left",
     tipAt: 0.5,
-    bend: 46,
   },
 ];
 
@@ -44,36 +48,72 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 // always lands on the note it belongs to — including after clamping.
 function geometry(rect, step, vw, vh) {
   const above = step.place === "above";
+  // Close enough to sit on the target's edge. At the old 10px the tip landed
+  // in the gutter between two cards and read as pointing at the wrong one.
   const tip = {
     x: rect.left + rect.width * step.tipAt,
-    y: above ? rect.top - 10 : rect.bottom + 10,
+    y: above ? rect.top - 5 : rect.bottom + 5,
   };
 
   const preferred =
     step.noteSide === "left" ? rect.left - NOTE_WIDTH - 30 : rect.right + 30;
   const left = clamp(preferred, EDGE, vw - NOTE_WIDTH - EDGE);
 
+  // The edge of the note that faces the target, kept far enough inside the
+  // viewport that a short window can't push the note off the top or bottom.
+  const facing = above
+    ? Math.max(tip.y - 32, EDGE + NOTE_MAX_HEIGHT)
+    : Math.min(tip.y + 32, vh - EDGE - NOTE_MAX_HEIGHT);
+
+  const tail = { x: left + NOTE_WIDTH / 2, y: above ? facing + 8 : facing - 8 };
+  const { d, angle } = curve(tail, tip, bendFor(tail, tip));
+
   return {
-    above,
     tip,
-    tail: { x: left + NOTE_WIDTH / 2, y: above ? tip.y - 24 : tip.y + 24 },
+    path: d,
+    head: arrowHead(tip, angle),
     // Anchored by whichever edge faces the target, so the note never needs
     // measuring to be placed.
-    note: above
-      ? { left, bottom: vh - (tip.y - 32) }
-      : { left, top: tip.y + 32 },
+    note: above ? { left, bottom: vh - facing } : { left, top: facing },
   };
 }
 
 // Bows the curve perpendicular to its own direction, so it reads as drawn
 // by hand whether the arrow runs sideways or straight down.
-function curvePath(tail, tip, bend) {
+//
+// Returns the heading at the tip alongside the path. A quadratic's direction
+// where it lands is `tip - control`, and taking it from the same control
+// point that drew the curve is what stops the head and the line disagreeing:
+// the head used to be a fixed vertical chevron, which only lined up if the
+// arrow happened to arrive straight up or down. These arrows arrive almost
+// horizontally, so it sat across the line like a stray tick.
+function curve(tail, tip, bend) {
   const dx = tip.x - tail.x;
   const dy = tip.y - tail.y;
   const length = Math.hypot(dx, dy) || 1;
-  const cx = (tail.x + tip.x) / 2 + (-dy / length) * bend;
-  const cy = (tail.y + tip.y) / 2 + (dx / length) * bend;
-  return `M ${tail.x} ${tail.y} Q ${cx} ${cy} ${tip.x} ${tip.y}`;
+  const control = {
+    x: (tail.x + tip.x) / 2 + (-dy / length) * bend,
+    y: (tail.y + tip.y) / 2 + (dx / length) * bend,
+  };
+  return {
+    d: `M ${tail.x} ${tail.y} Q ${control.x} ${control.y} ${tip.x} ${tip.y}`,
+    angle: Math.atan2(tip.y - control.y, tip.x - control.x),
+  };
+}
+
+// Two barbs swept back from the tip along the curve's heading.
+function arrowHead(tip, angle) {
+  const barb = (offset) => {
+    const a = angle + offset;
+    return `${tip.x - HEAD_LENGTH * Math.cos(a)} ${tip.y - HEAD_LENGTH * Math.sin(a)}`;
+  };
+  return `M ${barb(HEAD_SPREAD)} L ${tip.x} ${tip.y} L ${barb(-HEAD_SPREAD)}`;
+}
+
+// A long sweep wants a gentle bow; a short hop with the same fixed bend
+// would loop back on itself.
+function bendFor(tail, tip) {
+  return clamp(Math.hypot(tip.x - tail.x, tip.y - tail.y) * 0.13, 16, 52);
 }
 
 export function OnboardingGuide({ onDismiss }) {
@@ -124,29 +164,25 @@ export function OnboardingGuide({ onDismiss }) {
       {showArrows ? (
         <>
           <svg className="guide-svg">
-            {steps.map((step, i) => {
-              const { tip, tail, above } = step;
-              const headY = above ? tip.y - 11 : tip.y + 11;
-              return (
-                <g key={step.id}>
-                  <motion.path
-                    className="guide-arrow"
-                    d={curvePath(tail, tip, step.bend)}
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ ...drawTransition, delay: 0.2 + i * 0.4 }}
-                  />
-                  {/* Head appears only once its line has arrived. */}
-                  <motion.path
-                    className="guide-arrow"
-                    d={`M ${tip.x - 7} ${headY} L ${tip.x} ${tip.y} L ${tip.x + 7} ${headY}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: 0.2 + i * 0.4 + 0.6 }}
-                  />
-                </g>
-              );
-            })}
+            {steps.map((step, i) => (
+              <g key={step.id}>
+                <motion.path
+                  className="guide-arrow"
+                  d={step.path}
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ ...drawTransition, delay: 0.2 + i * 0.4 }}
+                />
+                {/* Head appears only once its line has arrived. */}
+                <motion.path
+                  className="guide-arrow"
+                  d={step.head}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2, delay: 0.2 + i * 0.4 + 0.6 }}
+                />
+              </g>
+            ))}
           </svg>
 
           {steps.map((step, i) => (
