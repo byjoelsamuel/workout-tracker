@@ -6,19 +6,45 @@
 // Snappy but settled — the default for anything the user directly acts on.
 export const snappy = { type: "spring", stiffness: 400, damping: 17 };
 
+// Pages cross-fade in the same grid cell (see Layout.jsx), so the outgoing one
+// is layered over the incoming one for the length of the overlap. Two rules
+// follow from that, and breaking either is what made the switch look broken:
+//
+// Exit has to reach opacity 0. AnimatePresence unmounts the moment the exit
+// animation resolves, so an exit that settles anywhere above zero doesn't
+// leave — it hangs there as a ghost of the old page and then blinks out when
+// the spring finally comes to rest.
+//
+// Exit has to be a tween. A spring resolves by settling, and its tail is long
+// and amplitude-dependent, which pins the unmount to a moment nobody chose.
+// A fixed duration gives the removal a deadline. Enter keeps its spring: it's
+// the half the user is looking at, and nothing is waiting on it to finish.
 export const pageVariants = {
-  initial: { scale: 0.96, y: 24, opacity: 0.4 },
+  initial: { scale: 0.98, y: 14, opacity: 0 },
   animate: {
     scale: 1,
     y: 0,
     opacity: 1,
-    transition: { type: "spring", stiffness: 300, damping: 30, mass: 0.9 },
+    zIndex: 1,
+    transition: {
+      type: "spring",
+      stiffness: 420,
+      damping: 38,
+      mass: 0.7,
+      // Transform still carries the motion; opacity only has to clear early
+      // enough that the page reads as solid while it settles the last few px.
+      opacity: { duration: 0.2, ease: "easeOut" },
+    },
   },
   exit: {
-    scale: 1.03,
-    y: -16,
-    opacity: 0.4,
-    transition: { type: "spring", stiffness: 300, damping: 34 },
+    scale: 1.02,
+    y: -10,
+    opacity: 0,
+    zIndex: 0,
+    // The dying page is still on top of the live one until it unmounts, so it
+    // would otherwise keep swallowing clicks aimed at the new page.
+    pointerEvents: "none",
+    transition: { duration: 0.16, ease: "easeIn" },
   },
 };
 
