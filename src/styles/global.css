@@ -375,8 +375,17 @@ body {
     color: var(--text-secondary);
 }
 
+/* Scoped to the containers rather than to `.form` alone: the set builder is
+   reused inside the history editor, which is a plain div, and controls there
+   were falling back to browser defaults while the identical form on the
+   dashboard looked styled. */
 .form input,
-.form select {
+.form select,
+.set-builder input,
+.history-editor input,
+.history-editor select,
+.picker input,
+.picker select {
     font-family: inherit;
     font-size: 15px;
     color: var(--text-primary);
@@ -389,10 +398,27 @@ body {
 }
 
 .form input:focus,
-.form select:focus {
+.form select:focus,
+.set-builder input:focus,
+.history-editor input:focus,
+.history-editor select:focus,
+.picker input:focus,
+.picker select:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Native spinners duplicate the − / + buttons and steal width. */
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.stepper input {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 .form-error {
@@ -674,7 +700,10 @@ body {
     margin-top: 6px;
 }
 
-.data-list li {
+/* Direct children only. As a descendant selector this reached into the set
+   editor nested inside a history row and forced display:flex onto its grid,
+   so the same markup laid out differently depending on where it sat. */
+.data-list > li {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -684,11 +713,11 @@ body {
     border-bottom: 1px solid var(--card-border);
 }
 
-.data-list li:last-child {
+.data-list > li:last-child {
     border-bottom: none;
 }
 
-.data-list .count {
+.data-list > li .count {
     font-weight: 650;
     color: var(--accent);
     font-variant-numeric: tabular-nums;
@@ -1071,32 +1100,19 @@ body {
     gap: 8px;
 }
 
-/* One grid shared by the header and every row, so the columns line up without
-   the header having to guess at the inputs' widths. */
-.set-head,
-.set-row {
-    display: grid;
-    grid-template-columns: 34px 1fr 1fr 34px;
-    align-items: center;
-    gap: 8px;
-}
-
-.set-builder.no-weight .set-head,
-.set-builder.no-weight .set-row {
-    grid-template-columns: 34px 1fr 34px;
-}
-
 .set-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.set-head-title {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-secondary);
-}
-
-.set-head .set-col-weight {
-    display: flex;
-    justify-content: flex-end;
 }
 
 .set-list {
@@ -1106,31 +1122,108 @@ body {
     gap: 8px;
 }
 
-.set-row input {
-    width: 100%;
+/* Each set is its own surface, so a list of them reads as rows of a table
+   rather than loose inputs floating on the card. */
+.set-row {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 11px;
+    border: 1px solid var(--card-border);
+    border-radius: 13px;
+    background: var(--surface);
+}
+
+.set-builder.no-weight .set-row {
+    grid-template-columns: 24px minmax(0, 1fr) 30px;
 }
 
 .set-col-n {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-secondary);
     text-align: center;
+    font-variant-numeric: tabular-nums;
 }
 
-.set-col-weight {
-    position: relative;
+.set-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
 }
 
-/* Per-set volume, sitting inside the field so it doesn't claim a column of
-   its own on narrow screens. */
-.set-volume {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 11px;
+.set-inline-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--text-secondary);
-    pointer-events: none;
+}
+
+.set-volume {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Number stepper ---- */
+
+.stepper {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 4px;
+}
+
+.stepper input {
+    text-align: center;
+    padding: 8px 4px !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.stepper-button {
+    width: 30px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--card-border);
+    border-radius: 9px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.stepper-button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Below this a set can't hold two steppers side by side without the inputs
+   collapsing to a couple of characters, so weight moves under reps. */
+@media (max-width: 560px) {
+    .set-row {
+        grid-template-columns: 24px minmax(0, 1fr) 30px;
+        grid-template-areas:
+            "n reps   x"
+            "n weight x";
+        row-gap: 8px;
+    }
+
+    .set-builder.no-weight .set-row {
+        grid-template-areas: "n reps x";
+    }
+
+    .set-col-n { grid-area: n; }
+    .set-col-reps { grid-area: reps; }
+    .set-col-weight { grid-area: weight; }
+    .set-remove { grid-area: x; }
 }
 
 .set-remove {
