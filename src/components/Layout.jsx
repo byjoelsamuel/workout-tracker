@@ -4,6 +4,7 @@ import { Nav } from "./Nav.jsx";
 import { Landing } from "../pages/Landing.jsx";
 import { Onboarding } from "../pages/Onboarding.jsx";
 import { Dashboard } from "../pages/Dashboard.jsx";
+import { Progress } from "../pages/Progress.jsx";
 import { Compare } from "../pages/Compare.jsx";
 import { About } from "../pages/About.jsx";
 
@@ -30,6 +31,7 @@ export function Layout() {
             <Route path="/" element={<Landing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/progress" element={<Progress />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<Navigate to="/" replace />} />

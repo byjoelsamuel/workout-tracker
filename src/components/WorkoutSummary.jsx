@@ -5,9 +5,11 @@ import { Button } from "./primitives.jsx";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { listItemVariants, listVariants, snappy } from "../lib/motionVariants.js";
 import {
+  describeReps,
   formatVolume,
   formatWeight,
   logVolume,
+  topWeight,
   totalReps,
   totalSeconds,
   totalSets,
@@ -126,9 +128,8 @@ export function WorkoutSummary({ workout, unit, onClose }) {
                     <span className="log-main">
                       <span className="log-name">{log.exerciseName}</span>
                       <span className="log-detail">
-                        {log.sets} × {log.reps}
-                        {log.timed ? "s" : ""}
-                        {log.weight ? ` · ${formatWeight(log.weight, unit)}` : ""}
+                        {describeReps(log)}
+                        {topWeight(log) != null ? ` · ${formatWeight(topWeight(log), unit)}` : ""}
                       </span>
                     </span>
                     <span className="count">

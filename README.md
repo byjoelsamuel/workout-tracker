@@ -2,10 +2,16 @@
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/byjoelsamuel/workout-tracker)
 ![GitHub license](https://img.shields.io/github/license/byjoelsamuel/workout-tracker)
-![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![Motion](https://img.shields.io/badge/Animations-Motion-purple)
 
-A personalized workout tracker that logs and suggests workouts based on your body type, goals, and preferences. Create a profile, log exercises by muscle group, and watch a front-view body map shade in as training volume builds up for each muscle group over the week — then compare your training against everyone else on the Compare page.
+A workout logger that shows you what you've actually trained. Create a profile,
+log each set with its own reps and weight, and watch an anatomical body map —
+front and back — shade in for every muscle group you work. End a session to get
+a breakdown of what you moved.
+
+Everything is stored in your browser. No account, no backend.
 
 **🔗 Live demo:** [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/)
 
@@ -24,81 +30,116 @@ A personalized workout tracker that logs and suggests workouts based on your bod
 
 ## Features
 
-- **Profile creation** — set up a personal profile with body type, goals, and training preferences
-- **Exercise logging by muscle group** — log sets/reps and tag each exercise to the muscle group it trains
-- **Visual body map** — an interactive front-view body diagram that shades in (color intensity scales with volume) as you log more training for each muscle group
-- **Workout suggestions** — recommendations generated from your body type, goals, and preferences
-- **Compare page** — see how your weekly training volume stacks up against other users
-- **Persistent local storage** — your profile and logs are saved directly in the browser, no account or backend required
+- **Per-set logging** — every set carries its own reps and weight, so a warmup
+  ramp (10 × 60, 8 × 80, 6 × 85) is recorded as what it was rather than averaged
+  into one line
+- **157-movement exercise library** across seven muscle groups, with recent
+  movements one tap away and search across the whole library when it isn't one
+  of those
+- **Anatomical body map** — front and back views that shade from a neutral base
+  toward full accent as sessions accumulate for each muscle group
+- **Workout sessions** — a session opens with your first entry and runs until you
+  end it, then summarises total weight moved, reps, sets, time under tension and
+  the muscle group that took the most work
+- **kg or lb** — enter in either; kilograms are stored internally so switching
+  units never rewrites your history
+- **Editable history** — open any past entry to correct a set or delete it, with
+  volume, personal bests and the body map following along
+- **Progress view** — sessions per muscle group, personal bests, and full history
+- **Compare page** — weekly session counts for every profile in this browser
+- **Dark and light themes**, and a first-run walkthrough
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Structure | HTML5 |
-| Styling | CSS3 |
-| Logic | JavaScript (vanilla) |
+| UI | [React 19](https://react.dev/) |
+| Routing | [React Router](https://reactrouter.com/) |
+| Build | [Vite](https://vite.dev/) |
+| Styling | CSS custom properties, one global stylesheet |
 | Animation | [Motion](https://motion.dev/) |
 | Data persistence | Browser `localStorage` |
 | Hosting | Netlify |
 
-This is a fully client-side application — there's no backend or database. All profile data, exercise logs, and comparison data are read from and written to `localStorage` in the browser, which keeps the app lightweight, fast, and free to host.
+Fully client-side — no backend, no database. Profiles and logs are read from and
+written to `localStorage`, which keeps the app fast and free to host, and means
+your data is per-browser and never leaves your machine.
 
 ## How It Works
 
-The diagram below walks through the core data flow, from creating a profile to seeing your body map update.
-
 ```mermaid
 flowchart TD
-    A[User opens app] --> B{Profile exists in localStorage?}
-    B -- No --> C[Create Profile]
-    C --> C1[Enter body type, goals, preferences]
-    C1 --> D[Save profile to localStorage]
+    A[Open app] --> B{Profile in localStorage?}
+    B -- No --> C[Create profile]
+    C --> C1[Name, bodyweight, height, age]
+    C1 --> D[Save profile]
     B -- Yes --> D
 
     D --> E[Dashboard]
-    E --> F[Log Exercise]
-    F --> F1[Select muscle group]
-    F1 --> F2[Enter sets / reps / weight]
-    F2 --> G[Update localStorage with new log entry]
+    E --> F[Pick an exercise]
+    F --> F1[Recent chips, search, or browse by group]
+    F1 --> F2[Add sets: reps + weight per set]
+    F2 --> G[Save entry, converting weight to kg]
+    G --> G1[Session opens on the first entry]
 
-    G --> H[Recalculate volume per muscle group]
-    H --> I[Body Map re-renders]
-    I --> I1[Shading intensity scales with weekly volume]
+    G --> H[Count sessions per muscle group]
+    H --> I[Body map re-renders]
+    I --> I1[Accent deepens with sessions trained]
 
-    E --> J[Compare Page]
-    J --> J1[Read all users' logs from localStorage]
-    J1 --> J2[Aggregate weekly volume per user]
-    J2 --> K[Render comparison view]
+    G1 --> L[End workout]
+    L --> L1[Summary: volume, reps, sets, hardest-worked group]
+
+    E --> M[Progress]
+    M --> M1[Breakdown, personal bests, editable history]
 
     style A fill:#f97316,stroke:#333,color:#fff
     style I1 fill:#f97316,stroke:#333,color:#fff
-    style K fill:#f97316,stroke:#333,color:#fff
+    style L1 fill:#f97316,stroke:#333,color:#fff
 ```
 
-**In short:** every exercise you log is tagged to a muscle group → that updates a running volume total in `localStorage` → the body map component reads that total and re-renders with proportional shading → the Compare page reads across stored profiles to show relative training volume.
+**In short:** each entry is tagged to one muscle group → the body map shades by
+how many sessions that group has → volume totals are summed from the individual
+sets → ending a workout summarises the session.
+
+Two details worth knowing:
+
+- **Body map shading tracks how many sessions** a group has, not how much volume.
+  Five sessions saturates it.
+- **Timed work is excluded from rep and volume totals.** A plank is recorded in
+  seconds; seconds don't convert to reps or kilograms.
 
 ## Getting Started
 
-Clone the repo and open it locally — no build step or backend setup required since everything runs client-side.
+This is a Vite project, so it needs a build step — opening `index.html` directly
+won't work.
 
 ```bash
 git clone https://github.com/byjoelsamuel/workout-tracker.git
 cd workout-tracker
+npm install
+npm run dev
 ```
 
-Then open `index.html` in your browser, or serve it with a lightweight local server:
+Then open the URL Vite prints (usually `http://localhost:5173`).
 
 ```bash
-npx serve .
+npm run build    # production build into dist/
+npm run preview  # serve the built output
 ```
 
 ## Roadmap
 
 - [ ] Export/import profile data (JSON backup)
+- [ ] Rest timer between sets
+- [ ] Prefill a movement's sets from last time
+- [ ] Workout templates and supersets
 - [ ] Optional cloud sync for cross-device access
-- [ ] Expanded exercise library with muscle-group presets
-- [ ] Mobile-first responsive polish
+
+## Credits
+
+Body map geometry is derived from
+[react-body-highlighter](https://github.com/giavinh79/react-body-highlighter)
+(MIT). See [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
 ## License
 

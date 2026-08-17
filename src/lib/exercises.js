@@ -16,6 +16,8 @@
 // training. Compound lifts are filed under the muscle doing most of the
 // work (deadlift under back, dip under chest), so the body map doesn't
 // double-count a single session.
+import { BODY_GROUPS } from "./bodyGroups.js";
+
 export const EXERCISES = {
   shoulders: [
     { name: "Overhead Press (Barbell)" },
@@ -195,4 +197,38 @@ export const EXERCISES = {
 // rows still have to render.
 export function findExercise(bodyGroup, name) {
   return (EXERCISES[bodyGroup] || []).find((e) => e.name === name) || null;
+}
+
+const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]));
+
+// Flattened once at module load. Search runs across every movement rather than
+// within the selected group, because knowing a lift's name is common and
+// knowing which group this app files it under is not — a face pull is findable
+// without first guessing "shoulders".
+export const ALL_EXERCISES = Object.entries(EXERCISES).flatMap(([bodyGroup, list]) =>
+  list.map((exercise) => ({ ...exercise, bodyGroup, groupLabel: GROUP_LABELS[bodyGroup] }))
+);
+
+// Name matches rank above equipment/group matches, and a prefix ranks above a
+// match buried mid-string, so typing "bench" puts "Bench Press" above "Close
+// Grip Bench Press".
+export function searchExercises(query, limit = 10) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const scored = [];
+  for (const exercise of ALL_EXERCISES) {
+    const name = exercise.name.toLowerCase();
+    const at = name.indexOf(q);
+    if (at === 0) scored.push([0, exercise]);
+    else if (at > 0) scored.push([1 + at / 100, exercise]);
+    else if (exercise.groupLabel.toLowerCase().startsWith(q)) scored.push([3, exercise]);
+  }
+  return scored
+    .sort((a, b) => a[0] - b[0])
+    .slice(0, limit)
+    .map(([, exercise]) => exercise);
+}
+
+export function findExerciseAnywhere(name) {
+  return ALL_EXERCISES.find((e) => e.name === name) || null;
 }

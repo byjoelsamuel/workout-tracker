@@ -45,6 +45,32 @@ export function getUser(id) {
   return read(STORAGE_KEYS.users).find((u) => u.id === id) || null;
 }
 
+// An entry holds one set per row, each with its own reps and weight, because a
+// real session isn't uniform — a warmup at 60, working sets at 80, a top set at
+// 85. The old shape stored a count plus the single reps/weight every set
+// shared, which could only ever describe identical sets.
+//
+// Rows written under that shape are converted here, on read, rather than by
+// rewriting storage: the keys in storageKeys.js are a live wire format with
+// real user data behind them, so a migration pass is the risky option and buys
+// nothing. Legacy rows stay as they are on disk until something edits them.
+//
+// Set ids are derived from the entry id rather than generated, so they stay
+// stable across reads and can be used as React keys.
+function toSetArray(log) {
+  if (Array.isArray(log.sets)) return log.sets;
+  const count = Number(log.sets);
+  // Older still: rows saved before sets/reps existed at all. They carry no set
+  // information, and inventing one would put numbers in the UI that nobody
+  // ever entered.
+  if (!count || !log.reps) return [];
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${log.id}:${i}`,
+    reps: Number(log.reps),
+    weight: log.weight ?? null,
+  }));
+}
+
 // Fills in fields that older rows predate, so the rest of the app can treat
 // every log as complete. `timed`/`bodyweight` are looked up from the library
 // only as a fallback: they're written onto new logs precisely so that editing
@@ -53,32 +79,39 @@ export function getUser(id) {
 // those simply don't belong to any workout.
 function normalizeLog(log) {
   const exercise = findExercise(log.bodyGroup, log.exerciseName);
+  // reps/weight are the legacy scalars, now folded into the sets array. Drop
+  // them so nothing downstream can read a stale copy of the same numbers.
+  const { reps, weight, ...rest } = log;
   return {
-    ...log,
+    ...rest,
+    sets: toSetArray(log),
     timed: log.timed ?? Boolean(exercise?.timed),
     bodyweight: log.bodyweight ?? Boolean(exercise?.bodyweight),
     workoutId: log.workoutId ?? null,
   };
 }
 
-// sets/reps/weight are newer than the app itself, so they're written as
-// nullable rather than required — logs saved before they existed are still
-// valid rows and simply render without them.
-//
-// `weight` arrives in kilograms; the form converts before calling in, so the
-// stored unit never varies. Logging also opens a workout if none is running,
-// which is what makes "End workout" have something to summarise without the
-// user having to remember to press Start first.
-export function addLog(userId, { bodyGroup, exerciseName, sets, reps, weight, timed, bodyweight }) {
+// Weights arrive in kilograms; the form converts at its boundary, so the stored
+// unit never varies. An empty weight is null rather than 0 — a bodyweight set
+// carries no load, and 0 would imply one.
+function toStoredSets(sets) {
+  return sets.map((set) => ({
+    id: set.id ?? crypto.randomUUID(),
+    reps: Number(set.reps) || null,
+    weight: set.weight === "" || set.weight == null ? null : Number(set.weight),
+  }));
+}
+
+// Logging opens a workout if none is running, which is what makes "End workout"
+// have something to summarise without the user having to press Start first.
+export function addLog(userId, { bodyGroup, exerciseName, sets, timed, bodyweight }) {
   const logs = read(STORAGE_KEYS.logs);
   const log = {
     id: crypto.randomUUID(),
     userId,
     bodyGroup,
     exerciseName: exerciseName.trim(),
-    sets: sets ? Number(sets) : null,
-    reps: reps ? Number(reps) : null,
-    weight: weight ? Number(weight) : null,
+    sets: toStoredSets(sets),
     timed: Boolean(timed),
     bodyweight: Boolean(bodyweight),
     workoutId: ensureActiveWorkout(userId).id,
@@ -86,7 +119,36 @@ export function addLog(userId, { bodyGroup, exerciseName, sets, reps, weight, ti
   };
   logs.push(log);
   write(STORAGE_KEYS.logs, logs);
-  return log;
+  return normalizeLog(log);
+}
+
+// Reads raw and rewrites a single row, so legacy rows sitting either side of it
+// are left exactly as they were.
+export function updateLog(userId, logId, patch) {
+  const logs = read(STORAGE_KEYS.logs);
+  const index = logs.findIndex((log) => log.id === logId && log.userId === userId);
+  if (index === -1) return null;
+
+  const next = { ...logs[index], ...patch };
+  if (patch.sets) {
+    next.sets = toStoredSets(patch.sets);
+    // Editing a legacy row promotes it to the current shape. Its old scalars
+    // have to go, or toSetArray would keep preferring them on the next read.
+    delete next.reps;
+    delete next.weight;
+  }
+
+  logs[index] = next;
+  write(STORAGE_KEYS.logs, logs);
+  return normalizeLog(next);
+}
+
+export function deleteLog(userId, logId) {
+  const logs = read(STORAGE_KEYS.logs);
+  const remaining = logs.filter((log) => !(log.id === logId && log.userId === userId));
+  if (remaining.length === logs.length) return false;
+  write(STORAGE_KEYS.logs, remaining);
+  return true;
 }
 
 export function getLogsForUser(userId) {
@@ -94,6 +156,36 @@ export function getLogsForUser(userId) {
     .filter((log) => log.userId === userId)
     .map(normalizeLog)
     .sort((a, b) => new Date(b.loggedAt) - new Date(a.loggedAt));
+}
+
+// Most-recently-used movements, newest first, for the picker's shortcut rows.
+// Deduplicated by name: what's wanted is "the lifts you actually do", not a
+// replay of the log.
+export function getRecentExercises(userId, limit = 10) {
+  const seen = new Map();
+  for (const log of getLogsForUser(userId)) {
+    if (!seen.has(log.exerciseName)) {
+      seen.set(log.exerciseName, { name: log.exerciseName, bodyGroup: log.bodyGroup });
+    }
+    if (seen.size >= limit) break;
+  }
+  return [...seen.values()];
+}
+
+// Heaviest single set ever recorded for a movement. Timed work is excluded —
+// seconds under load don't compare against reps.
+export function getPersonalBest(userId, exerciseName) {
+  let best = null;
+  for (const log of getLogsForUser(userId)) {
+    if (log.timed || log.exerciseName !== exerciseName) continue;
+    for (const set of log.sets) {
+      if (set.weight == null) continue;
+      if (!best || set.weight > best.weight) {
+        best = { weight: set.weight, reps: set.reps, loggedAt: log.loggedAt };
+      }
+    }
+  }
+  return best;
 }
 
 export function getWorkoutLogs(userId, workoutId) {

@@ -2,19 +2,22 @@
 // pure I/O; these add just enough local state to re-render after a write.
 // An app this small doesn't need a state library — mutations are rare and
 // always originate from one component.
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   addLog,
+  deleteLog,
   endWorkout,
   getActiveWorkout,
   getCompareData,
   getLogsForUser,
+  getRecentExercises,
   getSummary,
   getUnit,
   getUser,
   getWorkoutLogs,
   listUsers,
   setUnit,
+  updateLog,
 } from "../lib/store.js";
 
 export function useUsers() {
@@ -23,7 +26,13 @@ export function useUsers() {
 }
 
 export function useUser(userId) {
-  const [user] = useState(() => (userId ? getUser(userId) : null));
+  const [user, setUser] = useState(() => (userId ? getUser(userId) : null));
+  // Routes are keyed on the query string, so switching profiles usually
+  // remounts this. Reacting to the id anyway means the hook is correct on its
+  // own terms rather than relying on a router detail holding still.
+  useEffect(() => {
+    setUser(userId ? getUser(userId) : null);
+  }, [userId]);
   return user;
 }
 
@@ -32,36 +41,65 @@ export function useCompareData() {
   return data;
 }
 
-// Bundles what the dashboard needs together, so logging an exercise refreshes
-// the history list, the body map and the in-progress workout in one go.
+// Bundles what the dashboard and progress views need, so any write refreshes
+// the history, the body map, the recents and the in-progress workout together.
+// Every mutation goes through `refresh` rather than patching local state,
+// because the derived values (summary, recents, personal bests) are computed
+// across the whole log and can't be updated incrementally without drifting.
 export function useExerciseLog(userId) {
-  const [logs, setLogs] = useState(() => getLogsForUser(userId));
-  const [summary, setSummary] = useState(() => getSummary(userId, "all"));
-  const [workout, setWorkout] = useState(() => getActiveWorkout(userId));
+  const readAll = useCallback(
+    () => ({
+      logs: getLogsForUser(userId),
+      summary: getSummary(userId, "all"),
+      workout: getActiveWorkout(userId),
+      recents: getRecentExercises(userId, 10),
+    }),
+    [userId]
+  );
+
+  const [state, setState] = useState(readAll);
+
+  useEffect(() => {
+    setState(readAll());
+  }, [readAll]);
+
+  const refresh = useCallback(() => setState(readAll()), [readAll]);
 
   const log = useCallback(
     (entry) => {
       addLog(userId, entry);
-      setLogs(getLogsForUser(userId));
-      setSummary(getSummary(userId, "all"));
-      // addLog opens a workout when none is running, so re-read rather than
-      // assuming the previous value still holds.
-      setWorkout(getActiveWorkout(userId));
+      refresh();
     },
-    [userId]
+    [userId, refresh]
+  );
+
+  const editEntry = useCallback(
+    (logId, patch) => {
+      updateLog(userId, logId, patch);
+      refresh();
+    },
+    [userId, refresh]
+  );
+
+  const removeEntry = useCallback(
+    (logId) => {
+      deleteLog(userId, logId);
+      refresh();
+    },
+    [userId, refresh]
   );
 
   // Hands back the finished workout so the caller can show its summary; the
   // session itself is gone from storage by the time this resolves.
   const finish = useCallback(() => {
     const finished = endWorkout(userId);
-    setWorkout(null);
+    refresh();
     return finished;
-  }, [userId]);
+  }, [userId, refresh]);
 
-  const workoutLogs = workout ? getWorkoutLogs(userId, workout.id) : [];
+  const workoutLogs = state.workout ? getWorkoutLogs(userId, state.workout.id) : [];
 
-  return { logs, summary, log, workout, workoutLogs, finish };
+  return { ...state, workoutLogs, log, editEntry, removeEntry, finish };
 }
 
 // Display unit for weights, mirrored into localStorage so it survives a

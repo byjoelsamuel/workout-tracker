@@ -1,35 +1,31 @@
+// The mid-workout screen. Deliberately only three things: what you've trained,
+// what you're logging, and where the session stands. The breakdown, personal
+// bests and full history live on /progress — they're what you read between
+// workouts, not between sets.
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
-import { HistoryList } from "../components/HistoryList.jsx";
 import { LogForm } from "../components/LogForm.jsx";
 import { OnboardingGuide } from "../components/OnboardingGuide.jsx";
+import { SessionPanel } from "../components/SessionPanel.jsx";
 import { WorkoutSummary } from "../components/WorkoutSummary.jsx";
-import {
-  AnimatedList,
-  AnimatedListItem,
-  Button,
-  Card,
-  PageHeader,
-  StatRow,
-} from "../components/primitives.jsx";
+import { Button, Card, PageHeader, StatRow } from "../components/primitives.jsx";
 import { useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
-import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { onGuideReplay } from "../lib/guideBus.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { setLastUserId } from "../lib/store.js";
-import { formatVolume, totalVolume } from "../lib/units.js";
 
 export function Dashboard() {
   const userId = useSearchParams()[0].get("user");
   const user = useUser(userId);
-  const { logs, summary, log, workout, workoutLogs, finish } = useExerciseLog(userId);
+  const { logs, summary, recents, log, workout, workoutLogs, finish } = useExerciseLog(userId);
   const guide = useOnboardingGuide(userId, logs.length);
   const [unit, setUnit] = useUnit();
   // The workout that just ended, held only long enough to summarise it.
   const [finished, setFinished] = useState(null);
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
 
   useEffect(() => {
     if (user) setLastUserId(user.id);
@@ -42,12 +38,10 @@ export function Dashboard() {
   // to show, so send them somewhere they can pick or make one.
   if (!user) return <Navigate to="/onboarding" replace />;
 
-  const ranked = BODY_GROUPS.map((group) => ({
-    ...group,
-    count: summary[group.id] || 0,
-  })).sort((a, b) => b.count - a.count);
-
-  const liveVolume = totalVolume(workoutLogs);
+  function endWorkout() {
+    setFinished(finish());
+    setConfirmingEnd(false);
+  }
 
   return (
     <>
@@ -59,8 +53,8 @@ export function Dashboard() {
         exit="exit"
       >
         <PageHeader
-          eyebrow={`${logs.length} ${logs.length === 1 ? "session" : "sessions"} logged`}
-          title={`${user.name}'s progress`}
+          eyebrow={`${logs.length} ${logs.length === 1 ? "entry" : "entries"} logged`}
+          title={`${user.name}'s workout`}
         />
 
         <div className="dashboard-grid">
@@ -79,44 +73,41 @@ export function Dashboard() {
           <div className="dashboard-column">
             <Card data-guide="log-form">
               <h2>Log an exercise</h2>
-              <LogForm onLog={log} unit={unit} onUnitChange={setUnit} />
+              <LogForm onLog={log} recents={recents} unit={unit} onUnitChange={setUnit} />
             </Card>
 
-            <Card>
-              <h2>Breakdown</h2>
-              <AnimatedList>
-                {ranked.map((group) => (
-                  <AnimatedListItem key={group.id}>
-                    <span>{group.label}</span>
-                    <span className={`count ${group.count === 0 ? "zero" : ""}`}>
-                      {group.count}
-                    </span>
-                  </AnimatedListItem>
-                ))}
-              </AnimatedList>
-            </Card>
-
-            <Card>
-              <h2>Recent activity</h2>
-              <HistoryList logs={logs.slice(0, 8)} unit={unit} />
-            </Card>
+            <SessionPanel logs={workoutLogs} unit={unit} active={Boolean(workout)} />
           </div>
         </div>
 
-        {/* A workout opens on the first log of the session, so there's only
+        {/* A workout opens on the first entry of the session, so there's only
             something to end once the user has actually started training. */}
         {workout && (
           <Card className="end-workout">
             <div className="end-workout-stats">
               <span className="eyebrow">Workout in progress</span>
               <span className="end-workout-total">
-                {workoutLogs.length} {workoutLogs.length === 1 ? "exercise" : "exercises"}
-                {liveVolume > 0 && <> · {formatVolume(liveVolume, unit)} moved</>}
+                {confirmingEnd
+                  ? "End it and see your summary?"
+                  : `${workoutLogs.length} ${workoutLogs.length === 1 ? "exercise" : "exercises"} so far`}
               </span>
             </div>
-            <Button size="large" onClick={() => setFinished(finish())}>
-              End workout
-            </Button>
+            {/* Ending is irreversible — the session is deleted and can't be
+                reopened — so it asks once rather than firing on a stray click. */}
+            {confirmingEnd ? (
+              <div className="end-workout-actions">
+                <Button size="large" onClick={endWorkout}>
+                  End workout
+                </Button>
+                <Button size="large" variant="secondary" onClick={() => setConfirmingEnd(false)}>
+                  Keep going
+                </Button>
+              </div>
+            ) : (
+              <Button size="large" onClick={() => setConfirmingEnd(true)}>
+                End workout
+              </Button>
+            )}
           </Card>
         )}
       </motion.main>

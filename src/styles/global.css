@@ -95,11 +95,66 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    /* Lets the links give way rather than pushing the icon buttons off the
+       right edge — four destinations plus two icons don't fit a phone at the
+       full desktop gap. */
+    min-width: 0;
 }
 
 .nav-links {
     display: flex;
     gap: 20px;
+    min-width: 0;
+}
+
+/* Below this the brand plus four links plus two icons stop fitting on one
+   line, so the spacing tightens before anything is allowed to overflow. */
+@media (max-width: 560px) {
+    .nav {
+        padding: 12px 14px;
+    }
+
+    .nav-right {
+        gap: 12px;
+    }
+
+    .nav-links {
+        gap: 13px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+    }
+
+    .nav-brand {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 380px) {
+    /* Last resort on the narrowest phones: the wordmark is the most
+       expendable thing here, since every nav link is a destination. */
+    .nav-brand span {
+        display: none;
+    }
+
+    .nav-right,
+    .nav-links {
+        gap: 10px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+}
+
+/* Long movement names have to wrap rather than widen their row. */
+.log-main {
+    min-width: 0;
+}
+
+.log-name {
+    overflow-wrap: anywhere;
 }
 
 .nav-links a {
@@ -559,14 +614,14 @@ body {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: minmax(260px, 320px) 1fr;
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
     gap: 24px;
     align-items: start;
 }
 
 @media (max-width: 760px) {
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
     .form-row {
         grid-template-columns: 1fr;
@@ -877,6 +932,369 @@ body {
     transform: translateX(-50%);
 }
 
+/* ---- Exercise picker ---- */
+
+.picker {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.picker-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+}
+
+/* Wraps to roughly two rows at the widths this app runs at. */
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.chip {
+    border: 1px solid var(--card-border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 550;
+    padding: 7px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.chip:hover {
+    border-color: var(--accent);
+}
+
+.chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.picker-search input {
+    margin-top: 7px;
+}
+
+.picker-results {
+    list-style: none;
+    margin-top: 8px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 232px;
+    overflow-y: auto;
+}
+
+.picker-results li + li {
+    border-top: 1px solid var(--card-border);
+}
+
+.picker-results button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.picker-results button:hover {
+    background: var(--accent-soft);
+}
+
+.picker-group {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.picker-empty {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.picker-browse-toggle {
+    align-self: flex-start;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 550;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.selected-exercise {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+}
+
+.selected-exercise strong {
+    font-size: 15px;
+    font-weight: 650;
+}
+
+/* ---- Set builder ---- */
+
+.set-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* One grid shared by the header and every row, so the columns line up without
+   the header having to guess at the inputs' widths. */
+.set-head,
+.set-row {
+    display: grid;
+    grid-template-columns: 34px 1fr 1fr 34px;
+    align-items: center;
+    gap: 8px;
+}
+
+.set-builder.no-weight .set-head,
+.set-builder.no-weight .set-row {
+    grid-template-columns: 34px 1fr 34px;
+}
+
+.set-head {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.set-head .set-col-weight {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.set-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.set-row input {
+    width: 100%;
+}
+
+.set-col-n {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.set-col-weight {
+    position: relative;
+}
+
+/* Per-set volume, sitting inside the field so it doesn't claim a column of
+   its own on narrow screens. */
+.set-volume {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.set-remove {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.set-remove:hover:not(:disabled) {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.set-remove:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.set-add {
+    align-self: flex-start;
+    border: 1px dashed var(--card-border);
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.set-add:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+/* ---- Session panel ---- */
+
+.session-panel .empty {
+    margin-top: 4px;
+}
+
+.session-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 14px 0 12px;
+    padding: 18px 16px;
+    border-radius: 14px;
+    background: var(--accent-soft);
+}
+
+.session-total-value {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.session-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+}
+
+.session-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.session-meta strong {
+    color: var(--text-primary);
+    font-weight: 650;
+}
+
+/* ---- History rows ---- */
+
+.history-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 10px;
+}
+
+.history-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.history-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.row-action {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.row-danger {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-left: auto;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--danger);
+    cursor: pointer;
+}
+
+.history-editor {
+    overflow: hidden;
+}
+
+.history-editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* ---- Progress page ---- */
+
+/* minmax(0, 1fr) rather than 1fr: a bare fr track floors at min-content, so a
+   long movement name ("Incline Bench Press (Dumbbell)") widens the column past
+   the viewport instead of wrapping inside it. */
+.progress-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 860px) {
+    .progress-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 /* ---- End workout ---- */
 
 .end-workout {
@@ -898,6 +1316,12 @@ body {
 .end-workout-total {
     font-size: 17px;
     font-weight: 600;
+}
+
+.end-workout-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* ---- Workout summary ---- */

@@ -34,7 +34,7 @@ export function Nav() {
   // Read on each render rather than cached: Nav re-renders on every route
   // change, so this stays current after onboarding sets a new profile.
   const lastUserId = getLastUserId();
-  const dashboardTo = lastUserId ? `/dashboard?user=${lastUserId}` : "/dashboard";
+  const withUser = (path) => (lastUserId ? `${path}?user=${lastUserId}` : path);
   const onDashboard = useLocation().pathname === "/dashboard";
 
   return (
@@ -45,8 +45,11 @@ export function Nav() {
 
       <div className="nav-right">
         <div className="nav-links">
-          <NavLink to={dashboardTo} className={({ isActive }) => (isActive ? "active" : "")}>
+          <NavLink to={withUser("/dashboard")} className={({ isActive }) => (isActive ? "active" : "")}>
             Dashboard
+          </NavLink>
+          <NavLink to={withUser("/progress")} className={({ isActive }) => (isActive ? "active" : "")}>
+            Progress
           </NavLink>
           <NavLink to="/compare" className={({ isActive }) => (isActive ? "active" : "")}>
             Compare

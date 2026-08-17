@@ -40,13 +40,22 @@ export function formatVolume(kg, unit) {
   return `${Math.round(value).toLocaleString()} ${unit}`;
 }
 
-// One set of a loaded movement moves `reps × weight`; an entry moves that once
-// per set. Bodyweight and timed work carries no external load and adds nothing
-// here — this is the weight actually put on the bar, which is why the UI calls
-// it loaded volume rather than "work done".
+// Every total below walks `log.sets`, which the store guarantees is an array —
+// legacy rows are expanded into one entry per set on read, so nothing here has
+// to know two shapes.
+
+// A set of a loaded movement moves `reps × weight`. Bodyweight and timed work
+// carries no external load and adds nothing — this is the weight actually put
+// on the bar, which is why the UI calls it loaded volume rather than "work
+// done".
+export function setVolume(set) {
+  if (!set.weight || !set.reps) return 0;
+  return set.reps * set.weight;
+}
+
 export function logVolume(log) {
-  if (log.timed || !log.weight || !log.sets || !log.reps) return 0;
-  return log.sets * log.reps * log.weight;
+  if (log.timed) return 0;
+  return log.sets.reduce((sum, set) => sum + setVolume(set), 0);
 }
 
 export function totalVolume(logs) {
@@ -57,18 +66,36 @@ export function totalVolume(logs) {
 // than counted as one rep each.
 export function totalReps(logs) {
   return logs.reduce((sum, log) => {
-    if (log.timed || !log.sets || !log.reps) return sum;
-    return sum + log.sets * log.reps;
+    if (log.timed) return sum;
+    return sum + log.sets.reduce((n, set) => n + (set.reps || 0), 0);
   }, 0);
 }
 
 export function totalSets(logs) {
-  return logs.reduce((sum, log) => sum + (log.sets || 0), 0);
+  return logs.reduce((sum, log) => sum + log.sets.length, 0);
 }
 
 export function totalSeconds(logs) {
   return logs.reduce((sum, log) => {
-    if (!log.timed || !log.sets || !log.reps) return sum;
-    return sum + log.sets * log.reps;
+    if (!log.timed) return sum;
+    return sum + log.sets.reduce((n, set) => n + (set.reps || 0), 0);
   }, 0);
+}
+
+// "3 × 10" when every set matches, "10, 8, 8, 6" when they don't. Collapsing
+// the uniform case keeps the common row short while still showing a ramp
+// honestly.
+export function describeReps(log) {
+  if (log.sets.length === 0) return null;
+  const reps = log.sets.map((set) => set.reps ?? 0);
+  const suffix = log.timed ? "s" : "";
+  const uniform = reps.every((r) => r === reps[0]);
+  return uniform ? `${reps.length} × ${reps[0]}${suffix}` : reps.join(", ") + suffix;
+}
+
+// The heaviest weight in an entry, for the row's at-a-glance load. Null when
+// nothing was loaded, so callers can tell "bodyweight" from "0 kg".
+export function topWeight(log) {
+  const weights = log.sets.map((set) => set.weight).filter((w) => w != null);
+  return weights.length ? Math.max(...weights) : null;
 }
