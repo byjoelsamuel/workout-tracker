@@ -18,6 +18,8 @@ import {
 
 const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]));
 
+const countSets = (n) => `${n} ${n === 1 ? "set" : "sets"}`;
+
 function formatDuration(startedAt, endedAt) {
   const minutes = Math.round((new Date(endedAt) - new Date(startedAt)) / 60000);
   if (minutes < 1) return "< 1m";
@@ -33,7 +35,7 @@ function rankGroups(logs) {
   for (const log of logs) {
     const current = totals.get(log.bodyGroup) || { volume: 0, sets: 0, exercises: 0 };
     current.volume += logVolume(log);
-    current.sets += log.sets || 0;
+    current.sets += log.sets.length;
     current.exercises += 1;
     totals.set(log.bodyGroup, current);
   }
@@ -101,8 +103,8 @@ export function WorkoutSummary({ workout, unit, onClose }) {
             {top && (
               <p className="summary-top">
                 Worked <strong>{GROUP_LABELS[top.group] ?? top.group}</strong> the most
-                {top.volume > 0 && <> — {formatVolume(top.volume, unit)} across {top.sets} sets</>}
-                {top.volume === 0 && <> — {top.sets} sets</>}
+                {top.volume > 0 && <> — {formatVolume(top.volume, unit)} across {countSets(top.sets)}</>}
+                {top.volume === 0 && <> — {countSets(top.sets)}</>}
               </p>
             )}
 
@@ -113,7 +115,7 @@ export function WorkoutSummary({ workout, unit, onClose }) {
                   <motion.li key={entry.group} variants={listItemVariants}>
                     <span>{GROUP_LABELS[entry.group] ?? entry.group}</span>
                     <span className="count">
-                      {entry.volume > 0 ? formatVolume(entry.volume, unit) : `${entry.sets} sets`}
+                      {entry.volume > 0 ? formatVolume(entry.volume, unit) : countSets(entry.sets)}
                     </span>
                   </motion.li>
                 ))}
