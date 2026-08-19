@@ -47,6 +47,10 @@ Everything is stored in your browser. No account, no backend.
   volume, personal bests and the body map following along
 - **Progress view** — sessions per muscle group, personal bests, and full history
 - **Compare page** — weekly session counts for every profile in this browser
+- **Naru** — an optional coach in the dashboard's corner. Ask it to build today's
+  session and it puts together a Push/Pull/Legs workout from the exercise
+  library, either a day you pick or one it picks by rotating off your last
+  logged session. Runs entirely client-side — no API key, no network call
 - **Dark and light themes**, and a first-run walkthrough
 
 ## Tech Stack
@@ -92,9 +96,14 @@ flowchart TD
     E --> M[Progress]
     M --> M1[Breakdown, personal bests, editable history]
 
+    E --> N["Ask Naru (optional)"]
+    N --> N1[Pick a day, or let it choose]
+    N1 --> N2[PPL workout built from the library + your history]
+
     style A fill:#f97316,stroke:#333,color:#fff
     style I1 fill:#f97316,stroke:#333,color:#fff
     style L1 fill:#f97316,stroke:#333,color:#fff
+    style N2 fill:#f97316,stroke:#333,color:#fff
 ```
 
 **In short:** each entry is tagged to one muscle group → the body map shades by

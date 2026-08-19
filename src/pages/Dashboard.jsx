@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
+import { CoachChat } from "../components/CoachChat.jsx";
 import { LogForm } from "../components/LogForm.jsx";
 import { OnboardingGuide } from "../components/OnboardingGuide.jsx";
 import { SessionPanel } from "../components/SessionPanel.jsx";
@@ -116,6 +117,7 @@ export function Dashboard() {
         <WorkoutSummary workout={finished} unit={unit} onClose={() => setFinished(null)} />
       )}
       {guide.visible && <OnboardingGuide onDismiss={guide.dismiss} />}
+      <CoachChat user={user} logs={logs} summary={summary} />
     </>
   );
 }
