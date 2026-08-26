@@ -2,7 +2,7 @@
 // what you're logging, and where the session stands. The breakdown, personal
 // bests and full history live on /progress — they're what you read between
 // workouts, not between sets.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
@@ -19,6 +19,7 @@ import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
 import { onGuideReplay } from "../lib/guideBus.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { setLastUserId } from "../lib/store.js";
+import { recencyHeat } from "../lib/heat.js";
 import { relativeDay } from "../lib/time.js";
 
 export function Dashboard() {
@@ -37,6 +38,12 @@ export function Dashboard() {
 
   // Lets the nav's help button reopen the walkthrough on demand.
   useEffect(() => onGuideReplay(guide.replay), [guide.replay]);
+
+  // Recency-weighted, so the figure shows what you have been working lately
+  // rather than everything you have ever done. Sits with the other hooks, above
+  // the early return below — a useMemo that only runs when a profile exists
+  // changes the hook count between renders.
+  const heat = useMemo(() => recencyHeat(logs), [logs]);
 
   // No profile, or one that doesn't exist in this browser — there's nothing
   // to show, so send them somewhere they can pick or make one.
@@ -77,9 +84,9 @@ export function Dashboard() {
         <div className="dashboard-grid">
           <Card className="map-card">
             <div data-guide="body-map">
-              <BodyMap summary={summary} showToggle />
+              <BodyMap heat={heat} showToggle />
             </div>
-            <HeatLegend summary={summary} />
+            <HeatLegend heat={heat} />
             <StatRow user={user} />
           </Card>
 

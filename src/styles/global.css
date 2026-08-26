@@ -616,36 +616,49 @@ body {
 .map-legend {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
     margin-top: 16px;
+}
+
+.legend-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.legend-caption {
     font-size: 11px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-secondary);
+    /* Sits on the swatch row’s baseline rather than the tick labels below it. */
+    padding-bottom: 15px;
 }
 
-/* Discrete steps, not a ramp. The map's scale is 0, 1, 2 … 5+ sessions with a
-   0.28 opacity floor, so the gradient that used to sit here lied at both ends:
-   it implied a half-session tint that cannot exist, and faded to nothing at
-   zero when an untrained muscle is solid grey. Six swatches fit the 260px
-   column at the narrowest the left column ever gets. */
 .legend-scale {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 3px;
+    display: flex;
+    gap: 4px;
 }
 
+.legend-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Base tone underneath, accent over the top — the same two layers the figure
+   itself is drawn in, so a swatch is literally what a muscle looks like. */
 .legend-swatch {
     position: relative;
     display: block;
-    height: 10px;
+    width: 26px;
+    height: 9px;
     border-radius: 3px;
-    /* The tone the untrained body is drawn in — see .body-base .muscle. */
     background: var(--map-muscle);
 }
 
-/* Accent over base, mirroring the map's two layers. --heat is intensity(n),
-   the same number the polygon animates its fillOpacity to. */
 .legend-swatch::after {
     content: "";
     position: absolute;
@@ -655,31 +668,43 @@ body {
     opacity: var(--heat);
 }
 
-/* Marks where this user's most-trained group actually sits on the scale. */
-.legend-swatch.peak::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -6px;
-    width: 4px;
-    height: 4px;
-    margin-left: -2px;
-    border-radius: 50%;
-    background: var(--accent);
-}
-
-.legend-ticks {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 6px;
+.legend-tick {
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
 }
 
-.legend-peak {
+/* The one piece of advice the map can give, so it gets accent rather than the
+   muted tone the rest of the legend uses. */
+.legend-stale {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding-top: 9px;
+    border-top: 1px solid var(--card-border);
+}
+
+.legend-stale strong {
     color: var(--accent);
     font-weight: 600;
+}
+
+@media (max-width: 380px) {
+    /* The caption and the scale stop fitting on one line well before the card
+       itself gets tight. */
+    .legend-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .legend-caption {
+        padding-bottom: 0;
+    }
+
+    .legend-swatch {
+        width: 34px;
+    }
 }
 
 /* ---- Weekly goal ---- */
@@ -898,6 +923,58 @@ body {
 .data-list .count.zero {
     color: var(--text-secondary);
     opacity: 0.5;
+}
+
+/* Four columns rather than the shared row’s space-between: the bars only read
+   as a comparison if they all start and end at the same x. minmax(0, 1fr) on
+   the name so a long group label can’t widen the column past the card. */
+.group-list > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.5rem 2ch auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.group-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.group-bar {
+    position: relative;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--card-border);
+    overflow: hidden;
+}
+
+.group-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--fill) * 100%);
+    border-radius: inherit;
+    background: var(--accent);
+}
+
+/* Right-aligned so the dates form a column you can scan for the oldest one. */
+.group-when {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+    white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+    /* The bar is the first thing worth dropping — the number and the date both
+       still say what it said. */
+    .group-list > li {
+        grid-template-columns: minmax(0, 1fr) 2ch auto;
+    }
+
+    .group-bar {
+        display: none;
+    }
 }
 
 .log-main {

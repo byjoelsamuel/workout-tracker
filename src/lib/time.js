@@ -48,7 +48,7 @@ function previousWeek(weekStartMs) {
 // day of them counts as one workout, which is the honest floor. The `day:`
 // prefix keeps the two keyspaces apart, so a legacy row and a real session on
 // the same date stay two workouts rather than one absorbing the other.
-function sessionKey(log) {
+export function sessionKey(log) {
   return log.workoutId ?? `day:${dayKey(log.loggedAt)}`;
 }
 

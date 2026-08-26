@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
 import { Button, Card, PageHeader } from "../components/primitives.jsx";
 import { useCompareData } from "../hooks/useStore.js";
+import { countHeat } from "../lib/heat.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 
 export function Compare() {
@@ -46,7 +47,10 @@ export function Compare() {
                       hamstrings only exist on the posterior view, so without
                       it someone who trained nothing but back reads as an
                       untouched body. */}
-                  <BodyMap summary={user.summary} showToggle />
+                  {/* A flat count, not the dashboard’s decay: this is five people measured
+                      against each other over one fixed week, so there is no “stale”
+                      for decay to express. */}
+                  <BodyMap heat={countHeat(user.summary)} showToggle />
                   <Button to={`/dashboard?user=${user.id}`} variant="secondary" size="small">
                     View dashboard
                   </Button>

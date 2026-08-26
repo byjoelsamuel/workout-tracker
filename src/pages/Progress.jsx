@@ -14,7 +14,9 @@ import {
 } from "../components/primitives.jsx";
 import { useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
+import { recencyHeat } from "../lib/heat.js";
 import { pageVariants } from "../lib/motionVariants.js";
+import { relativeDay } from "../lib/time.js";
 import { formatVolume, formatWeight, logVolume, topWeight } from "../lib/units.js";
 
 // Heaviest set per movement, best first. Derived here rather than stored, so
@@ -36,15 +38,22 @@ function personalBests(logs, limit = 8) {
 export function Progress() {
   const userId = useSearchParams()[0].get("user");
   const [user] = useUser(userId);
-  const { logs, summary, editEntry, removeEntry } = useExerciseLog(userId);
+  const { logs, editEntry, removeEntry } = useExerciseLog(userId);
   const [unit, setUnit] = useUnit();
 
   if (!user) return <Navigate to="/onboarding" replace />;
 
+  // Real sessions, not log rows. The heading has always said "sessions" while
+  // the number underneath counted entries, so four chest movements inside one
+  // workout read as four sessions. recencyHeat counts them the way lib/time.js
+  // does, and carries the last-trained date the rows now show.
+  const heat = recencyHeat(logs);
   const ranked = BODY_GROUPS.map((group) => ({
     ...group,
-    count: summary[group.id] || 0,
-  })).sort((a, b) => b.count - a.count);
+    sessions: heat[group.id]?.sessions || 0,
+    lastTrained: heat[group.id]?.lastTrained || null,
+  })).sort((a, b) => b.sessions - a.sessions);
+  const busiest = ranked[0]?.sessions || 0;
 
   const bests = personalBests(logs);
   const lifetimeVolume = logs.reduce((sum, log) => sum + logVolume(log), 0);
@@ -67,11 +76,25 @@ export function Progress() {
         <div className="dashboard-column">
           <Card>
             <h2>Sessions by muscle group</h2>
-            <AnimatedList>
+            {/* A bare column of numbers made you do the comparing yourself.
+                The bar carries the ranking, and the date is the part that
+                actually prompts action — a group last trained a month ago is
+                worth knowing about whether its count is high or low. */}
+            <AnimatedList className="data-list group-list">
               {ranked.map((group) => (
                 <AnimatedListItem key={group.id}>
-                  <span>{group.label}</span>
-                  <span className={`count ${group.count === 0 ? "zero" : ""}`}>{group.count}</span>
+                  <span className="group-name">{group.label}</span>
+                  <span
+                    className="group-bar"
+                    style={{ "--fill": busiest ? group.sessions / busiest : 0 }}
+                    aria-hidden="true"
+                  />
+                  <span className={`count ${group.sessions === 0 ? "zero" : ""}`}>
+                    {group.sessions}
+                  </span>
+                  <span className="group-when">
+                    {group.lastTrained ? relativeDay(group.lastTrained) : "never"}
+                  </span>
                 </AnimatedListItem>
               ))}
             </AnimatedList>

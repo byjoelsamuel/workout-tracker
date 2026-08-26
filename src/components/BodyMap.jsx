@@ -1,5 +1,9 @@
-// Anatomical heat map. Each muscle group's regions deepen toward full accent
-// as sessions accumulate for it.
+// Anatomical heat map. Each muscle group is drawn at an opacity handed down
+// from lib/heat.js: how recently, and how often, it has been worked.
+//
+// This component does no arithmetic on training data. It is given a value per
+// group and draws it — which is what lets the dashboard show decayed recency
+// and the compare page show a flat weekly count through the same map.
 //
 // The silhouette is a real anatomical outline (see bodySvg.js for provenance),
 // drawn front and back. Because there's a genuine posterior view now, back and
@@ -17,15 +21,26 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ANTERIOR, BODY_VIEWBOX, POSTERIOR } from "../lib/bodySvg.js";
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
-import { intensity } from "../lib/heat.js";
+import { relativeDay } from "../lib/time.js";
 import { fillTransition } from "../lib/motionVariants.js";
+
+// Reads the way you would say it out loud. The session count stays undecayed
+// here on purpose — fading a muscle is a statement about freshness, and it
+// should never look like the app forgot work you actually did.
+function describe(group, sessions, lastTrained) {
+  const name = GROUP_LABELS[group] ?? group;
+  if (!sessions) return `${name} — not trained yet`;
+  const plural = sessions === 1 ? "session" : "sessions";
+  if (!lastTrained) return `${name} — ${sessions} ${plural}`;
+  return `${name} — ${sessions} ${plural}, last ${relativeDay(lastTrained)}`;
+}
 
 const VIEWS = [
   { id: "anterior", label: "Front", data: ANTERIOR },
   { id: "posterior", label: "Back", data: POSTERIOR },
 ];
 
-export function BodyMap({ summary = {}, showToggle = false, className = "" }) {
+export function BodyMap({ heat = {}, showToggle = false, className = "" }) {
   const [view, setView] = useState("anterior");
   const regions = VIEWS.find((v) => v.id === view).data;
 
@@ -77,7 +92,7 @@ export function BodyMap({ summary = {}, showToggle = false, className = "" }) {
               // base layer so the silhouette reads as a body, but nothing
               // logs against them, so they never take heat.
               if (!group) return null;
-              const count = summary[group] || 0;
+              const { value = 0, sessions = 0, lastTrained = null } = heat[group] || {};
               return points.map((polygon, i) => (
                 <motion.polygon
                   key={`${muscle}-${i}`}
@@ -85,11 +100,11 @@ export function BodyMap({ summary = {}, showToggle = false, className = "" }) {
                   data-group={group}
                   points={polygon}
                   initial={{ fillOpacity: 0 }}
-                  animate={{ fillOpacity: intensity(count) }}
+                  animate={{ fillOpacity: value }}
                   transition={fillTransition}
                 >
                   <title>
-                    {`${GROUP_LABELS[group] ?? group}: ${count} ${count === 1 ? "session" : "sessions"}`}
+                    {describe(group, sessions, lastTrained)}
                   </title>
                 </motion.polygon>
               ));
