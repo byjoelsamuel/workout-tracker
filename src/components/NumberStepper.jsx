@@ -9,13 +9,13 @@ import { snappy } from "../lib/motionVariants.js";
 
 const press = { whileHover: { scale: 1.08 }, whileTap: { scale: 0.88 }, transition: snappy };
 
-export function NumberStepper({ value, onChange, step = 1, min = 0, label, placeholder }) {
+export function NumberStepper({ value, onChange, step = 1, min = 0, max = Infinity, label, placeholder }) {
   // An empty field steps from the minimum rather than from NaN, so pressing +
   // on a blank weight gives you the first increment instead of nothing.
   function nudge(direction) {
     const current = value === "" || value == null ? min : Number(value);
     if (!Number.isFinite(current)) return;
-    const next = Math.max(min, Math.round((current + direction * step) * 100) / 100);
+    const next = Math.min(max, Math.max(min, Math.round((current + direction * step) * 100) / 100));
     onChange(String(next));
   }
 
@@ -34,6 +34,7 @@ export function NumberStepper({ value, onChange, step = 1, min = 0, label, place
         type="number"
         inputMode="decimal"
         min={min}
+        max={Number.isFinite(max) ? max : undefined}
         step={step}
         aria-label={label}
         value={value}

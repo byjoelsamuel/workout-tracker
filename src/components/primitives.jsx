@@ -1,6 +1,7 @@
 // Small layout/interaction primitives every page composes from. Keeping
 // them together in one file avoids a scatter of five-line modules.
-import { motion } from "motion/react";
+import { useEffect } from "react";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { Link } from "react-router-dom";
 import { listItemVariants, listVariants, snappy } from "../lib/motionVariants.js";
 
@@ -70,6 +71,25 @@ export function AnimatedListItem({ children, ...rest }) {
       {children}
     </motion.li>
   );
+}
+
+// Counts from where it was to where it now is, rather than snapping.
+//
+// `format` runs inside the transform on every intermediate frame, and owns the
+// rounding — which is what lets the session panel convert to the display unit
+// and round once, in that order, rather than rounding kilograms and then
+// converting a number that has already lost its fraction.
+export function CountUp({ value, format = (n) => Math.round(n).toLocaleString() }) {
+  const reduced = useReducedMotion();
+  const target = useMotionValue(value);
+  const eased = useSpring(target, { stiffness: 90, damping: 22, mass: 0.6 });
+  const shown = useTransform(reduced ? target : eased, (n) => format(Math.max(n, 0)));
+
+  useEffect(() => {
+    target.set(value);
+  }, [value, target]);
+
+  return <motion.span>{shown}</motion.span>;
 }
 
 // Onboarding collects these; showing them here is what keeps that form

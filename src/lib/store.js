@@ -11,6 +11,13 @@ import { findExercise } from "./exercises.js";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+// Three sessions a week: enough to be a target, attainable in the first week
+// you see it. A meter that reads as unreachable the first time it's shown is
+// worse than no meter. Only a default — the dashboard's ring edits it in place.
+export const DEFAULT_WEEKLY_GOAL = 3;
+export const MIN_WEEKLY_GOAL = 1;
+export const MAX_WEEKLY_GOAL = 7;
+
 function read(key) {
   return JSON.parse(localStorage.getItem(key) || "[]");
 }
@@ -19,7 +26,23 @@ function write(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-export function createUser({ name, bodyweight, height, age }) {
+// The same read-time normalisation logs get, for the same reason: profiles
+// created before weekly goals existed have no such field, and every one of them
+// is real data sitting in someone's browser. Filling the gap on read means they
+// come back complete without a migration pass rewriting rows that are otherwise
+// fine. Storage keeps whatever shape it had until a write touches that row.
+function normalizeUser(user) {
+  if (!user) return null;
+  return { ...user, weeklyGoal: user.weeklyGoal ?? DEFAULT_WEEKLY_GOAL };
+}
+
+function clampGoal(goal) {
+  const n = Math.round(Number(goal));
+  if (!Number.isFinite(n)) return DEFAULT_WEEKLY_GOAL;
+  return Math.min(MAX_WEEKLY_GOAL, Math.max(MIN_WEEKLY_GOAL, n));
+}
+
+export function createUser({ name, bodyweight, height, age, weeklyGoal }) {
   const users = read(STORAGE_KEYS.users);
   const user = {
     id: crypto.randomUUID(),
@@ -27,6 +50,7 @@ export function createUser({ name, bodyweight, height, age }) {
     bodyweight: bodyweight ? Number(bodyweight) : null,
     height: height ? Number(height) : null,
     age: age ? Number(age) : null,
+    weeklyGoal: clampGoal(weeklyGoal ?? DEFAULT_WEEKLY_GOAL),
     createdAt: new Date().toISOString(),
   };
   users.push(user);
@@ -42,7 +66,24 @@ export function listUsers() {
 }
 
 export function getUser(id) {
-  return read(STORAGE_KEYS.users).find((u) => u.id === id) || null;
+  return normalizeUser(read(STORAGE_KEYS.users).find((u) => u.id === id) || null);
+}
+
+// Rewrites one row and leaves the rest untouched, the way updateLog does — a
+// profile saved under an older shape stays that way unless this is what edits
+// it. The goal is clamped here rather than at the input, so a hand-edited
+// localStorage value can't put the meter into a state the stepper can't leave.
+export function updateUser(id, patch) {
+  const users = read(STORAGE_KEYS.users);
+  const index = users.findIndex((u) => u.id === id);
+  if (index === -1) return null;
+
+  const next = { ...users[index], ...patch };
+  if ("weeklyGoal" in patch) next.weeklyGoal = clampGoal(patch.weeklyGoal);
+
+  users[index] = next;
+  write(STORAGE_KEYS.users, users);
+  return normalizeUser(next);
 }
 
 // An entry holds one set per row, each with its own reps and weight, because a

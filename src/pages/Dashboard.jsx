@@ -7,9 +7,11 @@ import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
 import { CoachChat } from "../components/CoachChat.jsx";
+import { HeatLegend } from "../components/HeatLegend.jsx";
 import { LogForm } from "../components/LogForm.jsx";
 import { OnboardingGuide } from "../components/OnboardingGuide.jsx";
 import { SessionPanel } from "../components/SessionPanel.jsx";
+import { WeeklyGoal } from "../components/WeeklyGoal.jsx";
 import { WorkoutSummary } from "../components/WorkoutSummary.jsx";
 import { Button, Card, PageHeader, StatRow } from "../components/primitives.jsx";
 import { useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
@@ -17,10 +19,11 @@ import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
 import { onGuideReplay } from "../lib/guideBus.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { setLastUserId } from "../lib/store.js";
+import { relativeDay } from "../lib/time.js";
 
 export function Dashboard() {
   const userId = useSearchParams()[0].get("user");
-  const user = useUser(userId);
+  const [user, saveUser] = useUser(userId);
   const { logs, summary, recents, log, workout, workoutLogs, finish } = useExerciseLog(userId);
   const guide = useOnboardingGuide(userId, logs.length);
   const [unit, setUnit] = useUnit();
@@ -44,6 +47,16 @@ export function Dashboard() {
     setConfirmingEnd(false);
   }
 
+  // "N entries logged" was a lifetime tally that never changed meaningfully and
+  // said nothing you'd want mid-set. What you actually want to know opening
+  // this screen is whether you're already training and, if not, how long it's
+  // been. `logs` is sorted newest-first by getLogsForUser.
+  const eyebrow = workout
+    ? "Workout in progress"
+    : logs.length > 0
+      ? `Last trained ${relativeDay(logs[0].loggedAt)}`
+      : "Ready when you are";
+
   return (
     <>
       <motion.main
@@ -53,9 +66,12 @@ export function Dashboard() {
         animate="animate"
         exit="exit"
       >
-        <PageHeader
-          eyebrow={`${logs.length} ${logs.length === 1 ? "entry" : "entries"} logged`}
-          title={`${user.name}'s workout`}
+        <PageHeader eyebrow={eyebrow} title={`${user.name}'s workout`} />
+
+        <WeeklyGoal
+          logs={logs}
+          goal={user.weeklyGoal}
+          onGoalChange={(weeklyGoal) => saveUser({ weeklyGoal })}
         />
 
         <div className="dashboard-grid">
@@ -63,11 +79,7 @@ export function Dashboard() {
             <div data-guide="body-map">
               <BodyMap summary={summary} showToggle />
             </div>
-            <div className="map-legend">
-              <span>Less</span>
-              <span className="legend-ramp" />
-              <span>More</span>
-            </div>
+            <HeatLegend summary={summary} />
             <StatRow user={user} />
           </Card>
 
@@ -77,7 +89,12 @@ export function Dashboard() {
               <LogForm onLog={log} recents={recents} unit={unit} onUnitChange={setUnit} />
             </Card>
 
-            <SessionPanel logs={workoutLogs} unit={unit} active={Boolean(workout)} />
+            <SessionPanel
+              logs={workoutLogs}
+              unit={unit}
+              active={Boolean(workout)}
+              startedAt={workout?.startedAt}
+            />
           </div>
         </div>
 

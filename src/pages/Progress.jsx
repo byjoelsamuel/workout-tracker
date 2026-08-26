@@ -35,7 +35,7 @@ function personalBests(logs, limit = 8) {
 
 export function Progress() {
   const userId = useSearchParams()[0].get("user");
-  const user = useUser(userId);
+  const [user] = useUser(userId);
   const { logs, summary, editEntry, removeEntry } = useExerciseLog(userId);
   const [unit, setUnit] = useUnit();
 

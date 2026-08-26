@@ -615,9 +615,8 @@ body {
 
 .map-legend {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
     margin-top: 16px;
     font-size: 11px;
     letter-spacing: 0.04em;
@@ -625,15 +624,188 @@ body {
     color: var(--text-secondary);
 }
 
-.legend-ramp {
-    width: 76px;
-    height: 6px;
+/* Discrete steps, not a ramp. The map's scale is 0, 1, 2 … 5+ sessions with a
+   0.28 opacity floor, so the gradient that used to sit here lied at both ends:
+   it implied a half-session tint that cannot exist, and faded to nothing at
+   zero when an untrained muscle is solid grey. Six swatches fit the 260px
+   column at the narrowest the left column ever gets. */
+.legend-scale {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 3px;
+}
+
+.legend-swatch {
+    position: relative;
+    display: block;
+    height: 10px;
     border-radius: 3px;
-    background: linear-gradient(
-        to right,
-        color-mix(in srgb, var(--accent) 8%, transparent),
-        var(--accent)
-    );
+    /* The tone the untrained body is drawn in — see .body-base .muscle. */
+    background: var(--map-muscle);
+}
+
+/* Accent over base, mirroring the map's two layers. --heat is intensity(n),
+   the same number the polygon animates its fillOpacity to. */
+.legend-swatch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    opacity: var(--heat);
+}
+
+/* Marks where this user's most-trained group actually sits on the scale. */
+.legend-swatch.peak::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.legend-ticks {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+.legend-peak {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ---- Weekly goal ---- */
+
+.weekly-goal {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    align-items: center;
+    gap: 22px;
+}
+
+.weekly-goal.met {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--card-border));
+}
+
+.weekly-goal-meter {
+    position: relative;
+    width: 92px;
+    height: 92px;
+}
+
+/* -90deg so the arc starts at twelve o'clock; pathLength runs clockwise from
+   three by default. */
+.goal-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    overflow: visible;
+}
+
+.goal-ring-track,
+.goal-ring-arc {
+    fill: none;
+    stroke-width: 8;
+}
+
+.goal-ring-track {
+    stroke: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.goal-ring-arc {
+    stroke: var(--accent);
+    stroke-linecap: round;
+}
+
+/* Sits inside the ring rather than beside it, so the card only needs one
+   column of copy next to the meter. */
+.weekly-goal-count {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.weekly-goal-of {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+/* min-width: 0 for the same reason the grids use minmax(0, 1fr) — this is a
+   text column in a grid track, and a bare auto floors at min-content. */
+.weekly-goal-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.weekly-goal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.weekly-goal-copy {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.weekly-goal-streak {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.weekly-goal-edit {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 260px;
+}
+
+.weekly-goal-edit .stepper {
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .weekly-goal {
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .weekly-goal-meter {
+        width: 72px;
+        height: 72px;
+    }
+
+    .weekly-goal-count {
+        font-size: 21px;
+    }
 }
 
 /* ---- Dashboard ---- */
@@ -1390,7 +1562,18 @@ body {
 
 /* ---- End workout ---- */
 
+/* Pinned to the bottom of the viewport while a workout is running.
+   Unpinned, this card sat below the map, the form and the whole session list,
+   so ending a session meant scrolling past everything you had just logged to
+   reach the only control that closes it. .page already reserves 96px of
+   bottom padding, so nothing is covered at the end of the scroll.
+
+   z-index 15 sits under the nav (20) and the coach launcher (25), so the
+   pinned bar never covers either. */
 .end-workout {
+    position: sticky;
+    bottom: 16px;
+    z-index: 15;
     margin-top: 24px;
     display: flex;
     align-items: center;
@@ -1398,6 +1581,8 @@ body {
     gap: 20px;
     flex-wrap: wrap;
     border-color: color-mix(in srgb, var(--accent) 35%, var(--card-border));
+    background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
 }
 
 .end-workout-stats {
@@ -1670,6 +1855,13 @@ body {
     .coach-launcher {
         right: 16px;
         bottom: 16px;
+    }
+
+    /* The launcher is fixed at this width and lands on top of the pinned end
+       bar. Reserving its width means it overlays dead card rather than the
+       End workout button. */
+    .end-workout {
+        padding-right: 72px;
     }
 }
 

@@ -99,3 +99,30 @@ export function topWeight(log) {
   const weights = log.sets.map((set) => set.weight).filter((w) => w != null);
   return weights.length ? Math.max(...weights) : null;
 }
+
+// Which groups took the most work, hardest first.
+//
+// Volume is the honest measure — but a session of nothing but pull-ups and
+// planks has none, and calling that an empty workout would be wrong. Sets are
+// the fallback ranking there, chosen per call rather than per group so one
+// loaded movement doesn't push every bodyweight group to the bottom.
+//
+// Lives here rather than in the two components that used to own a copy each:
+// the live session panel and the end-of-workout summary were ranking the same
+// logs by subtly different rules, so the group named mid-session could differ
+// from the one named seconds later in the summary.
+export function rankGroups(logs) {
+  const totals = new Map();
+  for (const log of logs) {
+    const current = totals.get(log.bodyGroup) || { volume: 0, sets: 0, exercises: 0 };
+    current.volume += logVolume(log);
+    current.sets += log.sets.length;
+    current.exercises += 1;
+    totals.set(log.bodyGroup, current);
+  }
+
+  const byVolume = [...totals.values()].some((t) => t.volume > 0);
+  return [...totals.entries()]
+    .map(([group, groupTotals]) => ({ group, ...groupTotals }))
+    .sort((a, b) => (byVolume ? b.volume - a.volume : b.sets - a.sets));
+}

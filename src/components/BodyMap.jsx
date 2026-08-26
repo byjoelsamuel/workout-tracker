@@ -16,25 +16,14 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { ANTERIOR, BODY_VIEWBOX, POSTERIOR } from "../lib/bodySvg.js";
-import { BODY_GROUPS } from "../lib/bodyGroups.js";
+import { GROUP_LABELS } from "../lib/bodyGroups.js";
+import { intensity } from "../lib/heat.js";
 import { fillTransition } from "../lib/motionVariants.js";
-
-// Five sessions saturates a group. A single session still has to be obvious
-// at a glance, so the ramp starts well up rather than at a hairline tint.
-const MAX_INTENSITY = 5;
-const FLOOR = 0.28;
-
-function intensity(count) {
-  if (!count) return 0;
-  return FLOOR + (Math.min(count, MAX_INTENSITY) / MAX_INTENSITY) * (1 - FLOOR);
-}
 
 const VIEWS = [
   { id: "anterior", label: "Front", data: ANTERIOR },
   { id: "posterior", label: "Back", data: POSTERIOR },
 ];
-
-const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]));
 
 export function BodyMap({ summary = {}, showToggle = false, className = "" }) {
   const [view, setView] = useState("anterior");

@@ -18,6 +18,7 @@ import {
   listUsers,
   setUnit,
   updateLog,
+  updateUser,
 } from "../lib/store.js";
 
 export function useUsers() {
@@ -25,6 +26,9 @@ export function useUsers() {
   return users;
 }
 
+// Returns [user, update] rather than the bare user, the way useUnit below
+// returns a pair: the weekly goal is edited from the dashboard, so the profile
+// is no longer read-only for the lifetime of the screen.
 export function useUser(userId) {
   const [user, setUser] = useState(() => (userId ? getUser(userId) : null));
   // Routes are keyed on the query string, so switching profiles usually
@@ -33,7 +37,17 @@ export function useUser(userId) {
   useEffect(() => {
     setUser(userId ? getUser(userId) : null);
   }, [userId]);
-  return user;
+
+  const update = useCallback(
+    (patch) => {
+      if (!userId) return;
+      const next = updateUser(userId, patch);
+      if (next) setUser(next);
+    },
+    [userId]
+  );
+
+  return [user, update];
 }
 
 export function useCompareData() {

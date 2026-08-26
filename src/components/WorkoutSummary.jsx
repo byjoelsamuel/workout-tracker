@@ -2,13 +2,15 @@
 // finished — the dashboard behind it already covers all-time totals.
 import { motion } from "motion/react";
 import { Button } from "./primitives.jsx";
-import { BODY_GROUPS } from "../lib/bodyGroups.js";
+import { GROUP_LABELS } from "../lib/bodyGroups.js";
+import { formatDuration } from "../lib/time.js";
 import { listItemVariants, listVariants, snappy } from "../lib/motionVariants.js";
 import {
   describeReps,
   formatVolume,
   formatWeight,
   logVolume,
+  rankGroups,
   topWeight,
   totalReps,
   totalSeconds,
@@ -16,35 +18,7 @@ import {
   totalVolume,
 } from "../lib/units.js";
 
-const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]));
-
 const countSets = (n) => `${n} ${n === 1 ? "set" : "sets"}`;
-
-function formatDuration(startedAt, endedAt) {
-  const minutes = Math.round((new Date(endedAt) - new Date(startedAt)) / 60000);
-  if (minutes < 1) return "< 1m";
-  if (minutes < 60) return `${minutes}m`;
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-}
-
-// Volume is the honest measure of "worked most" — but a session of nothing
-// but pull-ups and planks has none, and calling that an empty workout would
-// be wrong. Sets are the fallback ranking there.
-function rankGroups(logs) {
-  const totals = new Map();
-  for (const log of logs) {
-    const current = totals.get(log.bodyGroup) || { volume: 0, sets: 0, exercises: 0 };
-    current.volume += logVolume(log);
-    current.sets += log.sets.length;
-    current.exercises += 1;
-    totals.set(log.bodyGroup, current);
-  }
-
-  const byVolume = [...totals.values()].some((t) => t.volume > 0);
-  return [...totals.entries()]
-    .map(([group, totals]) => ({ group, ...totals }))
-    .sort((a, b) => (byVolume ? b.volume - a.volume : b.sets - a.sets));
-}
 
 export function WorkoutSummary({ workout, unit, onClose }) {
   const { logs, startedAt, endedAt } = workout;
