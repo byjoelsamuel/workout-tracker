@@ -22,7 +22,7 @@ function dayKey(date) {
 // Monday, local midnight. getDay() is Sunday-based, so (day + 6) % 7 is
 // days-since-Monday. setHours runs a second time because stepping a date across
 // a daylight-saving boundary can land at 23:00 the evening before.
-export function startOfWeek(date = new Date()) {
+function startOfWeek(date = new Date()) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));

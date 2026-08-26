@@ -228,7 +228,3 @@ export function searchExercises(query, limit = 10) {
     .slice(0, limit)
     .map(([, exercise]) => exercise);
 }
-
-export function findExerciseAnywhere(name) {
-  return ALL_EXERCISES.find((e) => e.name === name) || null;
-}

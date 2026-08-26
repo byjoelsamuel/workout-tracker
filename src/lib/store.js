@@ -213,22 +213,6 @@ export function getRecentExercises(userId, limit = 10) {
   return [...seen.values()];
 }
 
-// Heaviest single set ever recorded for a movement. Timed work is excluded —
-// seconds under load don't compare against reps.
-export function getPersonalBest(userId, exerciseName) {
-  let best = null;
-  for (const log of getLogsForUser(userId)) {
-    if (log.timed || log.exerciseName !== exerciseName) continue;
-    for (const set of log.sets) {
-      if (set.weight == null) continue;
-      if (!best || set.weight > best.weight) {
-        best = { weight: set.weight, reps: set.reps, loggedAt: log.loggedAt };
-      }
-    }
-  }
-  return best;
-}
-
 export function getWorkoutLogs(userId, workoutId) {
   if (!workoutId) return [];
   return getLogsForUser(userId).filter((log) => log.workoutId === workoutId);
