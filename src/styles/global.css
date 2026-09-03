@@ -1849,24 +1849,29 @@ body {
     z-index: 25;
 }
 
+/* Name on its own line, numbers on the secondary row beside the subtitle.
+   Sat side by side, the numbers baseline-aligned with "Naru" and left the
+   subtitle with a gap beside it, so the top of the panel read as ragged. */
 .coach-header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.coach-subhead {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 10px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--card-border);
+    font-size: 12px;
+    color: var(--text-secondary);
 }
 
 .coach-header strong {
     font-size: 15px;
     font-weight: 650;
-}
-
-.coach-subtitle {
-    display: block;
-    font-size: 12px;
-    color: var(--text-secondary);
 }
 
 .coach-meta {
@@ -1897,11 +1902,15 @@ body {
 
 /* The pattern label is a fixed column so Push/Pull/Legs line up and the
    session reads as balanced at a glance — which is the whole claim. */
+/* Baseline alignment, not a padding nudge. The pattern label and the
+   movement name are different sizes, so aligning the boxes left them
+   visibly off; aligning the text they sit on is what actually lines up. */
 .coach-plan > li {
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
-    gap: 10px;
-    padding: 9px 0;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+    padding: 10px 0;
     border-bottom: 1px solid var(--card-border);
 }
 
@@ -1915,7 +1924,6 @@ body {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--accent);
-    padding-top: 3px;
 }
 
 .coach-move {
@@ -1948,8 +1956,15 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 12px 16px;
+    padding: 11px 16px;
     border-top: 1px solid var(--card-border);
+}
+
+/* The shared .small button is sized for a page, and in a 340px panel it
+   dwarfed the text button opposite it. */
+.coach-actions .button {
+    font-size: 12px;
+    padding: 7px 15px;
 }
 
 /* Quieter than a button: turning Naru off is a rare, deliberate act, not a

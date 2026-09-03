@@ -42,23 +42,28 @@ export function Coach({ userId, onDismiss }) {
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         ) : (
+          /* A dumbbell: short outer plates, tall inner plates, bar between.
+              The icon before this drew two verticals joined by a crossbar,
+             then a stem with a dot over it — an H and an i. It read as "Hi". */
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 19V5M4 12h7M11 19V5M17 8v8" />
-            <circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none" />
+            <path d="M8.5 8v8M4.5 10v4M15.5 8v8M19.5 10v4M8.5 12h7" />
           </svg>
         )}
       </button>
 
       {open && (
         <div className="coach-panel" role="dialog" aria-label="Naru workout planner">
+          {/* Name on its own line, then one secondary row carrying the
+              subtitle and the numbers. Side by side, the numbers aligned with
+              "Naru" and left the subtitle with empty space beside it. */}
           <div className="coach-header">
-            <div>
-              <strong>Naru</strong>
-              <span className="coach-subtitle">Today · full body</span>
+            <strong>Naru</strong>
+            <div className="coach-subhead">
+              <span>Today · full body</span>
+              <span className="coach-meta">
+                ~{plan.minutes} min · {plan.totalSets} sets
+              </span>
             </div>
-            <span className="coach-meta">
-              ~{plan.minutes} min · {plan.totalSets} sets
-            </span>
           </div>
 
           <div className="coach-body">
@@ -80,9 +85,7 @@ export function Coach({ userId, onDismiss }) {
               ))}
             </ol>
 
-            <p className="coach-note">
-              A starting point, not a prescription — log what you actually do.
-            </p>
+            <p className="coach-note">A starting point — log what you actually do.</p>
           </div>
 
           <div className="coach-actions">
