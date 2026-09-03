@@ -36,8 +36,13 @@ Everything is stored in your browser. No account, no backend.
 - **157-movement exercise library** across seven muscle groups, with recent
   movements one tap away and search across the whole library when it isn't one
   of those
-- **Anatomical body map** — front and back views that shade from a neutral base
-  toward full accent as sessions accumulate for each muscle group
+- **Anatomical body map** — front and back views that shade toward full accent
+  for the muscle groups you have worked *lately*. Heat decays with a one-week
+  half-life rather than piling up forever, so the figure keeps saying something
+  once you have months of history behind you
+- **Weekly goal** — a Mon–Sun target you set yourself, with a streak counting
+  consecutive weeks trained (not weeks that hit the goal, so raising the target
+  never erases your history)
 - **Workout sessions** — a session opens with your first entry and runs until you
   end it, then summarises total weight moved, reps, sets, time under tension and
   the muscle group that took the most work
@@ -45,7 +50,8 @@ Everything is stored in your browser. No account, no backend.
   units never rewrites your history
 - **Editable history** — open any past entry to correct a set or delete it, with
   volume, personal bests and the body map following along
-- **Progress view** — sessions per muscle group, personal bests, and full history
+- **Progress view** — lifetime sessions per muscle group with how long since
+  each was last trained, personal bests, and full history
 - **Compare page** — weekly session counts for every profile in this browser
 - **Naru** — an optional coach in the dashboard's corner. Ask it to build today's
   session and it puts together a Push/Pull/Legs workout from the exercise
