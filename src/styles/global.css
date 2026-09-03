@@ -580,15 +580,6 @@ body {
     color: #fff;
 }
 
-/* Pairs a field label with its inline unit toggle, keeping the control on the
-   baseline of the label rather than pushing the input out of the row. */
-.label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
 .map-card {
     display: flex;
     flex-direction: column;
@@ -1099,6 +1090,35 @@ body {
 
 .prose a {
     color: var(--accent);
+}
+
+/* The three points under "Where your data lives". A rule down the left rather
+   than a card each: this sits inside a prose card already, and nesting cards
+   inside cards is how a page starts looking like a form. */
+.facts {
+    display: grid;
+    gap: 15px;
+    margin-top: 14px;
+}
+
+.facts > div {
+    padding-left: 14px;
+    border-left: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.facts dt {
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+/* Browsers indent dd by 40px by default, which would fight the rule above. */
+.facts dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-secondary);
 }
 
 .badge-row {

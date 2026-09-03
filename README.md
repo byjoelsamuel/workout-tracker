@@ -13,7 +13,15 @@ a breakdown of what you moved.
 
 Everything is stored in your browser. No account, no backend.
 
-**🔗 Live demo:** [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/)
+**🔗 Live demo:**
+[workout-tracker-alpha-two-23.vercel.app](https://workout-tracker-alpha-two-23.vercel.app/)
+— hosted on Vercel, deployed from `main`.
+
+> **Prefer the Vercel link above.** The old Netlify deploy at
+> [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/) is **out of date** —
+> its auto-deploy stopped running and it is several releases behind, so it is
+> missing the weekly goal, the decaying body map and the set steppers. It is kept
+> only as a fallback while the move settles.
 
 ---
 
@@ -69,7 +77,7 @@ Everything is stored in your browser. No account, no backend.
 | Styling | CSS custom properties, one global stylesheet |
 | Animation | [Motion](https://motion.dev/) |
 | Data persistence | Browser `localStorage` |
-| Hosting | Netlify |
+| Hosting | [Vercel](https://vercel.com/) (`vercel.json`) — Netlify config kept as a fallback |
 
 Fully client-side — no backend, no database. Profiles and logs are read from and
 written to `localStorage`, which keeps the app fast and free to host, and means
