@@ -237,6 +237,17 @@ export function getCompareData() {
   }));
 }
 
+// Naru is opt-out, not opt-in: it stays out of the way until clicked, so
+// defaulting it on costs nothing, and someone who does not want it can turn it
+// off from inside the panel. Absent means never touched, which means on.
+export function getCoachEnabled() {
+  return localStorage.getItem(STORAGE_KEYS.coach) !== "off";
+}
+
+export function setCoachEnabled(enabled) {
+  localStorage.setItem(STORAGE_KEYS.coach, enabled ? "on" : "off");
+}
+
 export function getLastUserId() {
   return localStorage.getItem(STORAGE_KEYS.lastUserId);
 }

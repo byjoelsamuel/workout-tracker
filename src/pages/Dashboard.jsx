@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
-import { CoachChat } from "../components/CoachChat.jsx";
 import { HeatLegend } from "../components/HeatLegend.jsx";
 import { LogForm } from "../components/LogForm.jsx";
 import { OnboardingGuide } from "../components/OnboardingGuide.jsx";
@@ -25,7 +24,7 @@ import { relativeDay } from "../lib/time.js";
 export function Dashboard() {
   const userId = useSearchParams()[0].get("user");
   const [user, saveUser] = useUser(userId);
-  const { logs, summary, recents, log, workout, workoutLogs, finish } = useExerciseLog(userId);
+  const { logs, recents, log, workout, workoutLogs, finish } = useExerciseLog(userId);
   const guide = useOnboardingGuide(userId, logs.length);
   const [unit, setUnit] = useUnit();
   // The workout that just ended, held only long enough to summarise it.
@@ -141,7 +140,6 @@ export function Dashboard() {
         <WorkoutSummary workout={finished} unit={unit} onClose={() => setFinished(null)} />
       )}
       {guide.visible && <OnboardingGuide onDismiss={guide.dismiss} />}
-      <CoachChat user={user} logs={logs} summary={summary} />
     </>
   );
 }

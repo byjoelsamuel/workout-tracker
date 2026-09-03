@@ -11,6 +11,9 @@ export const STORAGE_KEYS = {
   // Display unit for weights. Deliberately global rather than per-profile:
   // it describes the scale in the room, not the person standing on it.
   unit: "workoutTracker.unit",
+  // Whether Naru is shown at all. Global rather than per-profile, like unit:
+  // it is a preference about this browser, not about the person training.
+  coach: "workoutTracker.coach",
   // Per-profile, so a second profile still gets its own first-run guide.
   hasSeenGuide: (userId) => `workoutTracker.hasSeenGuide.${userId}`,
   // The workout currently in progress, if any. Per-profile so two people

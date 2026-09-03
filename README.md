@@ -61,10 +61,14 @@ Everything is stored in your browser. No account, no backend.
 - **Progress view** — lifetime sessions per muscle group with how long since
   each was last trained, personal bests, and full history
 - **Compare page** — weekly session counts for every profile in this browser
-- **Naru** — an optional coach in the dashboard's corner. Ask it to build today's
-  session and it puts together a Push/Pull/Legs workout from the exercise
-  library, either a day you pick or one it picks by rotating off your last
-  logged session. Runs entirely client-side — no API key, no network call
+- **Naru** — an optional planner in the corner of the dashboard and progress
+  pages. It reads your logs and lays out a *full-body* session: one push, one
+  pull and one leg compound, plus accessories aimed at whatever your body map
+  says has gone stalest, and core. Starting weights come from your own best
+  sets, backed off ~10%. Set counts scale with how much you have actually been
+  training, so a newcomer is not handed the volume of a seasoned lifter.
+  Deterministic and entirely client-side — no API key, no network call, no
+  model. Hide it from inside the panel; turn it back on from the About page.
 - **Dark and light themes**, and a first-run walkthrough
 
 ## Tech Stack
@@ -102,7 +106,7 @@ flowchart TD
 
     G --> H[Count sessions per muscle group]
     H --> I[Body map re-renders]
-    I --> I1[Accent deepens with sessions trained]
+    I --> I1[Accent deepens, then fades week by week]
 
     G1 --> L[End workout]
     L --> L1[Summary: volume, reps, sets, hardest-worked group]
@@ -111,8 +115,8 @@ flowchart TD
     M --> M1[Breakdown, personal bests, editable history]
 
     E --> N["Ask Naru (optional)"]
-    N --> N1[Pick a day, or let it choose]
-    N1 --> N2[PPL workout built from the library + your history]
+    N --> N1[Reads your logs: what is stale, what you lift]
+    N1 --> N2[Full-body session: push + pull + legs + core]
 
     style A fill:#f97316,stroke:#333,color:#fff
     style I1 fill:#f97316,stroke:#333,color:#fff
@@ -126,8 +130,9 @@ sets → ending a workout summarises the session.
 
 Two details worth knowing:
 
-- **Body map shading tracks how many sessions** a group has, not how much volume.
-  Five sessions saturates it.
+- **Body map shading tracks recent sessions, and fades.** A session counts
+  fully the day it is logged and halves every week after, so the figure shows
+  what you have trained lately rather than everything you have ever done.
 - **Timed work is excluded from rep and volume totals.** A plank is recorded in
   seconds; seconds don't convert to reps or kilograms.
 

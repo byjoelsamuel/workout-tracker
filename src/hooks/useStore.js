@@ -8,6 +8,7 @@ import {
   deleteLog,
   endWorkout,
   getActiveWorkout,
+  getCoachEnabled,
   getCompareData,
   getLogsForUser,
   getRecentExercises,
@@ -16,6 +17,7 @@ import {
   getUser,
   getWorkoutLogs,
   listUsers,
+  setCoachEnabled,
   setUnit,
   updateLog,
   updateUser,
@@ -48,6 +50,18 @@ export function useUser(userId) {
   );
 
   return [user, update];
+}
+
+// Same shape as useUnit: a global preference plus its setter. Naru reads this
+// to decide whether to mount at all, so turning it off removes the corner
+// button entirely rather than just collapsing it.
+export function useCoachEnabled() {
+  const [enabled, setEnabled] = useState(getCoachEnabled);
+  const update = useCallback((next) => {
+    setCoachEnabled(next);
+    setEnabled(next);
+  }, []);
+  return [enabled, update];
 }
 
 export function useCompareData() {

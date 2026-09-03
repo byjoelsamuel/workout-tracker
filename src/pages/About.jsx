@@ -2,8 +2,10 @@ import { motion } from "motion/react";
 import { Card, PageHeader } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { publicOrigin } from "../lib/site.js";
+import { useCoachEnabled } from "../hooks/useStore.js";
 
 export function About() {
+  const [coachEnabled, setCoachEnabled] = useCoachEnabled();
   // Built from wherever the page is actually served rather than a hard-coded
   // host, so a move between hosts can't leave these pointing at the old one —
   // which is exactly what happened to the three Netlify URLs that used to be
@@ -114,6 +116,29 @@ export function About() {
           <a href="https://vite.dev">Vite</a>,{" "}
           <a href="https://reactrouter.com">React Router</a>, and{" "}
           <a href="https://motion.dev">Motion</a>.
+        </p>
+
+        <h2>Naru</h2>
+        <p>
+          The planner in the corner of the dashboard and progress pages. It reads
+          your logs and lays out a full-body session — one push, one pull, one leg
+          movement, plus accessories aimed at whatever you have left longest, with
+          starting weights taken from your own best sets. It runs entirely in this
+          browser: no account, no API key, no network call.
+        </p>
+        {/* Hiding Naru is done from inside its own panel, which leaves nowhere
+            to bring it back from. This is that somewhere. */}
+        <p className="setting-row">
+          <span>
+            Naru is currently <strong>{coachEnabled ? "on" : "off"}</strong>
+          </span>
+          <button
+            type="button"
+            className="row-action"
+            onClick={() => setCoachEnabled(!coachEnabled)}
+          >
+            {coachEnabled ? "Turn off" : "Turn on"}
+          </button>
         </p>
 
         <h2>Standards</h2>

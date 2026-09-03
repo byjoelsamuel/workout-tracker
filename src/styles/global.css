@@ -1795,7 +1795,7 @@ body {
     }
 }
 
-/* ---- Coach chat ---- */
+/* ---- Naru (workout planner) ---- */
 
 .coach-launcher {
     position: fixed;
@@ -1814,7 +1814,7 @@ body {
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
     z-index: 25;
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 .coach-launcher:hover {
@@ -1831,18 +1831,20 @@ body {
     height: 22px;
 }
 
+/* No entrance animation. This opens over the log form, and anything moving
+   here competes with the thing the user came to the page to do. */
 .coach-panel {
     position: fixed;
     right: 24px;
     bottom: 88px;
-    width: min(340px, calc(100vw - 48px));
-    max-height: min(520px, calc(100vh - 140px));
+    width: 340px;
+    max-height: min(560px, calc(100vh - 140px));
     display: flex;
     flex-direction: column;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 18px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+    border-radius: 16px;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
     overflow: hidden;
     z-index: 25;
 }
@@ -1850,95 +1852,133 @@ body {
 .coach-header {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    padding: 16px 20px;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--card-border);
+}
+
+.coach-header strong {
+    font-size: 15px;
     font-weight: 650;
 }
 
 .coach-subtitle {
+    display: block;
     font-size: 12px;
-    font-weight: 500;
     color: var(--text-secondary);
 }
 
-.coach-messages {
+.coach-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.coach-body {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    padding: 14px 16px;
 }
 
-.coach-msg {
-    font-size: 14px;
+.coach-why {
+    font-size: 13px;
     line-height: 1.5;
-    padding: 10px 13px;
-    border-radius: 14px;
-    max-width: 88%;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
 }
 
-.coach-msg.bot {
-    align-self: flex-start;
-    background: var(--surface);
-    color: var(--text-primary);
-    border-bottom-left-radius: 4px;
-}
-
-.coach-msg.user {
-    align-self: flex-end;
-    background: var(--accent);
-    color: #fff;
-    border-bottom-right-radius: 4px;
-}
-
-.coach-workout {
-    max-width: 100%;
-}
-
-.coach-workout strong {
-    display: block;
-    color: var(--accent);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-}
-
-.coach-workout ul {
+.coach-plan {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
 
-.coach-workout li {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+/* The pattern label is a fixed column so Push/Pull/Legs line up and the
+   session reads as balanced at a glance — which is the whole claim. */
+.coach-plan > li {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
     gap: 10px;
-    font-size: 13px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.coach-plan > li:last-child {
+    border-bottom: none;
+}
+
+.coach-pattern {
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 3px;
+}
+
+.coach-move {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.coach-name {
+    font-size: 14px;
+    overflow-wrap: anywhere;
 }
 
 .coach-scheme {
-    color: var(--text-secondary);
     font-size: 12px;
-    white-space: nowrap;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
 }
 
 .coach-note {
-    margin-top: 10px;
+    margin-top: 12px;
     font-size: 12px;
+    line-height: 1.5;
     color: var(--text-secondary);
 }
 
 .coach-actions {
     display: flex;
-    gap: 8px;
-    padding: 14px 20px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 16px;
     border-top: 1px solid var(--card-border);
-    flex-wrap: wrap;
+}
+
+/* Quieter than a button: turning Naru off is a rare, deliberate act, not a
+   peer of the action beside it. */
+.coach-hide {
+    border: 0;
+    background: none;
+    padding: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.coach-hide:hover {
+    color: var(--danger);
+}
+
+/* The About page row that turns Naru back on. */
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 11px 14px;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--surface);
 }
 
 @media (max-width: 480px) {

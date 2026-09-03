@@ -1,5 +1,6 @@
 import { AnimatePresence } from "motion/react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useSearchParams } from "react-router-dom";
+import { Coach } from "./Coach.jsx";
 import { Nav } from "./Nav.jsx";
 import { Landing } from "../pages/Landing.jsx";
 import { Onboarding } from "../pages/Onboarding.jsx";
@@ -7,9 +8,20 @@ import { Dashboard } from "../pages/Dashboard.jsx";
 import { Progress } from "../pages/Progress.jsx";
 import { Compare } from "../pages/Compare.jsx";
 import { About } from "../pages/About.jsx";
+import { useCoachEnabled } from "../hooks/useStore.js";
+
+// Naru needs a profile to plan from, so it only appears where one is selected.
+// Compare is excluded even though it has profiles — that page is about other
+// people, and a planner for "you" there answers a question nobody asked. About
+// is prose. Landing and onboarding have no profile at all yet.
+const COACH_ROUTES = new Set(["/dashboard", "/progress"]);
 
 export function Layout() {
   const location = useLocation();
+  const userId = useSearchParams()[0].get("user");
+  const [coachEnabled, setCoachEnabled] = useCoachEnabled();
+
+  const showCoach = coachEnabled && Boolean(userId) && COACH_ROUTES.has(location.pathname);
 
   return (
     <>
@@ -38,6 +50,13 @@ export function Layout() {
           </Routes>
         </AnimatePresence>
       </div>
+
+      {/* Outside .route-stack deliberately: mounted here it survives moving
+          between the dashboard and progress, so an open plan isn't thrown away
+          by navigating. Inside, it would remount on every route change. */}
+      {showCoach && (
+        <Coach userId={userId} onDismiss={() => setCoachEnabled(false)} />
+      )}
     </>
   );
 }
