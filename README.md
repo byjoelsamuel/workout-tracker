@@ -22,9 +22,7 @@ Everything is stored on your device. No account, no backend.
 
 > **Prefer the Vercel link above.** The old Netlify deploy at
 > [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/) is **out of date** —
-> its auto-deploy stopped running and it is several releases behind, so it is
-> missing the weekly goal, the decaying body map and the set steppers. It is kept
-> only as a fallback while the move settles.
+** [The Netlify issue has been resolved and is being hosted alongside Vercel!] **
 
 ---
 
