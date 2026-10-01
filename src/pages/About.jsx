@@ -109,13 +109,21 @@ export function About() {
 
         <h2>Desktop app</h2>
         {isDesktop ? (
-          <p>
-            You're using the desktop app — the same app as the website, wrapped in{" "}
-            <a href="https://www.electronjs.org">Electron</a> so it runs in its own
-            window with no connection needed. Its history is separate from the
-            website's; use the backup in Settings to move between them. The website
-            is at <a href={SITE_URL}>{SITE_URL.replace(/^https?:\/\//, "")}</a>.
-          </p>
+          <>
+            <p>
+              You're using the desktop app — the same app as the website, wrapped in{" "}
+              <a href="https://www.electronjs.org">Electron</a> so it runs in its own
+              window with no connection needed. Its history is separate from the
+              website's; use the backup in Settings to move between them. The website
+              is at <a href={SITE_URL}>{SITE_URL.replace(/^https?:\/\//, "")}</a>.
+            </p>
+            <p>
+              When it opens, the app asks GitHub whether a newer version is out. That
+              is its only network request, and nothing about you or your workouts goes
+              with it. If there is one you'll get a prompt to download it; install it
+              over this one and your history carries on where it was.
+            </p>
+          </>
         ) : (
           <p>
             The same app runs as a desktop app on Windows 11 and Fedora, in its own

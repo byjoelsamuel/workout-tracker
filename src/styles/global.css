@@ -2227,8 +2227,10 @@ body {
     box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.16);
 }
 
-/* A new personal best gets the accent edge — same toast, louder. */
-.toast.tone-record {
+/* A new personal best, or a new version of the desktop app, gets the accent
+   edge — same toast, louder. */
+.toast.tone-record,
+.toast.tone-update {
     border-color: var(--accent);
 }
 

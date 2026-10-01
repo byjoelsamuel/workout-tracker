@@ -3,6 +3,7 @@ import { AnimatePresence, MotionConfig } from "motion/react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Nav } from "./Nav.jsx";
 import { ToastProvider } from "./Toaster.jsx";
+import { UpdatePrompt } from "./UpdatePrompt.jsx";
 import { Landing } from "../pages/Landing.jsx";
 import { Welcome } from "../pages/Welcome.jsx";
 import { Onboarding } from "../pages/Onboarding.jsx";
@@ -97,6 +98,7 @@ export function Layout() {
           Skip to content
         </a>
         <Nav />
+        {isDesktop && <UpdatePrompt />}
         {/* Both pages animate at once so the transition reads like a
             workspace switch rather than a queue. They have to overlap to do
             that, and AnimatePresence's popLayout can't arrange it here — it

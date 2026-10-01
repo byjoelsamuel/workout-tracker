@@ -12,7 +12,7 @@
 //
 // That origin is a wire format, like the keys in storageKeys.js: change the
 // scheme or host and every installed user's history is orphaned.
-const { app, BrowserWindow, Menu, nativeTheme, net, protocol, session, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, nativeTheme, net, protocol, session, shell } = require("electron");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 
@@ -80,6 +80,59 @@ async function serve(request) {
 
 function openExternally(url) {
   if (/^https?:\/\//.test(url)) shell.openExternal(url);
+}
+
+// ---- Updates ----
+//
+// The app tells you when a newer release is out; it doesn't install it
+// itself. Installing in place would take electron-updater, a runtime
+// dependency this package deliberately ships without (`files` in
+// electron-builder.yml leaves node_modules out), and on Fedora an rpm goes
+// through dnf and your password regardless. So it asks GitHub for the latest
+// release when the page wants to know, and Download opens the same kind of
+// installer you're running. Installing over the top keeps your history: it
+// lives in the app's data folder, which no installer touches.
+const LATEST_RELEASE = "https://api.github.com/repos/byjoelsamuel/workout-tracker/releases/latest";
+
+function installerName() {
+  if (process.platform === "win32") return "Tsyoku-naru-Setup-x64.exe";
+  // Set by the AppImage runtime; anything else on Linux came from the rpm.
+  return process.env.APPIMAGE ? "Tsyoku-naru-x86_64.AppImage" : "Tsyoku-naru-x86_64.rpm";
+}
+
+// Plain x.y.z. GitHub's "latest" already skips drafts and pre-releases.
+function isNewer(candidate, current) {
+  const a = candidate.split(".").map(Number);
+  const b = current.split(".").map(Number);
+  for (let i = 0; i < 3; i += 1) if (a[i] !== b[i]) return a[i] > b[i];
+  return false;
+}
+
+// Where Download goes. Only ever filled from GitHub's answer, so the page can
+// trigger a download but has no way to choose what gets opened.
+let downloadUrl = null;
+
+async function checkForUpdate() {
+  const current = app.getVersion();
+  try {
+    const response = await net.fetch(LATEST_RELEASE, { headers: { Accept: "application/vnd.github+json" } });
+    if (!response.ok) throw new Error(`GitHub answered ${response.status}`);
+    const release = await response.json();
+    const latest = String(release.tag_name ?? "").replace(/^v/, "");
+    if (!/^\d+\.\d+\.\d+$/.test(latest)) throw new Error(`Unexpected tag ${release.tag_name}`);
+    const asset = (release.assets ?? []).find((a) => a.name === installerName());
+    const url = asset?.browser_download_url ?? release.html_url;
+    downloadUrl = typeof url === "string" && url.startsWith("https://github.com/") ? url : null;
+    return { current, latest, available: isNewer(latest, current) };
+  } catch {
+    // Offline, or GitHub rate-limited us: say so rather than "up to date".
+    return { current, latest: null, available: false, failed: true };
+  }
+}
+
+// Only the app's own page may ask.
+function fromApp(event) {
+  return Boolean(event.senderFrame?.url.startsWith(`${ORIGIN}/`));
 }
 
 function createWindow() {
@@ -171,6 +224,10 @@ app.whenReady().then(() => {
   });
 
   protocol.handle(SCHEME, serve);
+  ipcMain.handle("update:check", (event) => (fromApp(event) ? checkForUpdate() : null));
+  ipcMain.handle("update:download", (event) => {
+    if (fromApp(event) && downloadUrl) shell.openExternal(downloadUrl);
+  });
   // The app asks for no permissions (camera, notifications, location…), so
   // any request is something it didn't mean to make.
   session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
