@@ -5,9 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev       # start Vite dev server
-npm run build     # production build to dist/
-npm run preview   # preview a production build locally
+npm run dev         # start Vite dev server
+npm run build       # production build to dist/
+npm run preview     # preview a production build locally
+npm run desktop     # build, then run the desktop app (Electron) on dist/
+npm run dist:linux  # package Fedora .rpm + AppImage into release/ (needs rpmbuild)
+npm run dist:win    # package the Windows installer into release/ (on Windows; cross-building needs 32-bit Wine)
 ```
 
 No lint or test setup exists in this repo — don't invent `npm run lint` / `npm test`. Changes are verified by driving the real app in a browser, and by seeding `localStorage` with legacy-shaped rows to confirm old data still renders and still totals the same. Do that for anything touching `store.js` or `units.js`: silently changing what a past session meant is the worst failure mode this app has.
@@ -30,6 +33,9 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 | `src/lib/records.js` | Personal bests and "last time" for a movement, derived from the log. Progress, Naru and the log form all read these — don't add another loop over the log for the same question. |
 | `src/lib/profile.js` | Optional body details (bodyweight, height, age): ranges, validation, and the kg/cm ↔ lb/ft-in conversion used by onboarding and settings. |
 | `src/lib/coach.js` | Naru: a deterministic full-body session generator over the exercise library and the user's own logs. No model, no network. |
+| `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling) and `preload.cjs` (exposes only `window.tsyoku = { desktop: true }`). |
+| `src/lib/platform.js` | `isDesktop` — the only place the page branches on website vs. app. |
+| `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release on a `v*` tag. |
 
 `Dashboard` is the mid-workout screen — body map, log form, live session total, end workout. `Progress` is what you read *between* workouts — group breakdown, personal bests, full editable history. Keep that split; having history on the dashboard is what made it cluttered.
 
@@ -58,6 +64,16 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 - **Undoing a log can close the session.** `undo` in `useExerciseLog` deletes the row, then `discardWorkoutIfEmpty` drops the active workout only if it now holds no rows — otherwise undoing the first entry left a workout "in progress" with nothing in it.
 - **Profile edits write only the fields that changed** (`changedPatch` in `Settings.jsx`). A height entered in feet doesn't round-trip exactly (180 cm → 180.3), so saving every field would drift an untouched height each time someone renamed themselves.
 - **Theme preference "system" is the absence of the theme key** — exactly what `theme-init.js` already reads as "follow the OS" — so no stored value changed meaning when the option was added.
+
+### Desktop app
+
+- **It is the website's build, unchanged.** `desktop/main.cjs` serves `dist/` over a registered `app://tsyoku-naru` scheme, with the same index.html fallback as `vercel.json`. Don't fork UI for the app; branch on `isDesktop` only where something would be *wrong* there (the landing page, the download prompt, the W3C validator links).
+- **`app://tsyoku-naru` is a wire format**, like the storage keys: localStorage is keyed by origin, so changing the scheme or host orphans every installed user's history. Same for `productName` ("Tsyoku-naru"), which names the data folder. The rpm's package name (`tsyoku-naru`, via `extraMetadata` in `electron-builder.yml`) is separate and safe to change.
+- **The app's data is separate from the website's.** Settings → Backup is how history moves between them; the copy in About and Settings says so — keep it accurate.
+- **The main process can't import `src/lib/site.js`**, so it must not hard-code the website's host either; links to it go through the page.
+- External links open in the system browser and nothing can navigate the window off `app://` (`web-contents-created` in `main.cjs`). The CSP is set in the protocol handler.
+- `node_modules` is excluded from the package — Vite has already bundled everything the page needs. If the main process ever needs a runtime dependency, that exclusion has to change.
+- Installer file names carry no version, so `releases/latest/download/<name>` links stay stable. A release tag must equal `v` + `package.json`'s version; the workflow refuses a mismatch.
 
 ### Animation
 

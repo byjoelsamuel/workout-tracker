@@ -19,6 +19,10 @@ import { formatClock } from "../lib/time.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
+import { isDesktop } from "../lib/platform.js";
+
+// Where the data lives, in words — the browser on the web, the app on desktop.
+const HERE = isDesktop ? "this app" : "this browser";
 
 const THEMES = [
   { id: "system", label: "System" },
@@ -148,7 +152,7 @@ export function Settings() {
   function exportData() {
     const stamp = new Date().toISOString().slice(0, 10);
     download(`tsyoku-naru-backup-${stamp}.json`, JSON.stringify(exportBackup(), null, 2));
-    toast.show({ title: "Backup downloaded", body: "It holds every profile in this browser." });
+    toast.show({ title: "Backup downloaded", body: `It holds every profile in ${HERE}.` });
   }
 
   async function importData(event) {
@@ -178,7 +182,7 @@ export function Settings() {
   function removeProfile() {
     deleteUser(user.id);
     setDeleting(false);
-    toast.show({ title: `Deleted ${user.name}`, body: "Their profile and history are gone from this browser." });
+    toast.show({ title: `Deleted ${user.name}`, body: `Their profile and history are gone from ${HERE}.` });
     navigate("/welcome", { replace: true });
   }
 
@@ -234,10 +238,11 @@ export function Settings() {
 
         <Section title="Backup">
           <p className="field-note settings-note">
-            Everything lives in this browser. Export a backup to keep a copy, or to move your history to
-            another browser or device.
+            {isDesktop
+              ? "Everything lives in this app, separately from the website. Import a backup exported from the website to bring your history here."
+              : "Everything lives in this browser. Export a backup to keep a copy, or to move your history to the desktop app or another device."}
           </p>
-          <Row title="Export" detail={`Every profile in this browser · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
+          <Row title="Export" detail={`Every profile in ${HERE} · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
             <Button variant="secondary" size="small" onClick={exportData}>
               Export
             </Button>
@@ -259,7 +264,7 @@ export function Settings() {
         </Section>
 
         <Section title="Delete profile" className="danger-card">
-          <Row title={`Delete ${user.name}`} detail="Removes this profile and its history from this browser. Other profiles are untouched.">
+          <Row title={`Delete ${user.name}`} detail={`Removes this profile and its history from ${HERE}. Other profiles are untouched.`}>
             <button type="button" className="row-danger" onClick={() => setDeleting(true)}>
               Delete…
             </button>
@@ -271,7 +276,7 @@ export function Settings() {
         open={deleting}
         tone="danger"
         title={`Delete ${user.name}?`}
-        body={`This permanently removes ${user.name}'s profile and ${logs.length} logged ${logs.length === 1 ? "entry" : "entries"} from this browser. It can't be undone — export a backup first if you might want them back.`}
+        body={`This permanently removes ${user.name}'s profile and ${logs.length} logged ${logs.length === 1 ? "entry" : "entries"} from ${HERE}. It can't be undone — export a backup first if you might want them back.`}
         confirmText={user.name}
         confirmLabel="Delete profile"
         onConfirm={removeProfile}

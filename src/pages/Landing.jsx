@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Button } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { getLastUserId, getUser } from "../lib/store.js";
+import { DOWNLOAD_URL } from "../lib/site.js";
 
 const LINES = [
   [{ text: "Train" }, { text: "hard." }],
@@ -66,6 +67,9 @@ export function Landing() {
         {returning ? "Back to your dashboard" : "Get started"}
       </Button>
       <p className="intro-meaning">強くなる — tsuyoku naru — "to become stronger"</p>
+      <p className="intro-download">
+        Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
+      </p>
     </motion.main>
   );
 }

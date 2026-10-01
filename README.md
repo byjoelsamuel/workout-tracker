@@ -11,11 +11,14 @@ log each set with its own reps and weight, and watch an anatomical body map —
 front and back — shade in for every muscle group you work. End a session to get
 a breakdown of what you moved.
 
-Everything is stored in your browser. No account, no backend.
+Everything is stored on your device. No account, no backend.
 
 **🔗 Live demo:**
 [workout-tracker-alpha-two-23.vercel.app](https://workout-tracker-alpha-two-23.vercel.app/)
 — hosted on Vercel, deployed from `main`.
+
+**💻 Desktop app:** Windows 11 and Fedora —
+[download from the latest release](https://github.com/byjoelsamuel/workout-tracker/releases/latest).
 
 > **Prefer the Vercel link above.** The old Netlify deploy at
 > [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/) is **out of date** —
@@ -28,6 +31,7 @@ Everything is stored in your browser. No account, no backend.
 ## Table of Contents
 
 - [Features](#features)
+- [Desktop App](#desktop-app)
 - [Tech Stack](#tech-stack)
 - [How It Works](#how-it-works)
 - [Getting Started](#getting-started)
@@ -87,6 +91,23 @@ Everything is stored in your browser. No account, no backend.
 - **Dark and light themes**, keyboard-friendly dialogs (focus is trapped and
   returned, Escape closes), and reduced-motion support throughout
 
+## Desktop App
+
+The same app in its own window, for **Windows 11** and **Fedora**. It opens
+straight to your dashboard and works with no internet connection.
+
+Download from the [latest release](https://github.com/byjoelsamuel/workout-tracker/releases/latest):
+
+| System | File | Install |
+|---|---|---|
+| Windows 11 | `Tsyoku-naru-Setup-x64.exe` | Run it. The installer isn't code-signed, so Windows may say "Windows protected your PC" — choose **More info → Run anyway**. |
+| Fedora | `Tsyoku-naru-x86_64.rpm` | `sudo dnf install ./Tsyoku-naru-x86_64.rpm`, then open Tsyoku-naru from Activities. |
+| Other Linux | `Tsyoku-naru-x86_64.AppImage` | `chmod +x` it and run. Needs FUSE 2 (`sudo dnf install fuse-libs` on Fedora). |
+
+The app keeps its own history, separate from the website's. To move yours
+across, use **Settings → Backup → Export** on the website and **Import** in the
+app (or the other way round). Uninstalling the app keeps your data.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -97,6 +118,7 @@ Everything is stored in your browser. No account, no backend.
 | Styling | CSS custom properties, one global stylesheet |
 | Animation | [Motion](https://motion.dev/) |
 | Data persistence | Browser `localStorage` |
+| Desktop | [Electron](https://www.electronjs.org/) + [electron-builder](https://www.electron.build/) (`electron-builder.yml`), built and released by GitHub Actions |
 | Hosting | [Vercel](https://vercel.com/) (`vercel.json`) — Netlify config kept as a fallback |
 
 Fully client-side — no backend, no database. Profiles and logs are read from and
@@ -172,13 +194,33 @@ npm run build    # production build into dist/
 npm run preview  # serve the built output
 ```
 
+### Desktop app
+
+```bash
+npm run desktop     # build, then open the app in an Electron window
+npm run dist:linux  # Fedora .rpm + AppImage into release/ (needs `rpm` installed)
+npm run dist:win    # Windows installer into release/ (run on Windows)
+```
+
+Releases are built by GitHub Actions (`.github/workflows/desktop.yml`). To
+publish one, bump `version` in `package.json`, commit, and push a matching tag:
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0
+```
+
+The workflow builds the Windows installer on Windows and the Linux packages on
+Ubuntu, then attaches all three to a GitHub Release. Pull requests build them
+too, as downloadable workflow artifacts, without publishing anything.
+
 ## Roadmap
 
 - [x] Export/import profile data (JSON backup)
 - [x] Rest timer between sets
 - [x] Prefill a movement's sets from last time
+- [x] Desktop app for Windows 11 and Fedora
 - [ ] Move hosting back to Netlify
-- [ ] Desktop app for Windows 11 and Fedora
+- [ ] Code-sign the Windows installer and add automatic updates
 - [ ] Workout templates and supersets
 - [ ] Optional cloud sync for cross-device access
 

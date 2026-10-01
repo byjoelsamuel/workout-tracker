@@ -11,6 +11,15 @@ import { Progress } from "../pages/Progress.jsx";
 import { Compare } from "../pages/Compare.jsx";
 import { Settings } from "../pages/Settings.jsx";
 import { About } from "../pages/About.jsx";
+import { getLastUserId, getUser } from "../lib/store.js";
+import { isDesktop } from "../lib/platform.js";
+
+// The desktop app has no landing page to land on: it opens where you left
+// off, or on the profile picker.
+function DesktopHome() {
+  const last = getLastUserId();
+  return <Navigate to={last && getUser(last) ? `/dashboard?user=${last}` : "/welcome"} replace />;
+}
 
 const TITLES = {
   "/welcome": "Who's training?",
@@ -101,7 +110,7 @@ export function Layout() {
           <ErrorBoundary resetKey={location.pathname}>
             <AnimatePresence initial={false}>
               <Routes location={location} key={location.pathname + location.search}>
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={isDesktop ? <DesktopHome /> : <Landing />} />
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/welcome/new" element={<Onboarding />} />
                 {/* The old sign-up URL, so bookmarks still land somewhere. */}

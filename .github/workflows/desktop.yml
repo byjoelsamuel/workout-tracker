@@ -1,0 +1,123 @@
+name: Desktop app
+
+# Builds the Windows 11 installer and the Fedora/Linux packages from the same
+# Vite build as the website.
+#
+#   pull request  -> both are built and attached to the run as artifacts, so a
+#                    change that breaks packaging fails before it's released
+#   tag v1.2.3    -> the same, then published as a GitHub Release, which is
+#                    where the website's "download the app" link points
+#
+# Each platform builds on its own OS: the Windows installer needs Windows
+# tooling (NSIS, rcedit) that doesn't cross-build reliably from Linux.
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "desktop/**"
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "electron-builder.yml"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/desktop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            target: --win
+          - name: Linux
+            os: ubuntu-latest
+            target: --linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # A release's version comes from package.json (it's shown in the app's
+      # About page and baked into the installers), so a tag that disagrees
+      # with it would publish mislabelled builds.
+      - name: Check tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match package.json ($version)." >&2
+            exit 1
+          fi
+
+      - name: Install rpm tooling
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Package
+        run: npx electron-builder ${{ matrix.target }} --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tsyoku-naru-${{ matrix.name }}
+          path: |
+            release/*.exe
+            release/*.rpm
+            release/*.AppImage
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+          body: |
+            ## Download
+
+            | System | File |
+            |---|---|
+            | **Windows 11** | `Tsyoku-naru-Setup-x64.exe` |
+            | **Fedora** | `Tsyoku-naru-x86_64.rpm` |
+            | Other Linux | `Tsyoku-naru-x86_64.AppImage` |
+
+            **Windows:** run the installer. It isn't code-signed, so Windows may show
+            "Windows protected your PC" — choose **More info → Run anyway**.
+
+            **Fedora:** `sudo dnf install ./Tsyoku-naru-x86_64.rpm`, then open
+            Tsyoku-naru from Activities. Remove it with `sudo dnf remove tsyoku-naru`.
+
+            **AppImage:** `chmod +x Tsyoku-naru-x86_64.AppImage` and run it. On Fedora
+            this needs FUSE 2: `sudo dnf install fuse-libs`.
+
+            Your workouts are stored on your computer, separately from the website.
+            To bring your history across, use **Settings → Backup → Export** on the
+            website and **Import** in the app.

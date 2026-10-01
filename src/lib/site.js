@@ -14,6 +14,10 @@ export const SITE_URL = "https://workout-tracker-alpha-two-23.vercel.app";
 
 export const REPO_URL = "https://github.com/byjoelsamuel/workout-tracker";
 
+// The desktop app's installers are attached to GitHub Releases by
+// .github/workflows/desktop.yml.
+export const DOWNLOAD_URL = `${REPO_URL}/releases/latest`;
+
 // From package.json at build time (vite.config.js), for Settings and About.
 export const APP_VERSION = __APP_VERSION__;
 

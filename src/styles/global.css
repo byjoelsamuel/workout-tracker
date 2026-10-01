@@ -308,6 +308,16 @@ body {
     letter-spacing: 0.04em;
 }
 
+.intro-download {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.intro-download a {
+    color: var(--accent);
+}
+
 /* ---- Cards ---- */
 
 .card {

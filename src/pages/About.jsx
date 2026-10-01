@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
 import { Card, PageHeader } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
-import { APP_VERSION, publicOrigin, REPO_URL } from "../lib/site.js";
+import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
+import { isDesktop } from "../lib/platform.js";
 
 export function About() {
   // Built from wherever the page is actually served rather than a hard-coded
@@ -51,8 +52,8 @@ export function About() {
 
         <h2>Where your data lives</h2>
         <p>
-          Nowhere but this browser. No account, no login, no server — which is worth
-          understanding in three parts.
+          Nowhere but this {isDesktop ? "computer" : "browser"}. No account, no login,
+          no server — which is worth understanding in three parts.
         </p>
         {/* A description list rather than a run of prose. This answers three
             separate questions — where the data sits, what that costs you, and what
@@ -90,8 +91,9 @@ export function About() {
           The planner behind “Plan with Naru” on the dashboard. It reads your logs and
           lays out a full-body session — one push, one pull, one leg movement, plus
           accessories aimed at whatever you have left longest, with starting weights
-          taken from your own best sets. It runs entirely in this browser: no account,
-          no API key, no network call. You can turn it off in Settings.
+          taken from your own best sets. It runs entirely{" "}
+          {isDesktop ? "on this computer" : "in this browser"}: no account, no API key,
+          no network call. You can turn it off in Settings.
         </p>
 
         <h2>How it's built</h2>
@@ -104,6 +106,25 @@ export function About() {
         <p>
           Version {APP_VERSION} · Source: <a href={REPO_URL}>github.com/byjoelsamuel/workout-tracker</a>
         </p>
+
+        <h2>Desktop app</h2>
+        {isDesktop ? (
+          <p>
+            You're using the desktop app — the same app as the website, wrapped in{" "}
+            <a href="https://www.electronjs.org">Electron</a> so it runs in its own
+            window with no connection needed. Its history is separate from the
+            website's; use the backup in Settings to move between them. The website
+            is at <a href={SITE_URL}>{SITE_URL.replace(/^https?:\/\//, "")}</a>.
+          </p>
+        ) : (
+          <p>
+            The same app runs as a desktop app on Windows 11 and Fedora, in its own
+            window and with no connection needed.{" "}
+            <a href={DOWNLOAD_URL}>Download it from GitHub</a>. Its history is kept
+            separately from this browser's — export a backup in Settings here and
+            import it there.
+          </p>
+        )}
 
         <h2>Licence</h2>
         <p>
@@ -119,27 +140,35 @@ export function About() {
           <a href="https://reactrouter.com">React Router</a>, and{" "}
           <a href="https://motion.dev">Motion</a>. The body map's outline comes from{" "}
           <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a>{" "}
-          (MIT).
+          (MIT). The desktop app is built with{" "}
+          <a href="https://www.electronjs.org">Electron</a> (MIT).
         </p>
 
-        <h2>Standards</h2>
-        <p>
-          The markup and stylesheet are written to W3C standards. These links run the
-          live site through the official validators — they check{" "}
-          <code>{publicOrigin().replace(/^https?:\/\//, "")}</code> on demand rather
-          than displaying a stored result, so what you see is current.
-        </p>
-        <p className="badge-row">
-          <a className="badge" href={`https://validator.w3.org/nu/?doc=${encoded}`}>
-            Validate HTML
-          </a>
-          <a
-            className="badge"
-            href={`https://jigsaw.w3.org/css-validator/validator?uri=${encoded}`}
-          >
-            Validate CSS
-          </a>
-        </p>
+        {/* The validators fetch the public website from their own servers, so
+            these belong to the website only — inside the desktop app there's no
+            URL of this page for them to check. */}
+        {!isDesktop && (
+          <>
+            <h2>Standards</h2>
+            <p>
+              The markup and stylesheet are written to W3C standards. These links run the
+              live site through the official validators — they check{" "}
+              <code>{publicOrigin().replace(/^https?:\/\//, "")}</code> on demand rather
+              than displaying a stored result, so what you see is current.
+            </p>
+            <p className="badge-row">
+              <a className="badge" href={`https://validator.w3.org/nu/?doc=${encoded}`}>
+                Validate HTML
+              </a>
+              <a
+                className="badge"
+                href={`https://jigsaw.w3.org/css-validator/validator?uri=${encoded}`}
+              >
+                Validate CSS
+              </a>
+            </p>
+          </>
+        )}
       </Card>
     </motion.main>
   );

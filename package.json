@@ -1,19 +1,28 @@
 {
   "name": "workout-tracker",
-  "version": "1.0.0",
-  "description": "Personalized workout tracker that logs and suggests workouts based on your body type, goals and preference!",
+  "productName": "Tsyoku-naru",
+  "version": "1.1.0",
+  "description": "A private workout tracker: log every set, see which muscles you've trained lately, and plan full-body sessions.",
   "type": "module",
+  "main": "desktop/main.cjs",
+  "desktopName": "tsyoku-naru.desktop",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "desktop": "vite build && electron .",
+    "dist:win": "vite build && electron-builder --win --publish never",
+    "dist:linux": "vite build && electron-builder --linux --publish never"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/byjoelsamuel/workout-tracker.git"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Joel Samuel",
+    "url": "https://github.com/byjoelsamuel"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/byjoelsamuel/workout-tracker/issues"
@@ -27,6 +36,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.5",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
     "vite": "^8.2.1"
   }
 }
