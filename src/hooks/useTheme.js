@@ -14,6 +14,9 @@ import { useSyncExternalStore } from "react";
 import { STORAGE_KEYS } from "../lib/storageKeys.js";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
+// Each theme's --background, repeated for the theme-color meta. Keep in step
+// with global.css and public/theme-init.js.
+const THEME_COLOR = { dark: "#050505", light: "#ffffff" };
 const listeners = new Set();
 
 function readPreference() {
@@ -40,9 +43,16 @@ function emit(next) {
 }
 
 function paint(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
+  const root = document.documentElement;
+  // Transitions off for the swap (see data-theme-switching in global.css).
+  // Reading a computed style forces the new colours to resolve while they're
+  // still off; turning them back on a tick later then has nothing to animate.
+  root.setAttribute("data-theme-switching", "");
+  root.setAttribute("data-theme", theme);
+  void window.getComputedStyle(document.body).backgroundColor;
+  setTimeout(() => root.removeAttribute("data-theme-switching"), 1);
   // Tints the browser chrome on mobile and the title bar of an installed app.
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#050505" : "#ffffff");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? THEME_COLOR.dark : THEME_COLOR.light);
 }
 
 // The switch itself, revealed as a circle growing out of whatever was pressed.

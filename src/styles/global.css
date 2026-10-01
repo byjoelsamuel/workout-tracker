@@ -26,6 +26,9 @@
     --map-plate: #f1f1f3;
     --map-muscle: #c6c6ce;
     --map-structure: #dcdce1;
+    /* Native scrollbars, form controls and autofill follow the theme. Without
+       it a dark page kept a bright white scrollbar down its right edge. */
+    color-scheme: light;
 }
 
 /* Theme comes from public/theme-init.js before first paint; the toggle just
@@ -46,10 +49,20 @@
     --map-plate: #0b0b0c;
     --map-muscle: #35353c;
     --map-structure: #202024;
+    color-scheme: dark;
 }
 
 html, body, #root {
     min-height: 100%;
+}
+
+/* Keeps room for the scrollbar even on a page too short to need one. Pages
+   cross-fade, and in a browser with classic scrollbars (Windows) going from a
+   page that fits to one that scrolls made the bar appear mid-transition and
+   shoved everything sideways — the app's shorter window scrolls on nearly
+   every page, which is why it only ever happened on the website. */
+html {
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -2816,6 +2829,17 @@ body {
 
 .route-stack:focus {
     outline: none;
+}
+
+/* While the theme flips, every colour changes in the same frame
+   (useTheme.js). Left to their own transitions, backgrounds faded over 250ms
+   while text, borders and the body map flipped at once — light text on a
+   still-light card, mid-switch. The toggle's sun/moon turn is the one
+   transition that's part of the switch, so it keeps running. */
+:root[data-theme-switching] *:not(.icon),
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+    transition: none !important;
 }
 
 /* The theme switch is revealed as a circle growing from the toggle

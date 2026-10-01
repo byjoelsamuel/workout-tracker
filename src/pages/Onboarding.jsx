@@ -312,7 +312,7 @@ export function Onboarding() {
                         className="ready-check"
                         initial={reduced ? false : { scale: 0, rotate: -40 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.05 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.05 }}
                       >
                         ✓
                       </motion.span>

@@ -182,7 +182,7 @@ export function Switch({ checked, onChange, label, ...rest }) {
       <motion.span
         className="switch-thumb"
         layout
-        transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 600, damping: 34 }}
+        transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 600, damping: 40 }}
       />
     </button>
   );
