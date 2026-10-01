@@ -127,3 +127,13 @@ export function formatDuration(startedAt, endedAt = new Date()) {
   if (minutes < 60) return `${minutes}m`;
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
+
+// A running clock: "4:07", "1:02:45". For timers you watch tick, where
+// formatDuration's "4m" would sit still for a minute at a time.
+export function formatClock(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, "0");
+  return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}

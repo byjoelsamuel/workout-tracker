@@ -2,12 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Before theme-init.js, which sets it to match the theme it picks. -->
+    <meta name="theme-color" content="#050505" />
     <!-- Must run before anything paints, so it stays an unbundled script in
          public/ rather than moving into the React tree. -->
     <script src="/theme-init.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tsyoku-naru</title>
-    <meta name="description" content="Get stronger — a small, personal workout tracker." />
+    <meta name="description" content="A free, private workout tracker. Log every set, see which muscles you've trained lately, and get a full-body plan from your own history." />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
   </head>
   <body>
     <div id="root"></div>

@@ -14,6 +14,8 @@ export const STORAGE_KEYS = {
   // Whether Naru is shown at all. Global rather than per-profile, like unit:
   // it is a preference about this browser, not about the person training.
   coach: "workoutTracker.coach",
+  // Rest timer length in seconds. Global for the same reason as unit.
+  restSeconds: "workoutTracker.restSeconds",
   // Per-profile, so a second profile still gets its own first-run guide.
   hasSeenGuide: (userId) => `workoutTracker.hasSeenGuide.${userId}`,
   // The workout currently in progress, if any. Per-profile so two people

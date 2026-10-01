@@ -4,42 +4,20 @@
 // workout" — everything up to that point was typing into a form with no sense
 // of accumulation. The volume counts up as sets land so the number reads as
 // something you are adding to.
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+//
+// Elapsed time lives on the pinned workout bar now, which ticks every second
+// and is on screen for the whole session.
+import { AnimatePresence, motion } from "motion/react";
 import { CountUp } from "./primitives.jsx";
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
-import { formatDuration } from "../lib/time.js";
-import {
-  describeReps,
-  formatVolume,
-  fromKg,
-  logVolume,
-  rankGroups,
-  totalSets,
-} from "../lib/units.js";
-import { listItemVariants, listVariants } from "../lib/motionVariants.js";
+import { describeReps, formatVolume, fromKg, logVolume, rankGroups, totalSets } from "../lib/units.js";
 
-export function SessionPanel({ logs, unit, active, startedAt }) {
-  // Ticks so a session left open in a tab doesn't keep reporting the minute it
-  // started. Once a minute is enough for a number rendered in whole minutes.
-  //
-  // Above the early return below, not inside the active branch: this component
-  // renders two different trees, and a hook that only runs in one of them
-  // changes the hook order between them.
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!active) return;
-    const id = setInterval(() => setNow(Date.now()), 60000);
-    return () => clearInterval(id);
-  }, [active]);
-
+export function SessionPanel({ logs, unit, active }) {
   if (!active) {
     return (
       <div className="card session-panel idle">
         <h2>This session</h2>
-        <p className="empty">
-          Your workout starts the moment you log your first exercise.
-        </p>
+        <p className="empty">Your workout starts the moment you log your first exercise.</p>
       </div>
     );
   }
@@ -56,10 +34,7 @@ export function SessionPanel({ logs, unit, active, startedAt }) {
 
       <div className="session-total">
         <span className="session-total-value">
-          <CountUp
-            value={volume}
-            format={(n) => `${Math.round(fromKg(n, unit)).toLocaleString()} ${unit}`}
-          />
+          <CountUp value={volume} format={(n) => `${Math.round(fromKg(n, unit)).toLocaleString()} ${unit}`} />
         </span>
         <span className="session-total-label">moved so far</span>
       </div>
@@ -71,11 +46,6 @@ export function SessionPanel({ logs, unit, active, startedAt }) {
         <span>
           <strong>{totalSets(logs)}</strong> sets
         </span>
-        {startedAt && (
-          <span>
-            <strong>{formatDuration(startedAt, now)}</strong> elapsed
-          </span>
-        )}
         {top && (
           <span>
             mostly <strong>{top}</strong>
@@ -84,19 +54,28 @@ export function SessionPanel({ logs, unit, active, startedAt }) {
       </div>
 
       {logs.length > 0 && (
-        <motion.ul className="data-list" variants={listVariants} initial="hidden" animate="show">
-          {logs.map((log) => (
-            <motion.li key={log.id} variants={listItemVariants}>
-              <span className="log-main">
-                <span className="log-name">{log.exerciseName}</span>
-                <span className="log-detail">{describeReps(log)}</span>
-              </span>
-              <span className="count">
-                {logVolume(log) > 0 ? formatVolume(logVolume(log), unit) : "—"}
-              </span>
-            </motion.li>
-          ))}
-        </motion.ul>
+        <ul className="data-list">
+          {/* Newest on top, sliding the rest down — the one you just logged is
+              the one you're checking. Exits are tweens (see CLAUDE.md). */}
+          <AnimatePresence initial={false}>
+            {logs.map((log) => (
+              <motion.li
+                key={log.id}
+                layout="position"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 12, transition: { duration: 0.15, ease: "easeIn" } }}
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              >
+                <span className="log-main">
+                  <span className="log-name">{log.exerciseName}</span>
+                  <span className="log-detail">{describeReps(log)}</span>
+                </span>
+                <span className="count">{logVolume(log) > 0 ? formatVolume(logVolume(log), unit) : "—"}</span>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </ul>
       )}
     </div>
   );

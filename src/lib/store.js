@@ -8,6 +8,7 @@
 import { STORAGE_KEYS } from "./storageKeys.js";
 import { BODY_GROUPS } from "./bodyGroups.js";
 import { findExercise } from "./exercises.js";
+import { sessionKey } from "./time.js";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -58,11 +59,35 @@ export function createUser({ name, bodyweight, height, age, weeklyGoal }) {
   return user;
 }
 
-// Just id + name, for the profile picker and the compare roster.
+// Just id + name, for the compare roster and anything else that only needs to
+// say who exists.
 export function listUsers() {
   return read(STORAGE_KEYS.users)
     .map((u) => ({ id: u.id, name: u.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// The sign-in screen's cards: who each profile is, plus enough history to tell
+// two similar names apart ("Joel — 40 entries, trained yesterday"). One read of
+// the log for every profile rather than getLogsForUser per card. loggedAt is
+// present in every shape a row has ever had, so normalising isn't needed to
+// count or date them.
+export function listProfiles() {
+  const stats = new Map();
+  for (const log of read(STORAGE_KEYS.logs)) {
+    const s = stats.get(log.userId) || { entries: 0, lastTrained: null };
+    s.entries += 1;
+    if (!s.lastTrained || log.loggedAt > s.lastTrained) s.lastTrained = log.loggedAt;
+    stats.set(log.userId, s);
+  }
+  return read(STORAGE_KEYS.users)
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      createdAt: u.createdAt ?? null,
+      ...(stats.get(u.id) || { entries: 0, lastTrained: null }),
+    }))
+    .sort((a, b) => (b.lastTrained ?? "").localeCompare(a.lastTrained ?? "") || a.name.localeCompare(b.name));
 }
 
 export function getUser(id) {
@@ -80,10 +105,28 @@ export function updateUser(id, patch) {
 
   const next = { ...users[index], ...patch };
   if ("weeklyGoal" in patch) next.weeklyGoal = clampGoal(patch.weeklyGoal);
+  // An empty name would leave a profile card nobody can pick out, so a blank
+  // edit keeps the old one rather than writing it.
+  if ("name" in patch) next.name = String(patch.name).trim() || users[index].name;
 
   users[index] = next;
   write(STORAGE_KEYS.users, users);
   return normalizeUser(next);
+}
+
+// Removes a profile and everything filed under it. The only destructive write
+// in the app that reaches across rows, so it filters by userId and leaves every
+// other profile's rows byte-for-byte as they were.
+export function deleteUser(id) {
+  const users = read(STORAGE_KEYS.users);
+  const remaining = users.filter((u) => u.id !== id);
+  if (remaining.length === users.length) return false;
+  write(STORAGE_KEYS.users, remaining);
+  write(STORAGE_KEYS.logs, read(STORAGE_KEYS.logs).filter((log) => log.userId !== id));
+  localStorage.removeItem(STORAGE_KEYS.activeWorkout(id));
+  localStorage.removeItem(STORAGE_KEYS.hasSeenGuide(id));
+  if (getLastUserId() === id) localStorage.removeItem(STORAGE_KEYS.lastUserId);
+  return true;
 }
 
 // An entry holds one set per row, each with its own reps and weight, because a
@@ -218,23 +261,37 @@ export function getWorkoutLogs(userId, workoutId) {
   return getLogsForUser(userId).filter((log) => log.workoutId === workoutId);
 }
 
-// Every group is present and zeroed, so callers never have to guess which
-// keys exist on a summary object.
+// Sessions per group, plus distinct sessions overall. Every group is present
+// and zeroed, so callers never have to guess which keys exist.
+//
+// Counted by session (lib/time.js's sessionKey), not by log row. This used to
+// add one per row, so a single evening of squats, leg press and curls showed on
+// the compare page as "3 sessions" — the same entry-versus-session confusion
+// heat.js was rewritten to stop. `total` is distinct sessions across every
+// group, which is why it isn't the sum of the per-group counts: one full-body
+// workout is one session, not seven.
 export function getSummary(userId, range = "all") {
-  const summary = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, 0]));
+  const byGroup = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, new Set()]));
+  const all = new Set();
   const cutoff = range === "week" ? Date.now() - WEEK_MS : null;
   for (const log of getLogsForUser(userId)) {
     if (cutoff !== null && new Date(log.loggedAt).getTime() < cutoff) continue;
-    if (log.bodyGroup in summary) summary[log.bodyGroup] += 1;
+    if (!(log.bodyGroup in byGroup)) continue;
+    const key = sessionKey(log);
+    byGroup[log.bodyGroup].add(key);
+    all.add(key);
   }
-  return summary;
+  return {
+    groups: Object.fromEntries(Object.entries(byGroup).map(([g, keys]) => [g, keys.size])),
+    total: all.size,
+  };
 }
 
 export function getCompareData() {
-  return listUsers().map((u) => ({
-    ...u,
-    summary: getSummary(u.id, "week"),
-  }));
+  return listUsers().map((u) => {
+    const { groups, total } = getSummary(u.id, "week");
+    return { ...u, summary: groups, sessions: total };
+  });
 }
 
 // Naru is opt-out, not opt-in: it stays out of the way until clicked, so
@@ -294,6 +351,94 @@ export function endWorkout(userId) {
   return { ...workout, endedAt: new Date().toISOString(), logs };
 }
 
+// Undoing the entry that opened a session should close the session too, or the
+// dashboard is left claiming a workout is in progress with nothing in it. Only
+// ever drops a session that holds no rows, so it can't discard real work.
+export function discardWorkoutIfEmpty(userId) {
+  const workout = getActiveWorkout(userId);
+  if (!workout || getWorkoutLogs(userId, workout.id).length > 0) return false;
+  localStorage.removeItem(STORAGE_KEYS.activeWorkout(userId));
+  return true;
+}
+
+/* ---- Backup ---- */
+
+// The web app and the desktop app keep separate localStorage, so a file is the
+// only way history moves between them (or to a new laptop).
+//
+// Rows are exported raw, exactly as stored, not normalised. A backup is a copy
+// of storage, and the read-time normalisation is what makes old shapes safe —
+// doing it on the way out would be a migration by another name.
+export const BACKUP_FORMAT = 1;
+
+export function exportBackup() {
+  return {
+    app: "tsyoku-naru",
+    format: BACKUP_FORMAT,
+    exportedAt: new Date().toISOString(),
+    users: read(STORAGE_KEYS.users),
+    logs: read(STORAGE_KEYS.logs),
+  };
+}
+
+const isText = (v) => typeof v === "string" && v.trim() !== "";
+const isDate = (v) => isText(v) && !Number.isNaN(new Date(v).getTime());
+
+// Enough to know a row will load. Shape beyond this is normalizeLog's job — a
+// legacy row with `sets: 4` in a backup is as valid as one in storage.
+function isUserRow(u) {
+  return u && isText(u.id) && isText(u.name);
+}
+
+function isLogRow(log) {
+  return (
+    log && isText(log.id) && isText(log.userId) && isText(log.bodyGroup) &&
+    isText(log.exerciseName) && isDate(log.loggedAt)
+  );
+}
+
+// Merges, never replaces. A row whose id already exists here is skipped rather
+// than overwritten, so importing the same file twice — or importing an older
+// backup over newer edits — can't roll anything back. Logs whose profile is in
+// neither this browser nor the file are dropped: nothing could ever show them.
+export function importBackup(data) {
+  if (!data || typeof data !== "object" || !Array.isArray(data.users) || !Array.isArray(data.logs)) {
+    throw new Error("That file isn't a Tsyoku-naru backup.");
+  }
+  if (data.app && data.app !== "tsyoku-naru") {
+    throw new Error("That backup came from a different app.");
+  }
+
+  const users = read(STORAGE_KEYS.users);
+  const logs = read(STORAGE_KEYS.logs);
+  const userIds = new Set(users.map((u) => u.id));
+  const logIds = new Set(logs.map((l) => l.id));
+  const result = { users: 0, logs: 0, skipped: 0 };
+
+  for (const user of data.users) {
+    if (!isUserRow(user) || userIds.has(user.id)) {
+      result.skipped += 1;
+      continue;
+    }
+    users.push(user);
+    userIds.add(user.id);
+    result.users += 1;
+  }
+  for (const log of data.logs) {
+    if (!isLogRow(log) || logIds.has(log.id) || !userIds.has(log.userId)) {
+      result.skipped += 1;
+      continue;
+    }
+    logs.push(log);
+    logIds.add(log.id);
+    result.logs += 1;
+  }
+
+  if (result.users) write(STORAGE_KEYS.users, users);
+  if (result.logs) write(STORAGE_KEYS.logs, logs);
+  return result;
+}
+
 /* ---- Preferences ---- */
 
 export function getUnit() {
@@ -302,4 +447,21 @@ export function getUnit() {
 
 export function setUnit(unit) {
   localStorage.setItem(STORAGE_KEYS.unit, unit === "lb" ? "lb" : "kg");
+}
+
+// Rest between sets. Ninety seconds is the common middle ground — long enough
+// for hypertrophy work, short of the three minutes a heavy triple wants — and
+// the timer's own ± buttons cover the rest. Clamped so a hand-edited value
+// can't produce a timer that never ends.
+export const DEFAULT_REST_SECONDS = 90;
+
+export function getRestSeconds() {
+  const n = Number(localStorage.getItem(STORAGE_KEYS.restSeconds));
+  return Number.isFinite(n) && n >= 15 && n <= 600 ? Math.round(n) : DEFAULT_REST_SECONDS;
+}
+
+export function setRestSeconds(seconds) {
+  const n = Math.min(600, Math.max(15, Math.round(Number(seconds) || DEFAULT_REST_SECONDS)));
+  localStorage.setItem(STORAGE_KEYS.restSeconds, String(n));
+  return n;
 }

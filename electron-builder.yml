@@ -1,0 +1,71 @@
+# Desktop installers: Windows 11 (.exe) and Fedora (.rpm), plus an AppImage
+# for other Linux distributions. Built by .github/workflows/desktop.yml, or
+# locally with `npm run dist:win` / `npm run dist:linux`.
+appId: com.byjoelsamuel.tsyokunaru
+productName: Tsyoku-naru
+copyright: Copyright © 2026 Joel Samuel
+
+directories:
+  output: release
+  buildResources: build
+
+# The npm name is "workout-tracker" (the repo's), but the Linux package should
+# be what people see: `dnf remove tsyoku-naru`, not `dnf remove workout-tracker`.
+# productName still decides the data folder, so this doesn't move anyone's
+# history.
+extraMetadata:
+  name: tsyoku-naru
+
+# The page is already bundled by Vite, so the app needs only dist/ and the
+# Electron shell. Leaving node_modules out keeps React and friends from being
+# shipped a second time inside the installer.
+files:
+  - dist/**/*
+  - desktop/**/*
+  - package.json
+  - "!node_modules/**/*"
+
+# No version in the file names, so GitHub's /releases/latest/download/<name>
+# links keep pointing at the newest build.
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: Tsyoku-naru-Setup-x64.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Tsyoku-naru
+  # Uninstalling keeps your workouts. They live in the app's data folder, and
+  # deleting them silently on an uninstall-to-reinstall would lose history.
+  deleteAppDataOnUninstall: false
+
+linux:
+  target:
+    - target: rpm
+      arch: [x64]
+    - target: AppImage
+      arch: [x64]
+  artifactName: Tsyoku-naru-x86_64.${ext}
+  executableName: tsyoku-naru
+  # Wayland (Fedora's default) matches a window to its launcher by app_id,
+  # which Electron takes from desktopName — without it GNOME shows a generic
+  # icon in the dock for the running app.
+  syncDesktopName: true
+  category: Utility
+  maintainer: Joel Samuel
+  synopsis: Private workout tracker with a body map of what you've trained
+  description: >-
+    Log every set, see which muscles you've worked lately on an anatomical body
+    map, and plan full-body sessions from your own history. Everything stays on
+    your computer.
+  desktop:
+    entry:
+      Name: Tsyoku-naru
+      Keywords: workout;gym;fitness;training;
+
+publish: null

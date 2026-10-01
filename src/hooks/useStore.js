@@ -6,26 +6,30 @@ import { useCallback, useEffect, useState } from "react";
 import {
   addLog,
   deleteLog,
+  discardWorkoutIfEmpty,
   endWorkout,
   getActiveWorkout,
   getCoachEnabled,
   getCompareData,
   getLogsForUser,
   getRecentExercises,
-  getSummary,
+  getRestSeconds,
   getUnit,
   getUser,
   getWorkoutLogs,
-  listUsers,
+  listProfiles,
   setCoachEnabled,
+  setRestSeconds,
   setUnit,
   updateLog,
   updateUser,
 } from "../lib/store.js";
 
-export function useUsers() {
-  const [users] = useState(listUsers);
-  return users;
+// The sign-in screen's roster. Read once per mount — every change to it
+// (creating or deleting a profile) navigates to that screen afresh.
+export function useProfiles() {
+  const [profiles] = useState(listProfiles);
+  return profiles;
 }
 
 // Returns [user, update] rather than the bare user, the way useUnit below
@@ -75,10 +79,11 @@ export function useCompareData() {
 // because the derived values (summary, recents, personal bests) are computed
 // across the whole log and can't be updated incrementally without drifting.
 export function useExerciseLog(userId) {
+  // No all-time summary here any more: nothing read it, and it was a third
+  // full scan of the log on every write.
   const readAll = useCallback(
     () => ({
       logs: getLogsForUser(userId),
-      summary: getSummary(userId, "all"),
       workout: getActiveWorkout(userId),
       recents: getRecentExercises(userId, 10),
     }),
@@ -93,9 +98,22 @@ export function useExerciseLog(userId) {
 
   const refresh = useCallback(() => setState(readAll()), [readAll]);
 
+  // Hands back the stored row so the caller can offer to undo it.
   const log = useCallback(
     (entry) => {
-      addLog(userId, entry);
+      const created = addLog(userId, entry);
+      refresh();
+      return created;
+    },
+    [userId, refresh]
+  );
+
+  // Removing a just-logged entry, as opposed to deleting one from history: if
+  // it was the entry that opened the session, the session goes with it.
+  const undo = useCallback(
+    (logId) => {
+      deleteLog(userId, logId);
+      discardWorkoutIfEmpty(userId);
       refresh();
     },
     [userId, refresh]
@@ -127,7 +145,7 @@ export function useExerciseLog(userId) {
 
   const workoutLogs = state.workout ? getWorkoutLogs(userId, state.workout.id) : [];
 
-  return { ...state, workoutLogs, log, editEntry, removeEntry, finish };
+  return { ...state, workoutLogs, log, undo, editEntry, removeEntry, finish, refresh };
 }
 
 // Display unit for weights, mirrored into localStorage so it survives a
@@ -142,4 +160,11 @@ export function useUnit() {
   }, []);
 
   return [unit, change];
+}
+
+// Rest timer length, same shape as useUnit.
+export function useRestSeconds() {
+  const [seconds, setSecondsState] = useState(getRestSeconds);
+  const change = useCallback((next) => setSecondsState(setRestSeconds(next)), []);
+  return [seconds, change];
 }

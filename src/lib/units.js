@@ -23,6 +23,19 @@ export function fromKg(kg, unit) {
   return unit === "lb" ? kg / KG_PER_LB : kg;
 }
 
+// Plate maths, not round numbers: 2.5 kg is the smallest pair of plates on a
+// bar, and 5 lb its imperial equivalent.
+export const PLATE_STEP = { kg: 2.5, lb: 5 };
+
+// A suggested load snapped to what can actually be put on a bar in the unit
+// being read, then handed back in kilograms like every other weight.
+export function roundToPlate(kg, unit) {
+  if (kg == null) return null;
+  const step = PLATE_STEP[unit] ?? 2.5;
+  const snapped = Math.max(step, Math.round(fromKg(kg, unit) / step) * step);
+  return toKg(snapped, unit);
+}
+
 // Weights are display values, not measurements — a bar loaded to 42.5 kg should
 // read "42.5 kg", not "42.50 kg", so a trailing zero is dropped.
 export function formatWeight(kg, unit) {

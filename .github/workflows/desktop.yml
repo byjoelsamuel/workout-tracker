@@ -1,0 +1,167 @@
+name: Desktop app
+
+# Builds the Windows 11 installer and the Fedora/Linux packages from the same
+# Vite build as the website, and publishes them as a GitHub Release — which is
+# where the website's "download the app" link points.
+#
+#   pull request     -> both are built and attached to the run as artifacts, so
+#                       a change that breaks packaging fails before release
+#   push to main     -> if package.json's version has no release yet, build and
+#                       publish v<version>. Releasing is "bump the version, merge"
+#   tag v1.2.3       -> build and publish that tag (still works by hand)
+#
+# Each platform builds on its own OS: the Windows installer needs Windows
+# tooling (NSIS, rcedit) that doesn't cross-build reliably from Linux.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "desktop/**"
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "electron-builder.yml"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/desktop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two quick pushes to main carrying the same new version must not race to
+# create the same release.
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Decides whether this run publishes, and under which tag. Everything else
+  # keys off its outputs.
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.plan.outputs.release }}
+      tag: ${{ steps.plan.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: plan
+        shell: bash
+        run: |
+          tag="v$(node -p "require('./package.json').version")"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            # The version is shown in the app's About page and baked into the
+            # installers, so a tag that disagrees with package.json would
+            # publish mislabelled builds.
+            if [ "$tag" != "$GITHUB_REF_NAME" ]; then
+              echo "Tag $GITHUB_REF_NAME doesn't match package.json ($tag)." >&2
+              exit 1
+            fi
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            # Publish only a version that hasn't been released yet; an
+            # ordinary merge with no version bump builds nothing.
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "$tag is already released; nothing to publish."
+              echo "release=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "release=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: plan
+    # Pull requests and manual runs always build, to prove packaging works. A
+    # push to main builds only when it's going to publish.
+    if: github.event_name != 'push' || needs.plan.outputs.release == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            target: --win
+          - name: Linux
+            os: ubuntu-latest
+            target: --linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install rpm tooling
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Package
+        run: npx electron-builder ${{ matrix.target }} --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tsyoku-naru-${{ matrix.name }}
+          path: |
+            release/*.exe
+            release/*.rpm
+            release/*.AppImage
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: [plan, build]
+    if: needs.plan.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      # Creates the tag at this commit if it doesn't exist yet (the push-to-
+      # main case), or attaches to the one that was pushed.
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.plan.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Tsyoku-naru ${{ needs.plan.outputs.tag }}
+          files: artifacts/*
+          generate_release_notes: true
+          body: |
+            ## Download
+
+            | System | File |
+            |---|---|
+            | **Windows 11** | `Tsyoku-naru-Setup-x64.exe` |
+            | **Fedora** | `Tsyoku-naru-x86_64.rpm` |
+            | Other Linux | `Tsyoku-naru-x86_64.AppImage` |
+
+            **Windows:** run the installer. It isn't code-signed, so Windows may show
+            "Windows protected your PC" — choose **More info → Run anyway**.
+
+            **Fedora:** `sudo dnf install ./Tsyoku-naru-x86_64.rpm`, then open
+            Tsyoku-naru from Activities. Remove it with `sudo dnf remove tsyoku-naru`.
+
+            **AppImage:** `chmod +x Tsyoku-naru-x86_64.AppImage` and run it. On Fedora
+            this needs FUSE 2: `sudo dnf install fuse-libs`.
+
+            Your workouts are stored on your computer, separately from the website.
+            To bring your history across, use **Settings → Backup → Export** on the
+            website and **Import** in the app.

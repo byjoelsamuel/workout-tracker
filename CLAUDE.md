@@ -5,9 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev       # start Vite dev server
-npm run build     # production build to dist/
-npm run preview   # preview a production build locally
+npm run dev         # start Vite dev server
+npm run build       # production build to dist/
+npm run preview     # preview a production build locally
+npm run desktop     # build, then run the desktop app (Electron) on dist/
+npm run dist:linux  # package Fedora .rpm + AppImage into release/ (needs rpmbuild)
+npm run dist:win    # package the Windows installer into release/ (on Windows; cross-building needs 32-bit Wine)
 ```
 
 No lint or test setup exists in this repo — don't invent `npm run lint` / `npm test`. Changes are verified by driving the real app in a browser, and by seeding `localStorage` with legacy-shaped rows to confirm old data still renders and still totals the same. Do that for anything touching `store.js` or `units.js`: silently changing what a past session meant is the worst failure mode this app has.
@@ -23,13 +26,20 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 | `src/lib/store.js` | Only module that touches `localStorage`. Plain functions (not hooks) — users, logs, workout sessions, unit preference all persist through here. |
 | `src/lib/storageKeys.js` | Every localStorage key, in one place. |
 | `src/hooks/useStore.js` | Reactive wrappers around `store.js` — adds just enough local state to re-render after a write. Read alongside `store.js`, not instead of it. |
-| `src/pages/` | `Landing`, `Onboarding`, `Dashboard`, `Progress`, `Compare`, `About` — routed in `src/components/Layout.jsx`. |
-| `src/components/` | Page-level components (`BodyMap`, `HistoryList`, `LogForm`, `ExercisePicker`, `SetBuilder`, `SessionPanel`, `WorkoutSummary`, `OnboardingGuide`, `WeeklyGoal`, `HeatLegend`, `Coach`) plus `primitives.jsx` for shared building blocks (`Card`, `Button`, `PageHeader`, `AnimatedList`, `StatRow`, `CountUp`). |
-| `src/lib/time.js` | Weeks, streaks, durations and relative days — all derived from logs, since finished workouts are not persisted. |
+| `src/pages/` | `Landing`, `Welcome` (profile picker, "Who's training?"), `Onboarding` (one-question-per-step profile setup), `Dashboard`, `Progress`, `Compare`, `Settings`, `About` — routed in `src/components/Layout.jsx`. `/onboarding` redirects to `/welcome` for old links. |
+| `src/components/` | Page-level components (`BodyMap`, `HistoryList`, `LogForm`, `ExercisePicker`, `SetBuilder`, `SessionPanel`, `WorkoutBar`, `WorkoutSummary`, `WeeklyGoal`, `HeatLegend`, `Coach`, `Tour`, `ProfileFields`) plus `primitives.jsx` for shared building blocks (`Card`, `Button`, `PageHeader`, `AnimatedList`, `CountUp`, `Segmented`, `Switch`, `Field`). `Dialog.jsx` (dialogs, sheets, `ConfirmDialog`), `Toaster.jsx` (toasts with an optional action, e.g. Undo) and `Burst.jsx` (the PR/goal particle burst) are the shared overlays. |
+| `src/lib/time.js` | Weeks, streaks, durations, clocks and relative days — all derived from logs, since finished workouts are not persisted. |
 | `src/lib/heat.js` | Recency-decayed training heat per muscle group — the body map’s opacity, plus the session counts behind its tooltips. |
+| `src/lib/records.js` | Personal bests and "last time" for a movement, derived from the log. Progress, Naru and the log form all read these — don't add another loop over the log for the same question. |
+| `src/lib/profile.js` | Optional body details (bodyweight, height, age): ranges, validation, and the kg/cm ↔ lb/ft-in conversion used by onboarding and settings. |
 | `src/lib/coach.js` | Naru: a deterministic full-body session generator over the exercise library and the user's own logs. No model, no network. |
+| `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling) and `preload.cjs` (exposes only `window.tsyoku = { desktop: true }`). |
+| `src/lib/platform.js` | `isDesktop` — the only place the page branches on website vs. app. |
+| `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release when main gets an unreleased version (or a `v*` tag is pushed). |
 
 `Dashboard` is the mid-workout screen — body map, log form, live session total, end workout. `Progress` is what you read *between* workouts — group breakdown, personal bests, full editable history. Keep that split; having history on the dashboard is what made it cluttered.
+
+**Keep the visual language of `src/styles/global.css`**: system font stack, flat cards with a hairline border, the orange accent used sparingly, centred page headers, the top nav. A revamp toward a sidebar, display fonts, gradient glows, glassy panels and a marketing-style landing page was rejected by the owner as looking generic and AI-made, and reverted. New UI should look like it was always part of this stylesheet.
 
 ### Domain rules that aren't obvious from the code
 
@@ -45,10 +55,26 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 - **Profiles are normalised on read too**, exactly like logs: `normalizeUser` in `store.js` backfills `weeklyGoal`, and `updateUser` rewrites one row and leaves the rest in whatever shape they had. Same rule as `normalizeLog` — when you add a profile field, backfill it there rather than migrating storage.
 - **The weekly goal is a calendar week (Mon–Sun)**, not the rolling seven days `getSummary("week")` and the compare page use. A rolling window makes a meter that read 3 of 3 last night read 2 of 3 this morning with nothing having happened; that is fine for a leaderboard and wrong for a target. The streak counts consecutive weeks *trained*, deliberately not weeks that met the goal — the goal is editable, so tying the streak to it would rewrite the user’s past the moment they raised it.
 - **The body map decays; it does not accumulate.** `src/lib/heat.js` weights each session by `0.5 ** (daysAgo / 7)` and sums per group, so the figure shows what you have worked *lately*. A lifetime count could only ever rise — five sessions pinned a group at full accent forever, and after a couple of months every muscle was saturated and the map said nothing at all. Score per **session**, never per log row, or a workout holding four chest movements counts four times as loud as one holding a single movement. The Progress page keeps the undecayed lifetime counts; that is the question it exists to answer.
-- **Naru plans full-body sessions, not a PPL split.** `src/lib/coach.js` picks one compound per movement pattern (push/pull/legs), then accessories aimed at whatever `recencyHeat` says is stalest, then core. A split only pays off above four sessions a week, and the weekly goal defaults to three. It is **deterministic** — seeded from the date, so reopening the panel mid-workout returns the same list instead of reshuffling under you; `nonce` is what "New plan" bumps. Movements already in the log rank first, so a real working weight can be offered (your best set minus 10%); repeating last session is allowed for compounds and refused for accessories. Mounted in `Layout.jsx` rather than on a page, so it survives moving between dashboard and progress, and it reads its own logs so nothing is scanned on routes that never show it.
+- **Naru plans full-body sessions, not a PPL split.** `src/lib/coach.js` picks one compound per movement pattern (push/pull/legs), then accessories aimed at whatever `recencyHeat` says is stalest, then core. A split only pays off above four sessions a week, and the weekly goal defaults to three. It is **deterministic** — seeded from the date, so reopening the panel mid-workout returns the same list instead of reshuffling under you; `nonce` is what "New plan" bumps. Movements already in the log rank first, so a real working weight can be offered (your best set minus 10%); repeating last session is allowed for compounds and refused for accessories. It opens as a sheet from "Plan with Naru" in the dashboard's log card — the old floating corner button covered the body map and personal bests on phones. Each movement's "Log" hands it to the log form (the dashboard owns the selected exercise for that reason), and the plan is frozen while the sheet is open so ticking movements off can't reshuffle it.
 - **Active profile lives in the URL** as `?user=<id>` (see `Dashboard.jsx`), not route params or context. `Layout.jsx` keys routes on `location.search` so switching `?user=A` → `?user=B` remounts `Dashboard` even though the pathname doesn't change. Nav links have to carry `?user=` forward or they bounce to onboarding.
 - **Theme is set before first paint** by the unbundled `public/theme-init.js` (blocking `<script>` in `index.html`), writing `data-theme` on `<html>`. Everything else reads CSS custom properties, so only the toggle button needs `useTheme`.
-- **Onboarding guide requires both** `hasSeenGuide.<userId>` being unset *and* zero logs — existing users upgraded without that flag ever being set, so the flag alone would re-trigger the tutorial for people with months of history.
+- **Onboarding guide requires both** `hasSeenGuide.<userId>` being unset *and* zero logs — existing users upgraded without that flag ever being set, so the flag alone would re-trigger the tutorial for people with months of history. Settings → "Show the walkthrough" replays it by navigating to the dashboard with router state `{ tour: true }`; that never clears the flag.
+- **Anything counting "sessions" counts workouts, not rows.** `getSummary` (and so the compare page) groups by `sessionKey` like `time.js` and `heat.js` do; it used to add one per log row, so three movements in one evening read as "3 sessions". Naru's session count and "last session" use `sessionKey` too — never `loggedAt.slice(0, 10)`, which is a UTC date.
+- **Backup import merges, never replaces.** `importBackup` skips any row whose id already exists and drops logs whose profile isn't present, so re-importing a file — or importing an old one — can't roll anything back. Export writes rows raw, exactly as stored; normalising on the way out would be a migration by another name.
+- **Undoing a log can close the session.** `undo` in `useExerciseLog` deletes the row, then `discardWorkoutIfEmpty` drops the active workout only if it now holds no rows — otherwise undoing the first entry left a workout "in progress" with nothing in it.
+- **Profile edits write only the fields that changed** (`changedPatch` in `Settings.jsx`). A height entered in feet doesn't round-trip exactly (180 cm → 180.3), so saving every field would drift an untouched height each time someone renamed themselves.
+- **Theme preference "system" is the absence of the theme key** — exactly what `theme-init.js` already reads as "follow the OS" — so no stored value changed meaning when the option was added.
+
+### Desktop app
+
+- **It is the website's build, unchanged.** `desktop/main.cjs` serves `dist/` over a registered `app://tsyoku-naru` scheme, with the same index.html fallback as `vercel.json`. Don't fork UI for the app; branch on `isDesktop` only where something would be *wrong* there (the landing page, the download prompt, the W3C validator links).
+- **`app://tsyoku-naru` is a wire format**, like the storage keys: localStorage is keyed by origin, so changing the scheme or host orphans every installed user's history. Same for `productName` ("Tsyoku-naru"), which names the data folder. The rpm's package name (`tsyoku-naru`, via `extraMetadata` in `electron-builder.yml`) is separate and safe to change.
+- **The app's data is separate from the website's.** Settings → Backup is how history moves between them; the copy in About and Settings says so — keep it accurate.
+- **The main process can't import `src/lib/site.js`**, so it must not hard-code the website's host either; links to it go through the page.
+- External links open in the system browser and nothing can navigate the window off `app://` (`web-contents-created` in `main.cjs`). The CSP is set in the protocol handler.
+- `node_modules` is excluded from the package — Vite has already bundled everything the page needs. If the main process ever needs a runtime dependency, that exclusion has to change.
+- Installer file names carry no version, so `releases/latest/download/<name>` links stay stable.
+- **Releasing is "bump `package.json`'s version, merge to main".** The workflow's `plan` job publishes `v<version>` from a push to main only when that tag doesn't exist yet, creating the tag through the release API. A hand-pushed `v*` tag also publishes, and must equal `v` + `package.json`'s version — the workflow refuses a mismatch. Sessions here can push only their own branch, not tags, which is why the main-push route exists.
 
 ### Animation
 
@@ -56,7 +82,11 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 
 One rule that has caused the same bug twice (page transitions, then the history editor): **anything inside `AnimatePresence` must exit on a tween, not a spring.** AnimatePresence unmounts when the exit animation *resolves*, and a spring resolves by settling — so a spring exit leaves the element in the DOM long after it looks gone, and an exit that settles above `opacity: 0` never leaves at all.
 
-The guide arrows in `OnboardingGuide.jsx` derive their arrowhead angle from the same Bézier control point that draws the curve; don't hard-code a head direction, it only lines up when the arrow happens to arrive vertically.
+Dialogs, sheets, toasts and the walkthrough render through a portal into `<body>`. Pages animate with transforms, and a transformed ancestor turns `position: fixed` into "fixed to that ancestor" — which is why the end-workout bar inside `<main>` is `sticky`, not `fixed`.
+
+The walkthrough's spotlight (`Tour.jsx`) is one element whose huge box-shadow dims the page; it springs between targets, so keep it a single element rather than a mask per step.
+
+Onboarding steps use `AnimatePresence mode="wait"`, so focus for a new step is set from a ref callback on the step's element — an effect keyed on the step runs while the outgoing step is still the one in the DOM.
 
 ### Other notes
 
