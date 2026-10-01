@@ -11,7 +11,7 @@ const CM_PER_INCH = 2.54;
 
 // Generous ranges — these exist to catch a typo (780 for 78), not to police
 // anyone's body.
-export const LIMITS = {
+const LIMITS = {
   kg: [25, 350],
   lb: [55, 770],
   cm: [100, 250],

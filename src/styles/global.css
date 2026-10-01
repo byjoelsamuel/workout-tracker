@@ -419,17 +419,6 @@ body {
     margin-top: 1.125rem;
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-}
-
-/* Weight drops out for bodyweight movements, so the row reflows to two. */
-.form-row.two {
-    grid-template-columns: repeat(2, 1fr);
-}
-
 .field-note {
     font-size: 0.75rem;
     color: var(--text-secondary);
@@ -968,9 +957,6 @@ body {
     .dashboard-column {
         order: -1;
     }
-    .form-row {
-        grid-template-columns: 1fr;
-    }
 }
 
 .stat-row {
@@ -1474,18 +1460,6 @@ body {
     padding: 0.75rem 0.875rem;
     font-size: 0.8125rem;
     color: var(--text-secondary);
-}
-
-.picker-browse-toggle {
-    align-self: flex-start;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    font-family: inherit;
-    font-size: 0.8125rem;
-    font-weight: 550;
-    color: var(--accent);
-    cursor: pointer;
 }
 
 .selected-exercise {
