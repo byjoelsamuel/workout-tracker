@@ -88,8 +88,9 @@ Everything is stored on your device. No account, no backend.
 - **Backup** — export every profile to a JSON file and import it into another
   browser. Importing only adds what's missing; nothing already there is
   overwritten
-- **Dark and light themes**, keyboard-friendly dialogs (focus is trapped and
-  returned, Escape closes), and reduced-motion support throughout
+- **Dark and light themes** — light lavender on black, or violet on white —
+  that scale up on bigger screens, keyboard-friendly dialogs (focus is trapped
+  and returned, Escape closes), and reduced-motion support throughout
 
 ## Desktop App
 
@@ -108,6 +109,12 @@ The app keeps its own history, separate from the website's. To move yours
 across, use **Settings → Backup → Export** on the website and **Import** in the
 app (or the other way round). Uninstalling the app keeps your data.
 
+**Updates:** from 1.2.0 on, the app checks GitHub when it opens and tells you
+when a newer version is out, with a button that downloads the right installer
+for your system — install it over the top and your history stays where it was.
+You can also check from **Settings → Help → Updates**. (Copies older than 1.2.0
+don't know how to check, so install 1.2.0 by hand once.)
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -115,7 +122,7 @@ app (or the other way round). Uninstalling the app keeps your data.
 | UI | [React 19](https://react.dev/) |
 | Routing | [React Router](https://reactrouter.com/) |
 | Build | [Vite](https://vite.dev/) |
-| Styling | CSS custom properties, one global stylesheet |
+| Styling | CSS custom properties, one global stylesheet, [Rubik](https://github.com/googlefonts/rubik) (bundled) |
 | Animation | [Motion](https://motion.dev/) |
 | Data persistence | Browser `localStorage` |
 | Desktop | [Electron](https://www.electronjs.org/) + [electron-builder](https://www.electron.build/) (`electron-builder.yml`), built and released by GitHub Actions |
@@ -220,7 +227,8 @@ as downloadable workflow artifacts, without publishing anything.
 - [x] Prefill a movement's sets from last time
 - [x] Desktop app for Windows 11 and Fedora
 - [ ] Move hosting back to Netlify
-- [ ] Code-sign the Windows installer and add automatic updates
+- [x] Tell desktop users when a new version is out
+- [ ] Code-sign the Windows installer and install updates in place
 - [ ] Workout templates and supersets
 - [ ] Optional cloud sync for cross-device access
 
