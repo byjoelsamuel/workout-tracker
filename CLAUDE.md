@@ -35,7 +35,7 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 | `src/lib/coach.js` | Naru: a deterministic full-body session generator over the exercise library and the user's own logs. No model, no network. |
 | `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling) and `preload.cjs` (exposes only `window.tsyoku = { desktop: true }`). |
 | `src/lib/platform.js` | `isDesktop` — the only place the page branches on website vs. app. |
-| `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release on a `v*` tag. |
+| `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release when main gets an unreleased version (or a `v*` tag is pushed). |
 
 `Dashboard` is the mid-workout screen — body map, log form, live session total, end workout. `Progress` is what you read *between* workouts — group breakdown, personal bests, full editable history. Keep that split; having history on the dashboard is what made it cluttered.
 
@@ -73,7 +73,8 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 - **The main process can't import `src/lib/site.js`**, so it must not hard-code the website's host either; links to it go through the page.
 - External links open in the system browser and nothing can navigate the window off `app://` (`web-contents-created` in `main.cjs`). The CSP is set in the protocol handler.
 - `node_modules` is excluded from the package — Vite has already bundled everything the page needs. If the main process ever needs a runtime dependency, that exclusion has to change.
-- Installer file names carry no version, so `releases/latest/download/<name>` links stay stable. A release tag must equal `v` + `package.json`'s version; the workflow refuses a mismatch.
+- Installer file names carry no version, so `releases/latest/download/<name>` links stay stable.
+- **Releasing is "bump `package.json`'s version, merge to main".** The workflow's `plan` job publishes `v<version>` from a push to main only when that tag doesn't exist yet, creating the tag through the release API. A hand-pushed `v*` tag also publishes, and must equal `v` + `package.json`'s version — the workflow refuses a mismatch. Sessions here can push only their own branch, not tags, which is why the main-push route exists.
 
 ### Animation
 

@@ -203,15 +203,15 @@ npm run dist:win    # Windows installer into release/ (run on Windows)
 ```
 
 Releases are built by GitHub Actions (`.github/workflows/desktop.yml`). To
-publish one, bump `version` in `package.json`, commit, and push a matching tag:
+publish one, **bump `version` in `package.json` and merge to `main`** — when
+`main` carries a version that has no release yet, the workflow builds the
+Windows installer on Windows and the Linux packages on Ubuntu, creates the
+`v<version>` tag, and attaches all three to a GitHub Release. Merges that don't
+change the version publish nothing.
 
-```bash
-git tag v1.2.0 && git push origin v1.2.0
-```
-
-The workflow builds the Windows installer on Windows and the Linux packages on
-Ubuntu, then attaches all three to a GitHub Release. Pull requests build them
-too, as downloadable workflow artifacts, without publishing anything.
+Pushing a tag by hand (`git tag v1.2.0 && git push origin v1.2.0`) also works,
+as long as it matches `package.json`. Pull requests build the installers too,
+as downloadable workflow artifacts, without publishing anything.
 
 ## Roadmap
 
