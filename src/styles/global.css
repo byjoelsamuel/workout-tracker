@@ -91,60 +91,54 @@ body {
     color: var(--accent);
 }
 
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    /* Lets the links give way rather than pushing the icon buttons off the
-       right edge — four destinations plus two icons don't fit a phone at the
-       full desktop gap. */
-    min-width: 0;
-}
-
 .nav-links {
     display: flex;
     gap: 20px;
     min-width: 0;
+    margin-left: auto;
 }
 
-/* Below this the brand plus four links plus two icons stop fitting on one
-   line, so the spacing tightens before anything is allowed to overflow. */
-@media (max-width: 560px) {
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.icon-motion {
+    display: inline-flex;
+}
+
+@media (max-width: 760px) {
     .nav {
-        padding: 12px 14px;
-    }
-
-    .nav-right {
-        gap: 12px;
-    }
-
-    .nav-links {
-        gap: 13px;
-    }
-
-    .nav-links a {
-        font-size: 13px;
-    }
-
-    .nav-brand {
-        font-size: 14px;
+        padding: 14px 18px;
     }
 }
 
-@media (max-width: 380px) {
-    /* Last resort on the narrowest phones: the wordmark is the most
-       expendable thing here, since every nav link is a destination. */
-    .nav-brand span {
-        display: none;
+/* Below this the brand, four links and two icons can't share one line — the
+   brand ran into "Dashboard" and "About" slid under the icons. So the links
+   take a row of their own beneath the brand, spread across the width. */
+@media (max-width: 640px) {
+    .nav {
+        flex-wrap: wrap;
+        row-gap: 10px;
+        padding: 12px 16px 10px;
     }
 
-    .nav-right,
+    .nav-icons {
+        margin-left: auto;
+    }
+
     .nav-links {
-        gap: 10px;
+        order: 3;
+        flex-basis: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+        gap: 8px;
     }
 
     .nav-links a {
-        font-size: 12px;
+        padding: 4px 0;
     }
 }
 
@@ -191,7 +185,8 @@ body {
     transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
 }
 
-.icon-button:hover {
+.icon-button:hover,
+.icon-button.active {
     color: var(--accent);
     border-color: var(--accent);
 }
@@ -468,6 +463,11 @@ body {
 .button.large {
     font-size: 17px;
     padding: 14px 32px;
+}
+
+/* The landing page's breathing room, scoped to it. On .button.large itself it
+   also pushed the End workout button down out of line with its card. */
+.intro .button-motion {
     margin-top: 36px;
 }
 
@@ -478,6 +478,30 @@ body {
 
 .button.block {
     width: 100%;
+}
+
+.button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.button.danger {
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.button.danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--danger) 85%, #000);
+    border-color: color-mix(in srgb, var(--danger) 85%, #000);
+}
+
+/* Wraps a router Link in motion without breaking its inline layout. */
+.button-motion {
+    display: inline-block;
+}
+
+.button-motion.block {
+    display: block;
 }
 
 /* ---- Body map ---- */
@@ -498,6 +522,8 @@ body {
     border-radius: 14px;
     background: var(--map-plate);
     transition: background-color 0.25s ease;
+    /* Depth for the Front ↔ Back turn in BodyMap.jsx. */
+    perspective: 900px;
 }
 
 .body-map {
@@ -506,6 +532,10 @@ body {
     max-width: 250px;
     max-height: 100%;
     margin: 0 auto;
+}
+
+.body-map.interactive .region {
+    cursor: pointer;
 }
 
 /* The anatomical polygons abut each other, so without a separating stroke a
@@ -533,10 +563,24 @@ body {
     stroke: none;
 }
 
-/* ---- Segmented toggles (body view, weight unit) ---- */
+/* Hovering or choosing a group outlines it, so tapping a muscle visibly picks
+   the group the exercise list below is now showing. */
+.body-heat .region.hovered,
+.body-heat .region.selected {
+    stroke: var(--accent);
+    stroke-width: 0.8;
+}
 
-.view-toggle,
-.unit-toggle {
+/* The flash over a group that just took a set (BodyMap's `pulse`). */
+.body-pulse polygon {
+    fill: var(--accent-hover);
+    stroke: none;
+    pointer-events: none;
+}
+
+/* ---- Segmented toggles (body view, weight unit, theme) ---- */
+
+.segmented {
     display: inline-flex;
     padding: 2px;
     gap: 2px;
@@ -545,39 +589,44 @@ body {
     background: var(--surface);
 }
 
-.view-toggle-option,
-.unit-option {
+.segmented button {
+    position: relative;
+    isolation: isolate;
     border: 0;
     cursor: pointer;
     background: transparent;
     color: var(--text-secondary);
     font-family: inherit;
     border-radius: 999px;
-    transition: background-color 0.18s ease, color 0.18s ease;
-}
-
-.view-toggle-option {
     padding: 5px 16px;
     font-size: 12px;
     font-weight: 550;
     letter-spacing: 0.03em;
+    transition: color 0.18s ease;
 }
 
-.unit-option {
+.segmented.small button {
     padding: 2px 9px;
     font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0;
 }
 
-.view-toggle-option:hover,
-.unit-option:hover {
+.segmented button:hover {
     color: var(--text-primary);
 }
 
-.view-toggle-option.active,
-.unit-option.active {
-    background: var(--accent);
+.segmented button[aria-checked="true"] {
     color: #fff;
+}
+
+/* One highlight that slides between options (layoutId in primitives.jsx). */
+.segmented-thumb {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--accent);
 }
 
 .map-card {
@@ -837,11 +886,13 @@ body {
     .dashboard-grid {
         grid-template-columns: minmax(0, 1fr);
     }
+    /* The form first on a phone. Below the map it sat about a thousand pixels
+       down — the one control you came to use was the one you had to scroll to. */
+    .dashboard-column {
+        order: -1;
+    }
     .form-row {
         grid-template-columns: 1fr;
-    }
-    .nav {
-        padding: 14px 18px;
     }
 }
 
@@ -976,11 +1027,12 @@ body {
     flex: 1;
 }
 
+/* Wraps rather than truncating. This rule used to set nowrap with an ellipsis
+   over the top of the one near the nav, so "Bench Press (Barbell)" read as
+   "Bench Press (Ba…" on a phone — the equipment is the half you need. */
 .log-name {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 
 .log-detail {
@@ -1144,90 +1196,102 @@ body {
     background: var(--accent-soft);
 }
 
-/* ---- Onboarding guide overlay ---- */
+/* ---- Walkthrough (Tour.jsx) ---- */
 
-.guide-overlay {
+.tour {
     position: fixed;
     inset: 0;
-    z-index: 30;
-    background: color-mix(in srgb, var(--background) 72%, transparent);
-    backdrop-filter: blur(3px);
-    /* Centers the narrow-screen card. Deliberately not transform-based:
-       motion animates transform on that card, which would overwrite it. */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 50;
 }
 
-.guide-svg {
+/* Swallows clicks so the page can't be used half-way through a step. */
+.tour-shield {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+}
+
+/* The spotlight is this element's own box; its huge shadow is the dimmed
+   page around it. Moving one element is what lets the light glide from one
+   target to the next instead of blinking. */
+.tour-spot {
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-radius: 20px;
+    box-shadow:
+        0 0 0 2px var(--accent),
+        0 0 0 200vmax color-mix(in srgb, var(--background) 72%, transparent);
     pointer-events: none;
-    overflow: visible;
 }
 
-.guide-arrow {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-}
-
-.guide-note {
-    position: absolute;
-    font-size: 14px;
-    font-weight: 550;
-    line-height: 1.45;
-    color: var(--text-primary);
-}
-
-/* Narrow-screen fallback: no room beside the cards for arrows. */
-.guide-card {
-    width: min(340px, calc(100% - 48px));
+.tour-card {
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 18px;
-    padding: 24px;
+    padding: 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
 }
 
-.guide-card h2 {
+.tour-card.docked {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: 12px;
+}
+
+.tour-count {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.tour-content h2 {
     font-size: 18px;
     font-weight: 650;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
 }
 
-.guide-card p {
+.tour-body {
     font-size: 14px;
     line-height: 1.5;
     color: var(--text-secondary);
-    margin-top: 12px;
 }
 
-.guide-card strong {
+.tour-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.tour-dot {
     display: block;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--accent);
-    margin-bottom: 3px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
 }
 
-.guide-note strong {
-    color: var(--accent);
-    display: block;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 3px;
+.tour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
 
-.guide-dismiss {
-    position: absolute;
-    left: 50%;
-    bottom: 48px;
-    transform: translateX(-50%);
+.tour-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.tour-skip {
+    color: var(--text-secondary);
 }
 
 /* ---- Exercise picker ---- */
@@ -1446,10 +1510,26 @@ body {
     gap: 4px;
 }
 
+/* Styled here as well as through .set-builder: the weekly goal and the rest
+   timer setting use the same stepper outside a set row, and their inputs were
+   falling back to the browser's default box. */
 .stepper input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: 11px;
     text-align: center;
     padding: 8px 4px !important;
     font-variant-numeric: tabular-nums;
+}
+
+.stepper input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .stepper-button {
@@ -1665,8 +1745,7 @@ body {
    reach the only control that closes it. .page already reserves 96px of
    bottom padding, so nothing is covered at the end of the scroll.
 
-   z-index 15 sits under the nav (20) and the coach launcher (25), so the
-   pinned bar never covers either. */
+   z-index 15 sits under the nav (20), so the pinned bar never covers it. */
 .end-workout {
     position: sticky;
     bottom: 16px;
@@ -1675,7 +1754,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px 20px;
     flex-wrap: wrap;
     border-color: color-mix(in srgb, var(--accent) 35%, var(--card-border));
     background: color-mix(in srgb, var(--card-bg) 88%, transparent);
@@ -1688,54 +1767,87 @@ body {
     gap: 3px;
 }
 
+.end-workout-stats .eyebrow {
+    margin-bottom: 0;
+}
+
 .end-workout-total {
     font-size: 17px;
     font-weight: 600;
 }
 
-.end-workout-actions {
+.num {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Rest timer, inside the end-workout bar. Starts itself after each log. */
+.rest {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px 6px 8px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    background: var(--surface);
+}
+
+.rest.done {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.rest-ring {
+    width: 28px;
+    height: 28px;
+    transform: rotate(-90deg);
+    flex-shrink: 0;
+}
+
+.rest-ring-track,
+.rest-ring-arc {
+    fill: none;
+    stroke-width: 4;
+}
+
+.rest-ring-track {
+    stroke: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.rest-ring-arc {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.rest-text {
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 76px;
+}
+
+@media (max-width: 560px) {
+    .end-workout {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rest {
+        justify-content: space-between;
+    }
 }
 
 /* ---- Workout summary ---- */
 
-.summary-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: color-mix(in srgb, var(--background) 72%, transparent);
-    backdrop-filter: saturate(180%) blur(12px);
-}
-
-.summary-panel {
-    width: 100%;
-    max-width: 460px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 28px;
+.summary {
     display: flex;
     flex-direction: column;
     gap: 22px;
-    border: 1px solid var(--card-border);
-    border-radius: 18px;
-    background: var(--card-bg);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
-}
-
-.summary-header h2 {
-    font-size: 20px;
-    font-weight: 650;
-    margin-top: 4px;
 }
 
 /* The one number the session is really about, so it gets the size. */
 .summary-hero {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1757,11 +1869,27 @@ body {
     font-weight: 700;
     line-height: 1.15;
     color: var(--accent);
+    font-variant-numeric: tabular-nums;
 }
 
 .summary-hero-alt {
     font-size: 13px;
     color: var(--text-secondary);
+}
+
+.summary-records {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.record-line {
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    font-size: 14px;
+    text-align: center;
 }
 
 .summary-top {
@@ -1784,107 +1912,138 @@ body {
     margin-bottom: 10px;
 }
 
-@media (max-width: 560px) {
-    .end-workout {
-        flex-direction: column;
-        align-items: stretch;
-    }
+.summary-actions {
+    margin-top: 22px;
+}
 
-    .summary-panel {
+/* ---- Dialogs & sheets (Dialog.jsx) ---- */
+
+.dialog-root {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.dialog-backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--background) 72%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+}
+
+.dialog-panel {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    background: var(--card-bg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+    outline: none;
+    overscroll-behavior: contain;
+}
+
+.dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.dialog-title {
+    font-size: 20px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.dialog-desc {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.dialog-close {
+    flex-shrink: 0;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.confirm-dialog .form {
+    margin-top: 0;
+}
+
+/* Sheets slide from an edge instead of floating in the middle: the right on
+   wide screens, the bottom on phones. */
+.sheet-root {
+    padding: 0;
+}
+
+.sheet-root.edge-right {
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.sheet-root.edge-bottom {
+    align-items: flex-end;
+}
+
+.dialog-panel.sheet {
+    max-width: 380px;
+    max-height: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px 0 0 18px;
+}
+
+.edge-bottom .dialog-panel.sheet {
+    max-width: none;
+    max-height: 85vh;
+    border-radius: 18px 18px 0 0;
+}
+
+.sheet .dialog-head {
+    padding: 18px 18px 14px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.sheet .dialog-title {
+    font-size: 17px;
+}
+
+.sheet .dialog-desc {
+    font-size: 12px;
+}
+
+@media (max-width: 560px) {
+    .dialog-panel {
         padding: 22px 18px;
     }
 }
 
 /* ---- Naru (workout planner) ---- */
 
-.coach-launcher {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-    z-index: 25;
-    transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.coach-launcher:hover {
-    border-color: var(--accent);
-}
-
-.coach-launcher:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
-.coach-launcher svg {
-    width: 22px;
-    height: 22px;
-}
-
-/* No entrance animation. This opens over the log form, and anything moving
-   here competes with the thing the user came to the page to do. */
-.coach-panel {
-    position: fixed;
-    right: 24px;
-    bottom: 88px;
-    width: 340px;
-    max-height: min(560px, calc(100vh - 140px));
-    display: flex;
-    flex-direction: column;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
-    overflow: hidden;
-    z-index: 25;
-}
-
-/* Name on its own line, numbers on the secondary row beside the subtitle.
-   Sat side by side, the numbers baseline-aligned with "Naru" and left the
-   subtitle with a gap beside it, so the top of the panel read as ragged. */
-.coach-header {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 13px 16px;
-    border-bottom: 1px solid var(--card-border);
-}
-
-.coach-subhead {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-.coach-header strong {
-    font-size: 15px;
-    font-weight: 650;
-}
-
-.coach-meta {
-    font-size: 12px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-}
-
 .coach-body {
     flex: 1;
     overflow-y: auto;
-    padding: 14px 16px;
+    padding: 14px 18px;
 }
 
 .coach-why {
@@ -1902,12 +2061,9 @@ body {
 
 /* The pattern label is a fixed column so Push/Pull/Legs line up and the
    session reads as balanced at a glance — which is the whole claim. */
-/* Baseline alignment, not a padding nudge. The pattern label and the
-   movement name are different sizes, so aligning the boxes left them
-   visibly off; aligning the text they sit on is what actually lines up. */
 .coach-plan > li {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 12px;
     align-items: baseline;
     padding: 10px 0;
@@ -1916,6 +2072,11 @@ body {
 
 .coach-plan > li:last-child {
     border-bottom: none;
+}
+
+.coach-plan > li.done .coach-name {
+    color: var(--text-secondary);
+    text-decoration: line-through;
 }
 
 .coach-pattern {
@@ -1944,6 +2105,13 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+.coach-done {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
 .coach-note {
     margin-top: 12px;
     font-size: 12px;
@@ -1954,67 +2122,698 @@ body {
 .coach-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 10px;
-    padding: 11px 16px;
+    padding: 12px 18px;
     border-top: 1px solid var(--card-border);
 }
 
-/* The shared .small button is sized for a page, and in a 340px panel it
-   dwarfed the text button opposite it. */
-.coach-actions .button {
-    font-size: 12px;
-    padding: 7px 15px;
+/* ---- Toasts (Toaster.jsx) ---- */
+
+/* Top of the screen: the bottom is where the end-workout bar and the log
+   button live, and a toast there covered the very control you'd press next. */
+.toaster {
+    position: fixed;
+    top: calc(var(--nav-offset) + 12px);
+    right: 16px;
+    z-index: 45;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    width: min(380px, calc(100vw - 32px));
+    pointer-events: none;
 }
 
-/* Quieter than a button: turning Naru off is a rare, deliberate act, not a
-   peer of the action beside it. */
-.coach-hide {
-    border: 0;
-    background: none;
-    padding: 4px;
-    font-family: inherit;
+.toast {
+    pointer-events: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 10px 12px 16px;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+/* A new personal best gets the accent edge — same toast, louder. */
+.toast.tone-record {
+    border-color: var(--accent);
+}
+
+.toast-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.toast-text strong {
+    font-size: 14px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.toast-text span {
     font-size: 12px;
     color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+
+.toast-action {
+    flex-shrink: 0;
+    border: 1px solid var(--accent);
+    border-radius: 980px;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
     cursor: pointer;
 }
 
-.coach-hide:hover {
-    color: var(--danger);
+.toast-action:hover {
+    background: var(--accent-soft);
 }
 
-/* The About page row that turns Naru back on. */
-.setting-row {
+.toast-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.toast-close:hover {
+    color: var(--text-primary);
+    background: var(--surface);
+}
+
+@media (max-width: 640px) {
+    .toaster {
+        top: 104px;
+        right: 50%;
+        transform: translateX(50%);
+        align-items: center;
+    }
+}
+
+/* ---- Burst (Burst.jsx) ---- */
+
+.burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.burst-bit {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: -4px 0 0 -4px;
+}
+
+.log-card,
+.weekly-goal-meter {
+    position: relative;
+}
+
+/* ---- Landing headline ---- */
+
+/* Each word rises out of its own mask (Landing.jsx). */
+.word-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.1em;
+    margin-bottom: -0.1em;
+}
+
+.word {
+    display: inline-block;
+}
+
+/* ---- Sign-in (Welcome.jsx) ---- */
+
+.profile-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    margin: 12px 0 18px;
+}
+
+.profile-list li + li {
+    border-top: 1px solid var(--card-border);
+}
+
+.profile-row {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 12px;
-    padding: 11px 14px;
-    border: 1px solid var(--card-border);
+    padding: 13px 4px;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
     border-radius: 10px;
+    transition: background-color 0.15s ease;
+}
+
+.profile-row:hover {
+    background: var(--accent-soft);
+}
+
+.profile-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.profile-row .log-name {
+    font-weight: 600;
+}
+
+.profile-go {
+    color: var(--accent);
+    font-size: 18px;
+    padding-right: 8px;
+}
+
+/* ---- Onboarding (Onboarding.jsx) ---- */
+
+.onboarding-step {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.card-stack.wide {
+    max-width: 560px;
+}
+
+.progress-track {
+    display: block;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    transform-origin: left center;
+}
+
+.goal-choices {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.unit-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+/* Same surface as the stat boxes, so a choice reads as part of the app. */
+.choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 6px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
     background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.choice:hover {
+    border-color: var(--accent);
+}
+
+.choice.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.choice:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.choice-number {
+    font-size: 19px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+}
+
+.choice-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.choice-example {
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.choice-why {
+    min-height: 3em;
+    line-height: 1.5;
+    margin-top: 0;
+}
+
+.choice-why strong {
+    color: var(--text-primary);
+}
+
+.unit-choices .choice {
+    padding: 16px 10px;
+}
+
+.step-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ready-badge {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.ready-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
 }
 
 @media (max-width: 480px) {
-    .coach-panel {
-        right: 16px;
-        left: 16px;
-        width: auto;
-        bottom: 84px;
+    .goal-choices {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+}
 
-    .coach-launcher {
-        right: 16px;
-        bottom: 16px;
-    }
+/* ---- Fields (Field in primitives.jsx, ProfileFields.jsx) ---- */
 
-    /* The launcher is fixed at this width and lands on top of the pinned end
-       bar. Reserving its width means it overlays dead card rather than the
-       End workout button. */
-    .end-workout {
-        padding-right: 72px;
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.field-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+}
+
+.field input {
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: 11px;
+    padding: 11px 13px;
+    width: 100%;
+    transition: background-color 0.25s ease, border-color 0.2s ease;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.field input[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.field input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.input-affix {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-affix input {
+    padding-right: 44px;
+}
+
+.affix {
+    position: absolute;
+    right: 13px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.split-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.body-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 560px) {
+    .body-fields {
+        grid-template-columns: minmax(0, 1fr);
     }
+}
+
+/* ---- Switch ---- */
+
+.switch {
+    display: inline-flex;
+    align-items: center;
+    width: 44px;
+    height: 26px;
+    padding: 3px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--card-border);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.switch[aria-checked="true"] {
+    justify-content: flex-end;
+    background: var(--accent);
+}
+
+.switch-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.switch:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ---- Settings ---- */
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.card h2 + .settings-row {
+    margin-top: 6px;
+}
+
+.settings-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.settings-text strong {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.settings-text span {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.settings-control {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.settings-stepper .stepper {
+    width: 150px;
+}
+
+.settings-note {
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.settings-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.settings-actions a.row-action {
+    text-decoration: none;
+}
+
+.settings-actions-right {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.danger-card {
+    border-color: color-mix(in srgb, var(--danger) 35%, var(--card-border));
+}
+
+.danger-card .row-danger {
+    margin-left: 0;
+}
+
+@media (max-width: 480px) {
+    .settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ---- History grouping + filter ---- */
+
+.history-filter {
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: 11px;
+    padding: 9px 13px;
+    width: 100%;
+    margin-top: 14px;
+}
+
+.history-filter:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.history-group {
+    margin-top: 18px;
+}
+
+.history-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 13px;
+}
+
+.history-group-head span {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Log card ---- */
+
+.card-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.log-form {
+    margin-top: 18px;
+}
+
+.log-entry {
+    margin-top: 0;
+}
+
+.selected-exercise {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.selected-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.history-hint {
+    margin-top: -6px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Search results and the browse list share one look; the search list's rows
+   are combobox options rather than buttons, so they need it spelled out. */
+.picker-results li[role="option"] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.picker-results li.active,
+.picker-results li[role="option"]:hover {
+    background: var(--accent-soft);
+}
+
+.picker-results li.picker-empty {
+    cursor: default;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.legend-stale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+
+/* ---- Misc ---- */
+
+.crash-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* Hidden until a keyboard user tabs to it, then the first thing on screen. */
+.skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 60;
+    padding: 9px 16px;
+    border-radius: 980px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+    opacity: 0;
+}
+
+.skip-link:focus {
+    transform: none;
+    opacity: 1;
+}
+
+.route-stack:focus {
+    outline: none;
+}
+
+/* The theme switch is revealed as a circle growing from the toggle
+   (useTheme.js); the default cross-fade would fight it. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {

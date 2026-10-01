@@ -12,6 +12,11 @@
 // The deployed origin. Change this one line when the custom domain goes live.
 export const SITE_URL = "https://workout-tracker-alpha-two-23.vercel.app";
 
+export const REPO_URL = "https://github.com/byjoelsamuel/workout-tracker";
+
+// From package.json at build time (vite.config.js), for Settings and About.
+export const APP_VERSION = __APP_VERSION__;
+
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1", "[::1]", ""]);
 
 // The real origin wherever that is reachable from outside, and the deployed URL
@@ -20,5 +25,7 @@ const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1", "[::1]", ""]);
 // from anywhere, even though this app only ever runs in a browser.
 export function publicOrigin() {
   if (typeof window === "undefined") return SITE_URL;
-  return LOCAL_HOSTNAMES.has(window.location.hostname) ? SITE_URL : window.location.origin;
+  const { protocol, hostname, origin } = window.location;
+  if (!protocol.startsWith("http") || LOCAL_HOSTNAMES.has(hostname)) return SITE_URL;
+  return origin;
 }

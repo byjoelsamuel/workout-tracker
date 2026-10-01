@@ -4,22 +4,18 @@
 // Rows are held as strings, not numbers: an <input type="number"> reports ""
 // mid-edit, and coercing that to 0 on every keystroke fights the user as they
 // clear a field to retype it. Conversion happens once, on submit.
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";
-import { UNITS, fromKg, setVolume, toKg } from "../lib/units.js";
-import { listItemVariants, listVariants } from "../lib/motionVariants.js";
+import { Segmented } from "./primitives.jsx";
+import { PLATE_STEP, UNITS, fromKg, setVolume, toKg } from "../lib/units.js";
 
-// Plate maths, not round numbers: 2.5 kg is the smallest pair of plates on a
-// bar, and 5 lb is its imperial equivalent. Reps and seconds step by one.
-const WEIGHT_STEP = { kg: 2.5, lb: 5 };
-
-export function newSet(previous) {
+export function newSet(previous, { timed = false } = {}) {
   // A new set copies the one above it, because the overwhelmingly common case
   // is doing the same thing again. Starting blank would mean retyping
   // identical numbers three or four times a movement.
   return {
     id: crypto.randomUUID(),
-    reps: previous?.reps ?? "10",
+    reps: previous?.reps ?? (timed ? "30" : "10"),
     weight: previous?.weight ?? "",
   };
 }
@@ -30,7 +26,7 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
   }
 
   function addSet() {
-    onChange([...sets, newSet(sets[sets.length - 1])]);
+    onChange([...sets, newSet(sets[sets.length - 1], { timed })]);
   }
 
   function removeSet(id) {
@@ -56,73 +52,85 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
       {/* Each field carries its own inline label, so this row only has to hold
           the unit toggle rather than repeat column headings. */}
       <div className="set-head">
-        <span className="set-head-title">{sets.length} {sets.length === 1 ? "set" : "sets"}</span>
+        <span className="set-head-title">
+          {sets.length} {sets.length === 1 ? "set" : "sets"}
+        </span>
         {!bodyweight && (
-          <span className="unit-toggle" role="group" aria-label="Weight unit">
-            {UNITS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className={`unit-option ${unit === option.id ? "active" : ""}`}
-                aria-pressed={unit === option.id}
-                onClick={() => handleUnitChange(option.id)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </span>
+          <Segmented
+            size="small"
+            label="Weight unit"
+            options={UNITS}
+            value={unit}
+            onChange={handleUnitChange}
+          />
         )}
       </div>
 
-      <motion.ul className="set-list" variants={listVariants} initial="hidden" animate="show">
-        {sets.map((set, i) => {
-          // Preview in the entered unit, so the number shown matches the number
-          // typed rather than the kilograms it will be stored as.
-          const volume = !timed && set.weight ? setVolume({ reps: Number(set.reps), weight: Number(set.weight) }) : 0;
-          return (
-            <motion.li key={set.id} variants={listItemVariants} className="set-row">
-              <span className="set-col-n">{i + 1}</span>
-              <span className="set-cell set-col-reps">
-                <span className="set-inline-label">{timed ? "Secs" : "Reps"}</span>
-                <NumberStepper
-                  value={set.reps}
-                  onChange={(next) => update(set.id, "reps", next)}
-                  step={1}
-                  min={1}
-                  label={`${timed ? "seconds" : "reps"} for set ${i + 1}`}
-                />
-              </span>
-              {!bodyweight && (
-                <span className="set-cell set-col-weight">
-                  <span className="set-inline-label">{unit}</span>
-                  <NumberStepper
-                    value={set.weight}
-                    onChange={(next) => update(set.id, "weight", next)}
-                    step={WEIGHT_STEP[unit] ?? 2.5}
-                    min={0}
-                    label={`weight for set ${i + 1}`}
-                    placeholder="—"
-                  />
-                  {volume > 0 && (
-                    <span className="set-volume">{Math.round(volume).toLocaleString()} {unit}</span>
-                  )}
-                </span>
-              )}
-              <button
-                type="button"
-                className="set-remove"
-                // The last row stays: an entry with no sets isn't a workout,
-                // and removing it would leave nothing to type into.
-                disabled={sets.length === 1}
-                aria-label={`Remove set ${i + 1}`}
-                onClick={() => removeSet(set.id)}
+      <ul className="set-list">
+        <AnimatePresence initial={false}>
+          {sets.map((set, i) => {
+            // Preview in the entered unit, so the number shown matches the
+            // number typed rather than the kilograms it will be stored as.
+            const volume =
+              !timed && set.weight ? setVolume({ reps: Number(set.reps), weight: Number(set.weight) }) : 0;
+            return (
+              <motion.li
+                key={set.id}
+                className="set-row"
+                layout="position"
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                // Inside AnimatePresence, so a tween (see CLAUDE.md).
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.14, ease: "easeIn" } }}
+                transition={{ type: "spring", stiffness: 420, damping: 32 }}
               >
-                ×
-              </button>
-            </motion.li>
-          );
-        })}
-      </motion.ul>
+                <span className="set-col-n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span className="set-cell set-col-reps">
+                  <span className="set-inline-label">{timed ? "Secs" : "Reps"}</span>
+                  <NumberStepper
+                    value={set.reps}
+                    onChange={(next) => update(set.id, "reps", next)}
+                    step={timed ? 5 : 1}
+                    min={1}
+                    label={`${timed ? "seconds" : "reps"} for set ${i + 1}`}
+                  />
+                </span>
+                {!bodyweight && (
+                  <span className="set-cell set-col-weight">
+                    <span className="set-inline-label">{unit}</span>
+                    <NumberStepper
+                      value={set.weight}
+                      onChange={(next) => update(set.id, "weight", next)}
+                      step={PLATE_STEP[unit] ?? 2.5}
+                      min={0}
+                      label={`weight for set ${i + 1}, in ${unit}`}
+                      placeholder="—"
+                    />
+                    {volume > 0 && (
+                      <span className="set-volume">
+                        {Math.round(volume).toLocaleString()} {unit}
+                      </span>
+                    )}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className="set-remove"
+                  // The last row stays: an entry with no sets isn't a workout,
+                  // and removing it would leave nothing to type into.
+                  disabled={sets.length === 1}
+                  aria-label={`Remove set ${i + 1}`}
+                  onClick={() => removeSet(set.id)}
+                >
+                  ×
+                </button>
+              </motion.li>
+            );
+          })}
+        </AnimatePresence>
+      </ul>
 
       <button type="button" className="set-add" onClick={addSet}>
         + Add set

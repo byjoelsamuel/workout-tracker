@@ -69,7 +69,52 @@ export const listItemVariants = {
 // group filling in), not a response to a click.
 export const fillTransition = { type: "spring", stiffness: 120, damping: 20 };
 
-// The one deliberate non-spring in the app: springs overshoot on
-// pathLength, which makes a drawn arrow look like it's jittering rather
-// than being drawn.
+// A tween rather than a spring: springs overshoot on pathLength, which makes a
+// drawn ring look like it's jittering rather than being drawn.
 export const drawTransition = { duration: 0.7, ease: "easeInOut" };
+
+// Everything below mounts inside AnimatePresence, so every exit is a tween —
+// see the note on pageVariants. Enters keep their springs.
+const exitTween = (duration = 0.16) => ({ duration, ease: "easeIn" });
+
+// Onboarding steps slide in the direction you are travelling: forward pushes
+// the old question out to the left, Back brings it in from the left. `custom`
+// carries the direction (1 or -1) so the exiting step, which has already lost
+// its props, still knows which way to go.
+export const stepVariants = {
+  enter: (direction) => ({ x: direction * 56, opacity: 0, scale: 0.98 }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring", stiffness: 380, damping: 34, opacity: { duration: 0.18 } },
+  },
+  exit: (direction) => ({ x: direction * -56, opacity: 0, scale: 0.98, transition: exitTween(0.14) }),
+};
+
+// Centred dialogs rise slightly as they scale in; sheets slide from their edge.
+export const dialogVariants = {
+  hidden: { opacity: 0, scale: 0.94, y: 18 },
+  show: { opacity: 1, scale: 1, y: 0, transition: { ...snappy, damping: 24, opacity: { duration: 0.15 } } },
+  exit: { opacity: 0, scale: 0.97, y: 8, transition: exitTween(0.14) },
+};
+
+export const sheetVariants = {
+  hidden: (edge) => (edge === "bottom" ? { y: "100%" } : { x: "100%" }),
+  show: { x: 0, y: 0, transition: { type: "spring", stiffness: 340, damping: 36 } },
+  exit: (edge) => ({ ...(edge === "bottom" ? { y: "100%" } : { x: "100%" }), transition: exitTween(0.2) }),
+};
+
+export const backdropVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.18 } },
+  exit: { opacity: 0, transition: exitTween(0.16) },
+};
+
+// Toasts drop in from the top edge, clear of the workout bar and the log
+// button, which are both at the bottom of the screen mid-workout.
+export const toastVariants = {
+  hidden: { opacity: 0, y: -24, scale: 0.92 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 460, damping: 30 } },
+  exit: { opacity: 0, y: -12, scale: 0.96, transition: exitTween(0.15) },
+};

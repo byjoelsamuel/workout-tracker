@@ -17,7 +17,8 @@
 // neglected, what you lifted last time, and how much you're used to doing.
 import { EXERCISES } from "./exercises.js";
 import { recencyHeat } from "./heat.js";
-import { topWeight } from "./units.js";
+import { bestByMovement } from "./records.js";
+import { sessionKey } from "./time.js";
 
 // The three movement patterns a full-body session has to cover, and which
 // muscle groups feed each. Arms are handled separately — the group mixes
@@ -101,34 +102,14 @@ function shuffled(list, rng) {
   return arr;
 }
 
-// The heaviest set you have logged for a movement, and when. Timed work is
-// excluded — seconds under load don't compare against reps.
-function historyFor(logs) {
-  const best = new Map();
-  for (const log of logs) {
-    if (log.timed) continue;
-    const top = topWeight(log);
-    if (top == null) continue;
-    const prev = best.get(log.exerciseName);
-    if (!prev || top > prev.weight) {
-      best.set(log.exerciseName, { weight: top, loggedAt: log.loggedAt });
-    }
-  }
-  return best;
-}
-
 // Movements from the most recent session, so today's plan doesn't hand back
-// the exact same list you just finished.
+// the exact same list you just finished. Grouped by sessionKey like every other
+// session count — this used to compare UTC dates, so an evening workout west of
+// Greenwich was split from its own earlier sets.
 function lastSessionNames(logs) {
   if (!logs.length) return new Set();
-  const newest = logs[0].workoutId;
-  const names = new Set();
-  for (const log of logs) {
-    if (newest ? log.workoutId === newest : log.loggedAt.slice(0, 10) === logs[0].loggedAt.slice(0, 10)) {
-      names.add(log.exerciseName);
-    }
-  }
-  return names;
+  const newest = sessionKey(logs[0]);
+  return new Set(logs.filter((log) => sessionKey(log) === newest).map((log) => log.exerciseName));
 }
 
 // Sets scale with how much you have actually been doing. Someone eight logs in
@@ -152,12 +133,14 @@ function schemeFor(exercise, sets) {
 // A starting weight, taken from your own best set rather than a table. Backed
 // off slightly because that best was a top set, not a working one, and the
 // number here is what you put on the bar for the first of several.
+//
+// Left unrounded. Rounding to 2.5 kg here meant a pound user was offered
+// "159.8 lb"; plates exist in the display unit, so roundToPlate does it there.
 function loadFor(exercise, history) {
   if (exercise.bodyweight || exercise.timed) return null;
   const past = history.get(exercise.name);
   if (!past) return null;
-  const working = Math.max(1, Math.round((past.weight * 0.9) / 2.5) * 2.5);
-  return { kg: working, best: past.weight };
+  return { kg: past.weight * 0.9, best: past.weight };
 }
 
 // Which patterns are furthest behind. recencyHeat already decays a session's
@@ -182,9 +165,9 @@ function stalestFirst(logs) {
 export function planWorkout(logs = [], { now = new Date(), nonce = 0 } = {}) {
   const rng = mulberry32(seedFrom(now.toDateString() + ":" + nonce));
   const pool = pooled();
-  const history = historyFor(logs);
+  const history = bestByMovement(logs);
   const avoid = lastSessionNames(logs);
-  const sessions = new Set(logs.map((l) => l.workoutId ?? l.loggedAt.slice(0, 10))).size;
+  const sessions = new Set(logs.map(sessionKey)).size;
   const stale = stalestFirst(logs);
 
   const chosen = [];

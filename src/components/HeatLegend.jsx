@@ -1,16 +1,14 @@
 // The scale under the body map.
 //
-// It has to explain something non-obvious now: a muscle you hammered last month
-// is dim, and without a word of explanation that reads like lost data rather
-// than a deliberate statement about freshness. So rather than an abstract
+// It has to explain something non-obvious: a muscle you hammered last month is
+// dim, and without a word of explanation that reads like lost data rather than
+// a deliberate statement about freshness. So rather than an abstract
 // less-to-more ramp, the legend shows the actual thing — one session, drawn at
 // the tone it takes on as it ages — and names the muscle that has gone longest
 // without work, which is the one piece of advice this map can give.
 //
-// Kept out of BodyMap on purpose. The compare page renders five small maps
-// where a legend is noise, and the onboarding guide's second arrow points at
-// [data-guide="body-map"] — folding the legend inside that element would land
-// the arrowhead on the legend instead of the figure.
+// Kept out of BodyMap on purpose. The compare page renders several small maps
+// where a legend is noise.
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
 import { DECAY_SAMPLES } from "../lib/heat.js";
 import { relativeDay } from "../lib/time.js";
@@ -32,11 +30,12 @@ function stalest(heat) {
   return worst;
 }
 
-export function HeatLegend({ heat = {} }) {
+export function HeatLegend({ heat = {}, onPickGroup }) {
   const cold = stalest(heat);
   // Below roughly a third the muscle is visibly faded; above it, nothing is
   // stale enough to be worth nagging about.
   const worthFlagging = cold && cold.value < 0.34;
+  const label = cold ? GROUP_LABELS[cold.group] ?? cold.group : null;
 
   return (
     <div className="map-legend">
@@ -58,8 +57,14 @@ export function HeatLegend({ heat = {} }) {
 
       {worthFlagging && (
         <p className="legend-stale">
-          Longest untouched: <strong>{GROUP_LABELS[cold.group] ?? cold.group}</strong>,{" "}
-          {relativeDay(cold.lastTrained)}
+          <span>
+            Longest untouched: <strong>{label}</strong>, {relativeDay(cold.lastTrained)}
+          </span>
+          {onPickGroup && (
+            <button type="button" className="row-action" onClick={() => onPickGroup(cold.group)}>
+              Train {label.toLowerCase()}
+            </button>
+          )}
         </p>
       )}
     </div>

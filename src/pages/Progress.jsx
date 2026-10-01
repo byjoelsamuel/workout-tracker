@@ -6,34 +6,14 @@
 import { motion } from "motion/react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { HistoryList } from "../components/HistoryList.jsx";
-import {
-  AnimatedList,
-  AnimatedListItem,
-  Card,
-  PageHeader,
-} from "../components/primitives.jsx";
+import { AnimatedList, AnimatedListItem, Card, PageHeader } from "../components/primitives.jsx";
 import { useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { recencyHeat } from "../lib/heat.js";
 import { pageVariants } from "../lib/motionVariants.js";
+import { personalBests } from "../lib/records.js";
 import { relativeDay } from "../lib/time.js";
-import { formatVolume, formatWeight, logVolume, topWeight } from "../lib/units.js";
-
-// Heaviest set per movement, best first. Derived here rather than stored, so
-// it can never disagree with the log it came from — including after an edit.
-function personalBests(logs, limit = 8) {
-  const best = new Map();
-  for (const log of logs) {
-    if (log.timed) continue;
-    const top = topWeight(log);
-    if (top == null) continue;
-    const current = best.get(log.exerciseName);
-    if (!current || top > current.weight) {
-      best.set(log.exerciseName, { name: log.exerciseName, weight: top, loggedAt: log.loggedAt });
-    }
-  }
-  return [...best.values()].sort((a, b) => b.weight - a.weight).slice(0, limit);
-}
+import { formatVolume, formatWeight, totalVolume } from "../lib/units.js";
 
 export function Progress() {
   const userId = useSearchParams()[0].get("user");
@@ -41,7 +21,7 @@ export function Progress() {
   const { logs, editEntry, removeEntry } = useExerciseLog(userId);
   const [unit, setUnit] = useUnit();
 
-  if (!user) return <Navigate to="/onboarding" replace />;
+  if (!user) return <Navigate to="/welcome" replace />;
 
   // Real sessions, not log rows. The heading has always said "sessions" while
   // the number underneath counted entries, so four chest movements inside one
@@ -56,7 +36,6 @@ export function Progress() {
   const busiest = ranked[0]?.sessions || 0;
 
   const bests = personalBests(logs);
-  const lifetimeVolume = logs.reduce((sum, log) => sum + logVolume(log), 0);
 
   return (
     <motion.main
@@ -67,7 +46,7 @@ export function Progress() {
       exit="exit"
     >
       <PageHeader
-        eyebrow={`${formatVolume(lifetimeVolume, unit)} moved all time`}
+        eyebrow={`${formatVolume(totalVolume(logs), unit)} moved all time`}
         title={`${user.name}'s progress`}
         subhead="Every set you've logged. Open a row to correct or remove it."
       />
@@ -108,7 +87,7 @@ export function Progress() {
               <AnimatedList>
                 {bests.map((best) => (
                   <AnimatedListItem key={best.name}>
-                    <span>{best.name}</span>
+                    <span className="log-name">{best.name}</span>
                     <span className="count">{formatWeight(best.weight, unit)}</span>
                   </AnimatedListItem>
                 ))}

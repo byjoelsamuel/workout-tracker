@@ -40,6 +40,9 @@ export function NumberStepper({ value, onChange, step = 1, min = 0, max = Infini
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
+        // Selecting on focus means typing replaces the number rather than
+        // appending to it — "10" then "8" was becoming "108".
+        onFocus={(event) => event.target.select()}
       />
       <motion.button
         type="button"
