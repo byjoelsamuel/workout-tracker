@@ -33,13 +33,19 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 | `src/lib/records.js` | Personal bests and "last time" for a movement, derived from the log. Progress, Naru and the log form all read these — don't add another loop over the log for the same question. |
 | `src/lib/profile.js` | Optional body details (bodyweight, height, age): ranges, validation, and the kg/cm ↔ lb/ft-in conversion used by onboarding and settings. |
 | `src/lib/coach.js` | Naru: a deterministic full-body session generator over the exercise library and the user's own logs. No model, no network. |
-| `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling) and `preload.cjs` (exposes only `window.tsyoku = { desktop: true }`). |
+| `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling, the GitHub update check) and `preload.cjs` (exposes only `window.tsyoku = { desktop, checkForUpdate, downloadUpdate }`). |
+| `src/hooks/useUpdate.js`, `src/components/UpdatePrompt.jsx` | Desktop only: the "new version is out" toast at launch and the Updates row in Settings, sharing one answer per launch. |
 | `src/lib/platform.js` | `isDesktop` — the only place the page branches on website vs. app. |
 | `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release when main gets an unreleased version (or a `v*` tag is pushed). |
 
 `Dashboard` is the mid-workout screen — body map, log form, live session total, end workout. `Progress` is what you read *between* workouts — group breakdown, personal bests, full editable history. Keep that split; having history on the dashboard is what made it cluttered.
 
-**Keep the visual language of `src/styles/global.css`**: system font stack, flat cards with a hairline border, the orange accent used sparingly, centred page headers, the top nav. A revamp toward a sidebar, display fonts, gradient glows, glassy panels and a marketing-style landing page was rejected by the owner as looking generic and AI-made, and reverted. New UI should look like it was always part of this stylesheet.
+**Keep the visual language of `src/styles/global.css`**: Rubik (bundled via `@fontsource-variable/rubik`, never a font CDN — the desktop app is offline), flat cards with a hairline border, a violet accent used sparingly (light lavender `#b197fc` on black in dark mode, deeper `#7048e8` in light mode), centred page headers, the top nav. A revamp toward a sidebar, display fonts, gradient glows, glassy panels and a marketing-style landing page was rejected by the owner as looking generic and AI-made, and reverted; the orange accent was later dropped at the owner's request. New UI should look like it was always part of this stylesheet.
+
+- **Text on an accent fill uses `--on-accent`**, never a literal `#fff`: the dark theme's lavender is too light for white type, so `--on-accent` is near-black there.
+- **Size in rem, not px** (1–3px hairlines, focus rings and pill radii excepted). `html`'s font-size steps up at 1200/1600/2200px wide and scales the whole interface from that one value; a px length won't follow it. Media queries stay in px.
+- **The theme flips with transitions off** (`data-theme-switching` on `<html>`, set by `paint()` in `useTheme.js`). Otherwise every element with a colour transition fades on its own clock and the page passes through a muddy half-and-half state — on the website, where the View Transitions reveal is missing or partial, that was all anyone saw.
+- **`html` reserves the scrollbar gutter.** Pages cross-fade in one grid cell, and on Windows a classic scrollbar appearing mid-transition (short page → long page) shoved the whole layout 8px sideways. The desktop window is short enough that nearly every page scrolls, which is why it only showed on the website.
 
 ### Domain rules that aren't obvious from the code
 
@@ -74,6 +80,7 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 - External links open in the system browser and nothing can navigate the window off `app://` (`web-contents-created` in `main.cjs`). The CSP is set in the protocol handler.
 - `node_modules` is excluded from the package — Vite has already bundled everything the page needs. If the main process ever needs a runtime dependency, that exclusion has to change.
 - Installer file names carry no version, so `releases/latest/download/<name>` links stay stable.
+- **Updates are announced, not installed.** At launch the main process asks `api.github.com/.../releases/latest`; if it's newer than `app.getVersion()`, the page shows a toast whose Download opens the matching installer (`.exe`, AppImage when `$APPIMAGE` is set, else `.rpm`). Installing in place would need `electron-updater` at runtime, which the `node_modules` exclusion rules out. The download URL only ever comes from GitHub's answer — the page can't pass one — and both IPC handlers refuse senders off `app://tsyoku-naru`. About tells the user this is the app's one network request; keep that true.
 - **Releasing is "bump `package.json`'s version, merge to main".** The workflow's `plan` job publishes `v<version>` from a push to main only when that tag doesn't exist yet, creating the tag through the release API. A hand-pushed `v*` tag also publishes, and must equal `v` + `package.json`'s version — the workflow refuses a mismatch. Sessions here can push only their own branch, not tags, which is why the main-push route exists.
 
 ### Animation

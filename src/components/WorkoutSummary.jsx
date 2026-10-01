@@ -99,7 +99,7 @@ export function WorkoutSummary({ workout, allLogs = [], unit, onClose }) {
                   className="record-line"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.3 + i * 0.12 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 22, delay: 0.3 + i * 0.12 }}
                 >
                   <span>
                     New best — <strong>{r.name}</strong>, {formatWeight(r.weight, unit)}

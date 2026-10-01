@@ -4,7 +4,9 @@
 // and physicality instead of reading as a flat crossfade.
 
 // Snappy but settled — the default for anything the user directly acts on.
-export const snappy = { type: "spring", stiffness: 400, damping: 17 };
+// Damped to just short of critical: it was at about 0.4 of critical, so every
+// hover and press wobbled two or three times before it came to rest.
+export const snappy = { type: "spring", stiffness: 420, damping: 30, mass: 0.8 };
 
 // Pages cross-fade in the same grid cell (see Layout.jsx), so the outgoing one
 // is layered over the incoming one for the length of the overlap. Two rules
@@ -19,26 +21,28 @@ export const snappy = { type: "spring", stiffness: 400, damping: 17 };
 // and amplitude-dependent, which pins the unmount to a moment nobody chose.
 // A fixed duration gives the removal a deadline. Enter keeps its spring: it's
 // the half the user is looking at, and nothing is waiting on it to finish.
+//
+// No scale on either side. Scaling a whole page re-rasterises all of its text
+// every frame, which on a big monitor showed up as shimmering type and dropped
+// frames; a short rise reads as the same motion for a fraction of the work.
 export const pageVariants = {
-  initial: { scale: 0.98, y: 14, opacity: 0 },
+  initial: { y: 12, opacity: 0 },
   animate: {
-    scale: 1,
     y: 0,
     opacity: 1,
     zIndex: 1,
     transition: {
       type: "spring",
-      stiffness: 420,
-      damping: 38,
-      mass: 0.7,
+      stiffness: 300,
+      damping: 34,
+      mass: 0.8,
       // Transform still carries the motion; opacity only has to clear early
       // enough that the page reads as solid while it settles the last few px.
-      opacity: { duration: 0.2, ease: "easeOut" },
+      opacity: { duration: 0.22, ease: "easeOut" },
     },
   },
   exit: {
-    scale: 1.02,
-    y: -10,
+    y: -8,
     opacity: 0,
     zIndex: 0,
     // The dying page is still on top of the live one until it unmounts, so it
@@ -56,12 +60,12 @@ export const listVariants = {
 };
 
 export const listItemVariants = {
-  hidden: { y: 12, scale: 0.95, opacity: 0.4 },
+  hidden: { y: 12, scale: 0.98, opacity: 0.4 },
   show: {
     y: 0,
     scale: 1,
     opacity: 1,
-    transition: { type: "spring", stiffness: 260, damping: 24 },
+    transition: { type: "spring", stiffness: 260, damping: 28 },
   },
 };
 
@@ -95,7 +99,7 @@ export const stepVariants = {
 // Centred dialogs rise slightly as they scale in; sheets slide from their edge.
 export const dialogVariants = {
   hidden: { opacity: 0, scale: 0.94, y: 18 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { ...snappy, damping: 24, opacity: { duration: 0.15 } } },
+  show: { opacity: 1, scale: 1, y: 0, transition: { ...snappy, opacity: { duration: 0.15 } } },
   exit: { opacity: 0, scale: 0.97, y: 8, transition: exitTween(0.14) },
 };
 
@@ -115,6 +119,6 @@ export const backdropVariants = {
 // button, which are both at the bottom of the screen mid-workout.
 export const toastVariants = {
   hidden: { opacity: 0, y: -24, scale: 0.92 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 460, damping: 30 } },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 460, damping: 34 } },
   exit: { opacity: 0, y: -12, scale: 0.96, transition: exitTween(0.15) },
 };

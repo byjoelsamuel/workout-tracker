@@ -19,7 +19,9 @@ import { formatClock } from "../lib/time.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { isDesktop } from "../lib/platform.js";
+import { downloadUpdate, isDesktop } from "../lib/platform.js";
+import { APP_VERSION } from "../lib/site.js";
+import { useUpdateCheck } from "../hooks/useUpdate.js";
 
 // Where the data lives, in words — the browser on the web, the app on desktop.
 const HERE = isDesktop ? "this app" : "this browser";
@@ -39,6 +41,31 @@ function Row({ title, detail, children }) {
       </div>
       <div className="settings-control">{children}</div>
     </div>
+  );
+}
+
+// Desktop app only. Shows what the check at launch found and checks again on
+// request; Download appears only once there's something to download.
+function UpdateRow() {
+  const { status, checking, check } = useUpdateCheck();
+  let detail = `Version ${APP_VERSION}.`;
+  if (checking) detail = "Checking GitHub…";
+  else if (status?.failed) detail = "Couldn't reach GitHub. Check your connection and try again.";
+  else if (status?.available) detail = `Version ${status.latest} is out — you have ${status.current}. Install it over this one; your workouts stay.`;
+  else if (status) detail = `You're on the latest version, ${status.current}.`;
+
+  return (
+    <Row title="Updates" detail={detail}>
+      {status?.available && !checking ? (
+        <Button size="small" onClick={downloadUpdate}>
+          Download
+        </Button>
+      ) : (
+        <Button variant="secondary" size="small" onClick={check} disabled={checking}>
+          Check now
+        </Button>
+      )}
+    </Row>
   );
 }
 
@@ -234,6 +261,7 @@ export function Settings() {
               Start
             </Button>
           </Row>
+          {isDesktop && <UpdateRow />}
         </Section>
 
         <Section title="Backup">
