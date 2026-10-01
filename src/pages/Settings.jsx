@@ -57,7 +57,7 @@ function UpdateRow() {
   const { status, checking, check } = useUpdateCheck();
   let detail = `Version ${APP_VERSION}.`;
   if (checking) detail = "Checking GitHub…";
-  else if (status?.failed) detail = "Couldn't reach GitHub. Check your connection and try again.";
+  else if (status?.failed) detail = `Couldn't reach GitHub${status.reason ? ` (${status.reason})` : ""}. Check your connection and try again.`;
   else if (status?.available) detail = `Version ${status.latest} is out — you have ${status.current}. Install it over this one; your workouts stay.`;
   else if (status) detail = `You're on the latest version, ${status.current}.`;
 

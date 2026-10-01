@@ -1,7 +1,7 @@
 {
   "name": "workout-tracker",
   "productName": "Tsyoku-naru",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A private workout tracker: log every set, see which muscles you've trained lately, and plan full-body sessions.",
   "type": "module",
   "main": "desktop/main.cjs",
