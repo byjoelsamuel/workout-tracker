@@ -80,7 +80,7 @@ export function BodyMap({
           whatever height the card gives it. */}
       <div className="body-map-plate">
         {/* Front ↔ Back turns the figure round rather than swapping it. The
-            exit is a tween — AnimatePresence waits on it (see CLAUDE.md). */}
+            exit is a tween — AnimatePresence waits on it (see motionVariants.js). */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.svg
             key={view}

@@ -56,8 +56,8 @@ npm run dist:linux  # Fedora .rpm + AppImage into release/
 ```
 
 React 19 + Vite + React Router + Motion; data in `localStorage`; desktop via
-Electron; offline via a generated service worker. Architecture notes and the
-rules that keep old data meaning the same thing live in [`CLAUDE.md`](CLAUDE.md).
+Electron; offline via a generated service worker. The modules in `src/lib/`
+explain, in their comments, the rules that keep old data meaning the same thing.
 
 **Releasing:** bump `version` in `package.json` and merge to `main`. GitHub
 Actions builds the Windows installer and Linux packages and publishes the
