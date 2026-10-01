@@ -20,6 +20,9 @@ Everything is stored on your device. No account, no backend.
 **💻 Desktop app:** Windows 11 and Fedora —
 [download from the latest release](https://github.com/byjoelsamuel/workout-tracker/releases/latest).
 
+**📱 iPhone and iPad:** open the live site in Safari, tap **Share → Add to Home
+Screen**. See [iPhone & iPad](#iphone--ipad).
+
 > **Prefer the Vercel link above.** The old Netlify deploy at
 > [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/) is **out of date** —
 > its auto-deploy stopped running and it is several releases behind, so it is
@@ -32,6 +35,7 @@ Everything is stored on your device. No account, no backend.
 
 - [Features](#features)
 - [Desktop App](#desktop-app)
+- [iPhone & iPad](#iphone--ipad)
 - [Tech Stack](#tech-stack)
 - [How It Works](#how-it-works)
 - [Getting Started](#getting-started)
@@ -88,6 +92,8 @@ Everything is stored on your device. No account, no backend.
 - **Backup** — export every profile to a JSON file and import it into another
   browser. Importing only adds what's missing; nothing already there is
   overwritten
+- **Works offline and installs as an app** — on iPhone and iPad from Safari's
+  Add to Home Screen, on Android and desktop Chrome/Edge with Install app
 - **Dark and light themes** — light lavender on black, or violet on white —
   that scale up on bigger screens, keyboard-friendly dialogs (focus is trapped
   and returned, Escape closes), and reduced-motion support throughout
@@ -115,6 +121,25 @@ for your system — install it over the top and your history stays where it was.
 You can also check from **Settings → Help → Updates**. (Copies older than 1.2.0
 don't know how to check, so install 1.2.0 by hand once.)
 
+## iPhone & iPad
+
+The website installs as an app, with no App Store needed:
+
+1. Open [the site](https://workout-tracker-alpha-two-23.vercel.app/) in **Safari**.
+2. Tap **Share** (the square with the arrow), then **Add to Home Screen**.
+
+It gets its own icon, opens full-screen straight to your dashboard, and works
+with **no signal**: everything it needs is cached on the phone after the first
+visit. It updates itself whenever the website does.
+
+The Home Screen app keeps its **own history, separate from Safari's**. That's an
+iOS rule, not this app's. To bring history in from Safari (or from a computer),
+use **Settings → Backup → Export** there, which opens the share sheet on iPhone
+(choose **Save to Files**), then **Import** in the Home Screen app.
+
+On Android, Chrome's menu offers **Install app**, and the same goes for Chrome
+and Edge on a computer.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -126,6 +151,7 @@ don't know how to check, so install 1.2.0 by hand once.)
 | Animation | [Motion](https://motion.dev/) |
 | Data persistence | Browser `localStorage` |
 | Desktop | [Electron](https://www.electronjs.org/) + [electron-builder](https://www.electron.build/) (`electron-builder.yml`), built and released by GitHub Actions |
+| Offline / install | Web app manifest + a service worker (`src/sw.js`) generated at build time with the exact file list, no PWA plugin |
 | Hosting | [Vercel](https://vercel.com/) (`vercel.json`) — Netlify config kept as a fallback |
 
 Fully client-side — no backend, no database. Profiles and logs are read from and
@@ -226,6 +252,7 @@ as downloadable workflow artifacts, without publishing anything.
 - [x] Rest timer between sets
 - [x] Prefill a movement's sets from last time
 - [x] Desktop app for Windows 11 and Fedora
+- [x] Installable on iPhone and iPad, working offline
 - [ ] Move hosting back to Netlify
 - [x] Tell desktop users when a new version is out
 - [ ] Code-sign the Windows installer and install updates in place
