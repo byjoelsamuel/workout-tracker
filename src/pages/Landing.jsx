@@ -4,6 +4,18 @@ import { Button } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { getLastUserId, getUser } from "../lib/store.js";
 import { DOWNLOAD_URL } from "../lib/site.js";
+import { isIOS } from "../lib/platform.js";
+
+// The iOS share glyph, so the instruction points at the button people will
+// actually see in Safari's toolbar.
+function ShareGlyph() {
+  return (
+    <svg className="share-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3v12M8 7l4-4 4 4" />
+      <path d="M8 11H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-2" />
+    </svg>
+  );
+}
 
 const LINES = [
   [{ text: "Train" }, { text: "hard." }],
@@ -68,7 +80,15 @@ export function Landing() {
       </Button>
       <p className="intro-meaning">強くなる — tsuyoku naru — "to become stronger"</p>
       <p className="intro-download">
-        Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
+        {isIOS ? (
+          <>
+            Make it an app: tap <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>
+          </>
+        ) : (
+          <>
+            Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
+          </>
+        )}
       </p>
     </motion.main>
   );

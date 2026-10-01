@@ -19,12 +19,19 @@ import { formatClock } from "../lib/time.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { downloadUpdate, isDesktop } from "../lib/platform.js";
+import { downloadUpdate, hasOwnStorage, isDesktop, isIOS } from "../lib/platform.js";
 import { APP_VERSION } from "../lib/site.js";
 import { useUpdateCheck } from "../hooks/useUpdate.js";
 
-// Where the data lives, in words — the browser on the web, the app on desktop.
-const HERE = isDesktop ? "this app" : "this browser";
+// Where the data lives, in words — the browser on the web; the app on desktop
+// or as an iPhone Home Screen app, which each keep their own.
+const HERE = hasOwnStorage ? "this app" : "this browser";
+
+const BACKUP_NOTE = isDesktop
+  ? "Everything lives in this app, separately from the website. Import a backup exported from the website to bring your history here."
+  : hasOwnStorage
+    ? "Everything lives in this app, separately from Safari. Import a backup exported from Safari to bring your history here."
+    : "Everything lives in this browser. Export a backup to keep a copy, or to move your history to the desktop app, your phone or another device.";
 
 const THEMES = [
   { id: "system", label: "System" },
@@ -50,7 +57,7 @@ function UpdateRow() {
   const { status, checking, check } = useUpdateCheck();
   let detail = `Version ${APP_VERSION}.`;
   if (checking) detail = "Checking GitHub…";
-  else if (status?.failed) detail = "Couldn't reach GitHub. Check your connection and try again.";
+  else if (status?.failed) detail = `Couldn't reach GitHub${status.reason ? ` (${status.reason})` : ""}. Check your connection and try again.`;
   else if (status?.available) detail = `Version ${status.latest} is out — you have ${status.current}. Install it over this one; your workouts stay.`;
   else if (status) detail = `You're on the latest version, ${status.current}.`;
 
@@ -176,9 +183,27 @@ export function Settings() {
 
   if (!user) return <Navigate to="/welcome" replace />;
 
-  function exportData() {
+  async function exportData() {
     const stamp = new Date().toISOString().slice(0, 10);
-    download(`tsyoku-naru-backup-${stamp}.json`, JSON.stringify(exportBackup(), null, 2));
+    const name = `tsyoku-naru-backup-${stamp}.json`;
+    const text = JSON.stringify(exportBackup(), null, 2);
+    // On iPhone and iPad the share sheet is the native way to hand a file off
+    // (Save to Files, AirDrop, Mail), and it's the same inside a Home Screen
+    // app. Everywhere else it downloads, as before.
+    if (isIOS) {
+      const file = new File([text], name, { type: "application/json" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] });
+          toast.show({ title: "Backup exported", body: `It holds every profile in ${HERE}.` });
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+          // Refused for some other reason: fall back to a download.
+        }
+      }
+    }
+    download(name, text);
     toast.show({ title: "Backup downloaded", body: `It holds every profile in ${HERE}.` });
   }
 
@@ -265,11 +290,7 @@ export function Settings() {
         </Section>
 
         <Section title="Backup">
-          <p className="field-note settings-note">
-            {isDesktop
-              ? "Everything lives in this app, separately from the website. Import a backup exported from the website to bring your history here."
-              : "Everything lives in this browser. Export a backup to keep a copy, or to move your history to the desktop app or another device."}
-          </p>
+          <p className="field-note settings-note">{BACKUP_NOTE}</p>
           <Row title="Export" detail={`Every profile in ${HERE} · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
             <Button variant="secondary" size="small" onClick={exportData}>
               Export

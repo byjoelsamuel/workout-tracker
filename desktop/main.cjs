@@ -124,9 +124,10 @@ async function checkForUpdate() {
     const url = asset?.browser_download_url ?? release.html_url;
     downloadUrl = typeof url === "string" && url.startsWith("https://github.com/") ? url : null;
     return { current, latest, available: isNewer(latest, current) };
-  } catch {
-    // Offline, or GitHub rate-limited us: say so rather than "up to date".
-    return { current, latest: null, available: false, failed: true };
+  } catch (error) {
+    // Offline, or GitHub rate-limited us: say so rather than "up to date",
+    // and say why, since "it doesn't work" is all anyone can report otherwise.
+    return { current, latest: null, available: false, failed: true, reason: String(error?.message ?? error) };
   }
 }
 

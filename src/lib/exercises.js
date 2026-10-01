@@ -205,7 +205,7 @@ const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]))
 // within the selected group, because knowing a lift's name is common and
 // knowing which group this app files it under is not — a face pull is findable
 // without first guessing "shoulders".
-export const ALL_EXERCISES = Object.entries(EXERCISES).flatMap(([bodyGroup, list]) =>
+const ALL_EXERCISES = Object.entries(EXERCISES).flatMap(([bodyGroup, list]) =>
   list.map((exercise) => ({ ...exercise, bodyGroup, groupLabel: GROUP_LABELS[bodyGroup] }))
 );
 

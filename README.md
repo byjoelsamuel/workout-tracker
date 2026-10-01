@@ -1,246 +1,201 @@
-# 🏋️ Workout Tracker - Tsyoku-Naru
+# 🏋️ Tsyoku-naru — Workout Tracker
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/byjoelsamuel/workout-tracker)
 ![GitHub license](https://img.shields.io/github/license/byjoelsamuel/workout-tracker)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![Motion](https://img.shields.io/badge/Animations-Motion-purple)
+![Latest release](https://img.shields.io/github/v/release/byjoelsamuel/workout-tracker)
 
-A workout logger that shows you what you've actually trained. Create a profile,
-log each set with its own reps and weight, and watch an anatomical body map —
-front and back — shade in for every muscle group you work. End a session to get
-a breakdown of what you moved.
+Log every set, and watch an anatomical body map show which muscles you've
+trained lately — and which you've been skipping. Free, private, no account:
+everything stays on your device.
 
-Everything is stored on your device. No account, no backend.
+**強くなる** (*tsuyoku naru*) — "to become stronger."
 
-**🔗 Live demo:**
-[workout-tracker-alpha-two-23.vercel.app](https://workout-tracker-alpha-two-23.vercel.app/)
-— hosted on Vercel, deployed from `main`.
+## Get it
 
-**💻 Desktop app:** Windows 11 and Fedora —
-[download from the latest release](https://github.com/byjoelsamuel/workout-tracker/releases/latest).
+| Where | How |
+|---|---|
+| **Web** | [workout-tracker-alpha-two-23.vercel.app](https://workout-tracker-alpha-two-23.vercel.app/) — also mirrored at [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/). Both deploy from `main`. |
+| **Windows 11** | [`Tsyoku-naru-Setup-x64.exe`](https://github.com/byjoelsamuel/workout-tracker/releases/latest/download/Tsyoku-naru-Setup-x64.exe). Not code-signed, so choose **More info → Run anyway** if SmartScreen asks. |
+| **Fedora** | `sudo dnf install https://github.com/byjoelsamuel/workout-tracker/releases/latest/download/Tsyoku-naru-x86_64.rpm` |
+| **Other Linux** | [`Tsyoku-naru-x86_64.AppImage`](https://github.com/byjoelsamuel/workout-tracker/releases/latest/download/Tsyoku-naru-x86_64.AppImage) — `chmod +x` and run (needs `fuse-libs`). |
+| **iPhone / iPad** | Open the website in Safari → **Share → Add to Home Screen**. Works offline. |
+| **Android** | Open the website in Chrome → menu → **Install app**. |
 
-> **Prefer the Vercel link above.** The old Netlify deploy at
-> [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/) is **out of date** —
-** [The Netlify issue has been resolved and is being hosted alongside Vercel!] **
+**Good to know**
 
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Desktop App](#desktop-app)
-- [Tech Stack](#tech-stack)
-- [How It Works](#how-it-works)
-- [Getting Started](#getting-started)
-- [Roadmap](#roadmap)
-- [License](#license)
-
----
+- **Each install keeps its own history** — the website, the desktop app and an
+  iPhone Home Screen app don't share data. Move it with **Settings → Backup**
+  (export on one, import on the other; importing never overwrites anything).
+- **Updates:** the website and phone app update themselves. The desktop app
+  (1.2.0 and later) tells you when a new version is out, with a Download button;
+  install it over the top and your history stays. **Settings → Help → Updates**
+  checks on demand and says why if it can't.
 
 ## Features
 
-- **Profile sign-in and guided setup** — a "Who's training?" screen lists every
-  profile in this browser. New profiles are set up one question at a time:
-  name, weekly goal, kg or lb, and optional body details, with each answer
-  checked as you go
-- **Walkthrough on first visit** — a short spotlight tour of the dashboard that
-  you can step through with the arrow keys, skip, or replay from Settings
-- **Per-set logging** — every set carries its own reps and weight, so a warmup
-  ramp (10 × 60, 8 × 80, 6 × 85) is recorded as what it was rather than averaged
-  into one line. A movement you've done before starts from last session's sets,
-  with your best shown alongside
-- **Undo, personal bests and a rest timer** — every log can be undone from the
-  confirmation that appears; beating your best set is called out as it happens;
-  a rest timer starts after each log (±30s or skip)
-- **157-movement exercise library** across seven muscle groups, with recent
-  movements one tap away, search with arrow-key selection (press `/` to jump
-  to it), and browsing by muscle group — or tap a muscle on the body map
-- **Anatomical body map** — front and back views that shade toward full accent
-  for the muscle groups you have worked *lately*. Heat decays with a one-week
-  half-life rather than piling up forever, so the figure keeps saying something
-  once you have months of history behind you
-- **Weekly goal** — a Mon–Sun target you set yourself, with a streak counting
-  consecutive weeks trained (not weeks that hit the goal, so raising the target
-  never erases your history)
-- **Workout sessions** — a session opens with your first entry and runs until you
-  end it, then summarises total weight moved, reps, sets, time under tension and
-  the muscle group that took the most work
-- **kg or lb** — enter in either; kilograms are stored internally so switching
-  units never rewrites your history
-- **Editable history** — open any past entry to correct a set or delete it, with
-  volume, personal bests and the body map following along
-- **Progress view** — lifetime sessions per muscle group with how long since
-  each was last trained, personal bests, and full history
-- **Compare page** — weekly workout counts for every profile in this browser
-- **Naru** — an optional planner, opened from "Plan with Naru" on the dashboard.
-  It reads your logs and lays out a *full-body* session: one push, one pull and
-  one leg compound, plus accessories aimed at whatever your body map says has
-  gone stalest, and core. Starting weights come from your own best sets, backed
-  off ~10% and rounded to real plates. Each movement has a **Log** button that
-  drops it into the log form and ticks itself off. Deterministic and entirely
-  client-side — no API key, no network call, no model
-- **Settings** — edit your profile, units, rest-timer length, theme (system,
-  light or dark), turn Naru on or off, replay the walkthrough, and delete a
-  profile
-- **Backup** — export every profile to a JSON file and import it into another
-  browser. Importing only adds what's missing; nothing already there is
-  overwritten
-- **Dark and light themes** — light lavender on black, or violet on white —
-  that scale up on bigger screens, keyboard-friendly dialogs (focus is trapped
-  and returned, Escape closes), and reduced-motion support throughout
+- **Per-set logging** from a 157-movement library — each set keeps its own reps
+  and weight, and a movement you've done before starts from last time
+- **Body map** (front and back) that fades over a few weeks, so it shows what
+  you've worked *lately*
+- **Weekly goal** with a streak, a **rest timer**, **undo**, and a call-out when
+  you beat a personal best
+- **Progress** — lifetime sessions per muscle group, personal bests, full
+  editable history
+- **Naru** — an optional planner that builds a full-body session from your own
+  logs, entirely on your device
+- **kg or lb**, dark or light theme, keyboard-friendly, reduced-motion aware
 
-## Desktop App
-
-The same app in its own window, for **Windows 11** and **Fedora**. It opens
-straight to your dashboard and works with no internet connection.
-
-Download from the [latest release](https://github.com/byjoelsamuel/workout-tracker/releases/latest):
-
-| System | File | Install |
-|---|---|---|
-| Windows 11 | `Tsyoku-naru-Setup-x64.exe` | Run it. The installer isn't code-signed, so Windows may say "Windows protected your PC" — choose **More info → Run anyway**. |
-| Fedora | `Tsyoku-naru-x86_64.rpm` | `sudo dnf install ./Tsyoku-naru-x86_64.rpm`, then open Tsyoku-naru from Activities. |
-| Other Linux | `Tsyoku-naru-x86_64.AppImage` | `chmod +x` it and run. Needs FUSE 2 (`sudo dnf install fuse-libs` on Fedora). |
-
-The app keeps its own history, separate from the website's. To move yours
-across, use **Settings → Backup → Export** on the website and **Import** in the
-app (or the other way round). Uninstalling the app keeps your data.
-
-**Updates:** from 1.2.0 on, the app checks GitHub when it opens and tells you
-when a newer version is out, with a button that downloads the right installer
-for your system — install it over the top and your history stays where it was.
-You can also check from **Settings → Help → Updates**. (Copies older than 1.2.0
-don't know how to check, so install 1.2.0 by hand once.)
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| UI | [React 19](https://react.dev/) |
-| Routing | [React Router](https://reactrouter.com/) |
-| Build | [Vite](https://vite.dev/) |
-| Styling | CSS custom properties, one global stylesheet, [Rubik](https://github.com/googlefonts/rubik) (bundled) |
-| Animation | [Motion](https://motion.dev/) |
-| Data persistence | Browser `localStorage` |
-| Desktop | [Electron](https://www.electronjs.org/) + [electron-builder](https://www.electron.build/) (`electron-builder.yml`), built and released by GitHub Actions |
-| Hosting | [Vercel](https://vercel.com/) (`vercel.json`) — Netlify config kept as a fallback |
-
-Fully client-side — no backend, no database. Profiles and logs are read from and
-written to `localStorage`, which keeps the app fast and free to host, and means
-your data is per-browser and never leaves your machine.
-
-## How It Works
-
-```mermaid
-flowchart TD
-    A[Open app] --> B{Profile in localStorage?}
-    B -- No --> C[Create profile]
-    C --> C1["Name → weekly goal → kg or lb → optional details"]
-    C1 --> D[Dashboard walkthrough]
-    B -- Yes --> B1["Who's training? Pick a profile"]
-    B1 --> E
-    D --> E
-
-    E[Dashboard] --> F[Pick an exercise]
-    F --> F1["Recent chips, search, browse by group, or tap the map"]
-    F1 --> F2["Sets start from last time: reps + weight per set"]
-    F2 --> G[Save entry, converting weight to kg]
-    G --> G1[Session opens on the first entry]
-
-    G --> H[Count sessions per muscle group]
-    H --> I[Body map re-renders]
-    I --> I1[Accent deepens, then fades week by week]
-
-    G1 --> L[End workout]
-    L --> L1[Summary: volume, reps, sets, hardest-worked group]
-
-    E --> M[Progress]
-    M --> M1[Breakdown, personal bests, editable history]
-
-    E --> N["Ask Naru (optional)"]
-    N --> N1[Reads your logs: what is stale, what you lift]
-    N1 --> N2[Full-body session: push + pull + legs + core]
-
-    style A fill:#7048e8,stroke:#333,color:#fff
-    style I1 fill:#7048e8,stroke:#333,color:#fff
-    style L1 fill:#7048e8,stroke:#333,color:#fff
-    style N2 fill:#7048e8,stroke:#333,color:#fff
-```
-
-**In short:** each entry is tagged to one muscle group → the body map shades by
-how many sessions that group has → volume totals are summed from the individual
-sets → ending a workout summarises the session.
-
-Two details worth knowing:
-
-- **Body map shading tracks recent sessions, and fades.** A session counts
-  fully the day it is logged and halves every week after, so the figure shows
-  what you have trained lately rather than everything you have ever done.
-- **Timed work is excluded from rep and volume totals.** A plank is recorded in
-  seconds; seconds don't convert to reps or kilograms.
-
-## Getting Started
-
-This is a Vite project, so it needs a build step — opening `index.html` directly
-won't work.
+## Develop
 
 ```bash
-git clone https://github.com/byjoelsamuel/workout-tracker.git
-cd workout-tracker
 npm install
-npm run dev
+npm run dev         # http://localhost:5173
+npm run build       # production build into dist/
+npm run desktop     # build, then open the Electron app
+npm run dist:linux  # Fedora .rpm + AppImage into release/
 ```
 
-Then open the URL Vite prints (usually `http://localhost:5173`).
+React 19 + Vite + React Router + Motion; data in `localStorage`; desktop via
+Electron; offline via a generated service worker. Architecture notes and the
+rules that keep old data meaning the same thing live in [`CLAUDE.md`](CLAUDE.md).
 
-```bash
-npm run build    # production build into dist/
-npm run preview  # serve the built output
-```
+**Releasing:** bump `version` in `package.json` and merge to `main`. GitHub
+Actions builds the Windows installer and Linux packages and publishes the
+`v<version>` release. Merges that don't change the version only redeploy the
+website.
 
-### Desktop app
+## Changelog
 
-```bash
-npm run desktop     # build, then open the app in an Electron window
-npm run dist:linux  # Fedora .rpm + AppImage into release/ (needs `rpm` installed)
-npm run dist:win    # Windows installer into release/ (run on Windows)
-```
+<details open>
+<summary><strong>1.3.0</strong> — 1 Oct 2026 · iPhone app, one-screen About, update diagnostics</summary>
 
-Releases are built by GitHub Actions (`.github/workflows/desktop.yml`). To
-publish one, **bump `version` in `package.json` and merge to `main`** — when
-`main` carries a version that has no release yet, the workflow builds the
-Windows installer on Windows and the Linux packages on Ubuntu, creates the
-`v<version>` tag, and attaches all three to a GitHub Release. Merges that don't
-change the version publish nothing.
+- **Installable on iPhone and iPad** from Safari's *Add to Home Screen*, and on
+  Android/desktop Chrome via *Install app*: web app manifest, full-bleed icons,
+  iOS meta tags.
+- **Works offline.** A service worker, generated at build time with the exact
+  list of built files, caches the whole app after the first visit. Pages are
+  network-first (3.5 s timeout) so an online launch always gets the latest
+  deploy; files are cache-first.
+- An installed app opens straight to your dashboard instead of the landing page.
+  On iPhone in Safari, the landing page shows how to install.
+- iPhone fixes: text fields are at least 16 px on touch screens (iOS was zooming
+  into every field and staying zoomed); the end-workout bar, bottom sheets and
+  walkthrough card clear the home indicator; Export opens the share sheet
+  (*Save to Files*).
+- **About page** rebuilt as one screen: two mirrored cards — *How it works* and
+  *Your data* — instead of eight sections of prose. Fits without scrolling from
+  1280×720 up.
+- **Desktop updates:** when the check can't reach GitHub, Settings now shows why.
+- Cleanup: removed styles for markup that no longer exists and four needless
+  exports. README rewritten.
 
-Pushing a tag by hand (`git tag v1.2.0 && git push origin v1.2.0`) also works,
-as long as it matches `package.json`. Pull requests build the installers too,
-as downloadable workflow artifacts, without publishing anything.
+</details>
 
-## Roadmap
+<details>
+<summary><strong>1.2.0</strong> — 1 Oct 2026 · purple theme, Rubik, bigger UI, smoother motion, update prompt</summary>
 
-- [x] Export/import profile data (JSON backup)
-- [x] Rest timer between sets
-- [x] Prefill a movement's sets from last time
-- [x] Desktop app for Windows 11 and Fedora
-- [ ] Move hosting back to Netlify
-- [x] Tell desktop users when a new version is out
-- [ ] Code-sign the Windows installer and install updates in place
-- [ ] Workout templates and supersets
-- [ ] Optional cloud sync for cross-device access
+- **New colours:** light lavender on black (dark mode) and violet on white
+  (light mode), replacing orange. Text on accent fills uses a dedicated
+  near-black so it stays readable on lavender. New purple app icon.
+- **Rubik** replaces the system font stack (which fell back to Arial on Windows),
+  bundled so the desktop app has it offline.
+- **Scales up on bigger screens:** the stylesheet moved to `rem`, and the root
+  size steps up at 1200 / 1600 / 2200 px wide. Phones and laptops unchanged.
+- **Fixed the website's glitchy theme switch:** colours faded on different
+  clocks, passing through ~15 washed-out grey frames. Everything now flips in
+  one frame, under a circular reveal where supported.
+- **Fixed page transitions shoving sideways** on Windows when the scrollbar
+  appeared mid-animation; dark mode now has a dark scrollbar.
+- Springs damped so buttons stop wobbling; page transitions no longer scale.
+- **Desktop app announces new versions** at launch with a Download button for the
+  right installer; Settings → Help → Updates checks on demand.
+- Fixed the set editor's reps box sitting lower than the weight box.
 
-## Credits
+</details>
 
-Body map geometry is derived from
-[react-body-highlighter](https://github.com/giavinh79/react-body-highlighter)
-(MIT). The typeface is [Rubik](https://github.com/googlefonts/rubik) (SIL Open
-Font License). See [`THIRD-PARTY.md`](THIRD-PARTY.md).
+<details>
+<summary><strong>1.1.0</strong> — 1 Oct 2026 · guided sign-in, settings, backup, desktop app</summary>
 
-## License
+- **"Who's training?"** profile picker, and a step-by-step setup for new profiles
+  (name → weekly goal → kg/lb → optional body details), each answer checked as
+  you go.
+- **Walkthrough** of the dashboard on first visit — arrow keys, skip, or replay
+  from Settings.
+- **Logging feedback:** a confirmation with **Undo** after each log, a personal
+  best call-out (with a burst), a **rest timer** (±30 s / skip), and sets
+  prefilled from last time.
+- **Exercise picker** with recent movements, search (press `/`), and browsing by
+  muscle group — or tap a muscle on the body map.
+- **Settings page:** edit profile, units, rest timer, theme (system / light /
+  dark), Naru on/off, replay walkthrough, delete profile.
+- **Backup:** export every profile to JSON and import elsewhere; importing only
+  adds what's missing.
+- **Desktop app for Windows 11 and Fedora** (Electron): `.exe`, `.rpm` and
+  AppImage, built and released by GitHub Actions whenever `main` gets a new
+  version.
+- Bug fixes: the Compare page counted every logged row as a "session" (three
+  movements in one evening read as 3); undoing the only entry left an empty
+  workout "in progress"; renaming yourself drifted a height entered in feet;
+  a render error left a blank page with no way out; dialogs now trap and return
+  focus.
+- Kept the original layout and visual style after a trial redesign looked too
+  generic.
 
-Distributed under the MIT License. See `LICENSE` for details.
+</details>
 
----
+<details>
+<summary><strong>Late Aug – Sep 2026</strong> — weekly goal, decaying body map, Vercel, full-body Naru</summary>
+
+- **Weekly goal** (Monday–Sunday) with a streak of consecutive weeks trained,
+  a real heat legend, and an end-workout bar pinned to the bottom of the screen.
+- **Body map decays** instead of accumulating: a session counts fully the day
+  it's logged and half a week later. Before, every muscle saturated after a
+  couple of months and the map said nothing.
+- **Moved hosting to Vercel**, with the catch-all rewrite that stops deep links
+  404ing on refresh; nothing hard-codes the host any more.
+- **Naru rebuilt** as a full-body planner — one push, one pull and one leg
+  compound, accessories aimed at your stalest muscles, core — with starting
+  weights from your best sets minus ~10 %, opened as a sheet from "Plan with
+  Naru".
+
+</details>
+
+<details>
+<summary><strong>Mid Aug 2026</strong> — anatomical body map, sessions, per-set logging, Naru</summary>
+
+- **Anatomical body map**, front and back, replacing twelve rounded rectangles
+  (geometry from react-body-highlighter, MIT).
+- **Workout sessions:** a session opens with your first entry and ends with a
+  summary of volume, reps, sets and the hardest-worked group.
+- **kg or lb**, stored as kilograms so switching never rewrites history.
+- **Set-by-set logging** — a warm-up ramp is recorded as it happened instead of
+  averaged into one row — plus editing and deleting past entries, and − / +
+  steppers.
+- Logging (Dashboard) split from reading back (Progress).
+- **Naru** first appears as a Push/Pull/Legs suggestion widget.
+- Fixed a page transition that left a ghost of the old page behind.
+
+</details>
+
+<details>
+<summary><strong>Early Aug 2026</strong> — first versions</summary>
+
+- First static HTML/CSS site with onboarding, dashboard and compare pages.
+- Briefly ran on an Express + SQLite backend, then went fully client-side with
+  `localStorage` — no server, nothing leaves your device.
+- Dark/light theme toggle, About page, and the Tsyoku-naru name.
+- **Rewritten as a React single-page app** (Vite, React Router, Motion) with
+  animated page transitions and a first-run guide.
+- **Exercise library** grouped by muscle, with sets, reps and weight; bodyweight
+  moves hide the weight field and holds like the plank ask for seconds.
+
+</details>
+
+## Credits & license
+
+Body map geometry from [react-body-highlighter](https://github.com/giavinh79/react-body-highlighter)
+(MIT); typeface [Rubik](https://github.com/googlefonts/rubik) (OFL). See
+[`THIRD-PARTY.md`](THIRD-PARTY.md). Released under the MIT License — see
+[`LICENSE`](LICENSE).
 
 Built by [Joel Samuel](https://github.com/byjoelsamuel)

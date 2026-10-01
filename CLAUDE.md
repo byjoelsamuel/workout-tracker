@@ -35,8 +35,11 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 | `src/lib/coach.js` | Naru: a deterministic full-body session generator over the exercise library and the user's own logs. No model, no network. |
 | `desktop/` | The Electron shell: `main.cjs` (window, `app://` protocol, CSP, link handling, the GitHub update check) and `preload.cjs` (exposes only `window.tsyoku = { desktop, checkForUpdate, downloadUpdate }`). |
 | `src/hooks/useUpdate.js`, `src/components/UpdatePrompt.jsx` | Desktop only: the "new version is out" toast at launch and the Updates row in Settings, sharing one answer per launch. |
-| `src/lib/platform.js` | `isDesktop` — the only place the page branches on website vs. app. |
+| `src/lib/platform.js` | `isDesktop`, `isIOS`, `isInstalledWebApp`, `isApp`, `hasOwnStorage` — the only place the page branches on website vs. app vs. device. |
+| `src/sw.js`, `serviceWorker()` in `vite.config.js`, `src/lib/serviceWorker.js`, `public/manifest.webmanifest` | The installable web app (iPhone Add to Home Screen, Android/desktop Install). `src/sw.js` is a template, not imported by the app; the Vite plugin fills it with the build's file list and writes `/sw.js`. |
 | `electron-builder.yml`, `.github/workflows/desktop.yml` | Installer config, and the CI that builds Windows/Linux installers on PRs and publishes a GitHub Release when main gets an unreleased version (or a `v*` tag is pushed). |
+
+`About` is one screen with no scrolling at 1280×720 and up: two mirrored cards (how it works / your data), four short points each. Anything added there has to replace something, not extend it; the page it replaced was eight sections of prose nobody read.
 
 `Dashboard` is the mid-workout screen — body map, log form, live session total, end workout. `Progress` is what you read *between* workouts — group breakdown, personal bests, full editable history. Keep that split; having history on the dashboard is what made it cluttered.
 
@@ -83,6 +86,16 @@ Client-side React SPA (Vite + `react-router-dom`), **no backend**. All state liv
 - **Updates are announced, not installed.** At launch the main process asks `api.github.com/.../releases/latest`; if it's newer than `app.getVersion()`, the page shows a toast whose Download opens the matching installer (`.exe`, AppImage when `$APPIMAGE` is set, else `.rpm`). Installing in place would need `electron-updater` at runtime, which the `node_modules` exclusion rules out. The download URL only ever comes from GitHub's answer — the page can't pass one — and both IPC handlers refuse senders off `app://tsyoku-naru`. About tells the user this is the app's one network request; keep that true.
 - **Releasing is "bump `package.json`'s version, merge to main".** The workflow's `plan` job publishes `v<version>` from a push to main only when that tag doesn't exist yet, creating the tag through the release API. A hand-pushed `v*` tag also publishes, and must equal `v` + `package.json`'s version — the workflow refuses a mismatch. Sessions here can push only their own branch, not tags, which is why the main-push route exists.
 
+### Installed web app (iPhone, Android)
+
+- **The service worker is generated.** The `serviceWorker()` plugin precaches every file the build emitted plus every top-level file in `public/` (not subfolders), and versions the worker by a hash of their contents, so any change at all is a new worker with a fresh cache. Don't hand-maintain a file list.
+- **Pages are network-first (3.5s timeout), files are cache-first.** An online launch always gets the latest deploy; offline or on a dead connection it opens the cached shell. A freshly fetched page is never written over the cached `index.html`, because it may reference a newer build's files than the worker holds.
+- **Never registered in dev or in the desktop app.** Electron's `app://` scheme can't host a worker (even `getRegistrations()` throws there), and the app already serves from disk.
+- **An iOS Home Screen app has its own storage, separate from Safari's**, so a user who installs it starts empty and moves history in with Backup. `hasOwnStorage` drives the copy that says so. Android/desktop installs share the browser's storage, so that copy must not claim otherwise there. On iOS, Export goes through the share sheet (Save to Files) rather than a download.
+- **An installed app skips the landing page** (`isApp` in `Layout.jsx`), like the desktop app.
+- **Touch screens get 16px inputs at least** (the `(pointer: coarse)` block in `global.css`). iOS zooms the page into any smaller field on focus and stays zoomed, so a new text input needs adding to that block.
+- **Anything pinned to a screen edge adds `env(safe-area-inset-*)`.** `viewport-fit=cover` gives the page the area under the notch and home indicator. The status bar style is `default`: `black-translucent` would draw white status text over the page, which vanishes on the light theme.
+
 ### Animation
 
 `src/lib/motionVariants.js` holds the shared vocabulary: transform-led springs, with opacity only ever a supporting cue.
@@ -99,5 +112,5 @@ Onboarding steps use `AnimatePresence mode="wait"`, so focus for a new step is s
 
 - `src/lib/` and `src/hooks/` have inline comments explaining *why*, not what — read them before changing behavior there. Match that density rather than narrating the code.
 - CSS grids that hold user-supplied text use `minmax(0, 1fr)`, not `1fr` — a bare `fr` floors at `min-content`, so a long movement name widens the column past the viewport on narrow screens.
-- Deployed to Vercel (`vercel.json`), which auto-deploys `main` from GitHub. The catch-all rewrite to `/index.html` is **required**, not boilerplate: no file exists on disk at `/about` or `/dashboard`, so without it every route except `/` 404s on a deep link or hard refresh — which is exactly what the first Vercel deploy did before `vercel.json` existed. Vercel matches real files before applying rewrites, so `/assets/*` and `/theme-init.js` are unaffected. `netlify.toml` is kept as a fallback and carries the same rule in Netlify's syntax; if you change one, change both.
+- Deployed to Vercel (`vercel.json`, the primary — `SITE_URL`) and mirrored on Netlify (`netlify.toml`, tsyoku-naru.netlify.app); both auto-deploy `main` from GitHub. The catch-all rewrite to `/index.html` is **required**, not boilerplate: no file exists on disk at `/about` or `/dashboard`, so without it every route except `/` 404s on a deep link or hard refresh — which is exactly what the first Vercel deploy did before `vercel.json` existed. Vercel matches real files before applying rewrites, so `/assets/*` and `/theme-init.js` are unaffected. `netlify.toml` carries the same rule in Netlify's syntax; if you change one, change both.
 - **Nothing may hard-code the deployed host.** `src/lib/site.js` owns it — `publicOrigin()` derives it from `window.location` and falls back to `SITE_URL` only on localhost, where the W3C validators can't reach. The About page's validator links used to write the host out by hand in three places, and all three still pointed at Netlify after the move.

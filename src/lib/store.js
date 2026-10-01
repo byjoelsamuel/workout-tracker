@@ -369,7 +369,7 @@ export function discardWorkoutIfEmpty(userId) {
 // Rows are exported raw, exactly as stored, not normalised. A backup is a copy
 // of storage, and the read-time normalisation is what makes old shapes safe —
 // doing it on the way out would be a migration by another name.
-export const BACKUP_FORMAT = 1;
+const BACKUP_FORMAT = 1;
 
 export function exportBackup() {
   return {
@@ -453,7 +453,7 @@ export function setUnit(unit) {
 // for hypertrophy work, short of the three minutes a heavy triple wants — and
 // the timer's own ± buttons cover the rest. Clamped so a hand-edited value
 // can't produce a timer that never ends.
-export const DEFAULT_REST_SECONDS = 90;
+const DEFAULT_REST_SECONDS = 90;
 
 export function getRestSeconds() {
   const n = Number(localStorage.getItem(STORAGE_KEYS.restSeconds));
