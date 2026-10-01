@@ -11,7 +11,19 @@
     <title>Tsyoku-naru</title>
     <meta name="description" content="A free, private workout tracker. Log every set, see which muscles you've trained lately, and get a full-body plan from your own history." />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <!-- Installable as an app: Add to Home Screen on iPhone and iPad, Install
+         on Android and desktop Chrome/Edge. The service worker that makes it
+         open offline is registered from src/lib/serviceWorker.js. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Full-bleed and opaque: iOS cuts its own rounded corners, and anything
+         transparent under them shows as black. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Tsyoku-naru" />
+    <!-- "default" keeps the status bar off the page. "black-translucent" would
+         draw white status text over it, which vanishes on the light theme. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
     <div id="root"></div>

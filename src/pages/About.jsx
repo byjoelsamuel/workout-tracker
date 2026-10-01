@@ -2,7 +2,10 @@ import { motion } from "motion/react";
 import { Card, PageHeader } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
-import { isDesktop } from "../lib/platform.js";
+import { hasOwnStorage, isDesktop, isInstalledWebApp } from "../lib/platform.js";
+
+// What "here" is when talking about where data lives.
+const DEVICE = isDesktop ? "computer" : isInstalledWebApp ? "device" : "browser";
 
 export function About() {
   // Built from wherever the page is actually served rather than a hard-coded
@@ -52,7 +55,7 @@ export function About() {
 
         <h2>Where your data lives</h2>
         <p>
-          Nowhere but this {isDesktop ? "computer" : "browser"}. No account, no login,
+          Nowhere but this {DEVICE}. No account, no login,
           no server — which is worth understanding in three parts.
         </p>
         {/* A description list rather than a run of prose. This answers three
@@ -92,7 +95,7 @@ export function About() {
           lays out a full-body session — one push, one pull, one leg movement, plus
           accessories aimed at whatever you have left longest, with starting weights
           taken from your own best sets. It runs entirely{" "}
-          {isDesktop ? "on this computer" : "in this browser"}: no account, no API key,
+          {isDesktop ? "on this computer" : `in this ${DEVICE}`}: no account, no API key,
           no network call. You can turn it off in Settings.
         </p>
 
@@ -131,6 +134,26 @@ export function About() {
             <a href={DOWNLOAD_URL}>Download it from GitHub</a>. Its history is kept
             separately from this browser's — export a backup in Settings here and
             import it there.
+          </p>
+        )}
+
+        <h2>On your phone</h2>
+        {isInstalledWebApp ? (
+          <p>
+            You're using the installed version. It opens with no signal and updates
+            itself whenever the website does.
+            {hasOwnStorage &&
+              " On iPhone and iPad it keeps its own history, separate from Safari's — use the backup in Settings to move between them."}
+          </p>
+        ) : (
+          <p>
+            On iPhone or iPad, open{" "}
+            {isDesktop ? <a href={SITE_URL}>the website</a> : "this site"} in Safari, tap
+            Share, then <strong>Add to Home Screen</strong>. It gets its own icon, opens
+            full-screen, works with no signal, and updates itself whenever the website
+            does. It keeps its own history, separate from Safari's — move yours across
+            with the backup in Settings. On Android, Chrome's menu has{" "}
+            <strong>Install app</strong>.
           </p>
         )}
 

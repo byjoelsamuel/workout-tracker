@@ -372,6 +372,18 @@ body {
     color: var(--accent);
 }
 
+.intro-download strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.share-glyph {
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+    color: var(--accent);
+}
+
 /* ---- Cards ---- */
 
 .card {
@@ -2888,6 +2900,52 @@ body {
 :root[data-theme-switching] *::before,
 :root[data-theme-switching] *::after {
     transition: none !important;
+}
+
+/* ---- Phones and the installed app ---- */
+
+/* iOS Safari zooms the whole page into any field set below 16px the moment
+   it's focused, and leaves it zoomed. Touch screens get 16px at least; same
+   selectors as the rules they override, so this wins by coming later. */
+@media (pointer: coarse) {
+    .form input,
+    .form select,
+    .set-builder input,
+    .history-editor input,
+    .history-editor select,
+    .picker input,
+    .picker select,
+    .stepper input,
+    .field input,
+    .history-filter {
+        font-size: max(1rem, 16px);
+    }
+}
+
+/* viewport-fit=cover (index.html) gives the page the whole screen, notch and
+   home indicator included, so whatever sits against an edge keeps clear of
+   them itself. Every env() here is 0 on screens without them. */
+body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+.end-workout {
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+.tour-card.docked {
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+.edge-bottom .dialog-panel.sheet {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Taps already answer with the buttons' own press animation; the grey flash
+   iOS adds on top is what makes a web page feel like one. */
+html {
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* The theme switch is revealed as a circle growing from the toggle
