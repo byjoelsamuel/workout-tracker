@@ -228,7 +228,8 @@ as downloadable workflow artifacts, without publishing anything.
 
 Body map geometry is derived from
 [react-body-highlighter](https://github.com/giavinh79/react-body-highlighter)
-(MIT). See [`THIRD-PARTY.md`](THIRD-PARTY.md).
+(MIT). The typeface is [Rubik](https://github.com/googlefonts/rubik) (SIL Open
+Font License). See [`THIRD-PARTY.md`](THIRD-PARTY.md).
 
 ## License
 
