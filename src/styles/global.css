@@ -9,23 +9,28 @@
        offsets by this rather than hard-coding a number that drifts when the
        nav's padding changes. */
     --nav-offset: 61px;
-    --text-primary: #0a0a0a;
-    --text-secondary: #6b6b70;
-    --accent: #ff6a00;
-    --accent-hover: #ff8124;
+    --text-primary: #0b0a10;
+    --text-secondary: #6b6876;
+    /* Violet, deep enough to read as text on white (5.5:1). The dark theme
+       uses a light lavender of the same hue — the owner's pick — which would
+       wash out here. */
+    --accent: #7048e8;
+    --accent-hover: #5f3dc4;
     --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+    /* Text and icons sitting on an accent fill. */
+    --on-accent: #ffffff;
     --background: #ffffff;
-    --surface: #fafafa;
+    --surface: #faf9fc;
     --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.09);
+    --card-border: rgba(16, 8, 32, 0.09);
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     --danger: #e5342a;
     /* Body map. The plate is a surface for the figure to sit on; muscle is
        the untrained tone the accent fades in over; structure (head, knees)
        has to stay quieter than muscle so it never out-weighs the anatomy. */
-    --map-plate: #f1f1f3;
-    --map-muscle: #c6c6ce;
-    --map-structure: #dcdce1;
+    --map-plate: #f2f1f6;
+    --map-muscle: #c8c5d3;
+    --map-structure: #dddbe5;
     /* Native scrollbars, form controls and autofill follow the theme. Without
        it a dark page kept a bright white scrollbar down its right edge. */
     color-scheme: light;
@@ -35,20 +40,23 @@
    flips this attribute. Explicit blocks rather than prefers-color-scheme so a
    manual choice always beats the OS setting. */
 :root[data-theme="dark"] {
-    --text-primary: #f5f5f7;
-    --text-secondary: #9a9aa0;
-    --accent: #ff7a1f;
-    --accent-hover: #ff9445;
+    --text-primary: #f5f4f8;
+    --text-secondary: #9c98a6;
+    /* Lavender on black: 8.4:1 as text. Too light to carry white type, so
+       fills of it take near-black text instead (--on-accent). */
+    --accent: #b197fc;
+    --accent-hover: #c5b3fd;
     --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
+    --on-accent: #140b2b;
     --background: #050505;
-    --surface: #0e0e0f;
-    --card-bg: #141415;
+    --surface: #0e0d11;
+    --card-bg: #141318;
     --card-border: rgba(255, 255, 255, 0.1);
     --card-shadow: none;
     --danger: #ff5b52;
-    --map-plate: #0b0b0c;
-    --map-muscle: #35353c;
-    --map-structure: #202024;
+    --map-plate: #0b0a0e;
+    --map-muscle: #36333f;
+    --map-structure: #201e26;
     color-scheme: dark;
 }
 
@@ -450,7 +458,7 @@ body {
     font-family: inherit;
     font-size: 15px;
     font-weight: 550;
-    color: #fff;
+    color: var(--on-accent);
     background-color: var(--accent);
     border: 1px solid var(--accent);
     border-radius: 980px;
@@ -509,6 +517,7 @@ body {
 }
 
 .button.danger {
+    color: #fff;
     background: var(--danger);
     border-color: var(--danger);
 }
@@ -562,7 +571,7 @@ body {
 }
 
 /* The anatomical polygons abut each other, so without a separating stroke a
-   fully-trained body reads as one solid orange mass. Stroking in the plate
+   fully-trained body reads as one solid mass of accent. Stroking in the plate
    colour draws the muscle boundaries as negative space. */
 .body-map polygon {
     stroke: var(--map-plate);
@@ -640,7 +649,7 @@ body {
 }
 
 .segmented button[aria-checked="true"] {
-    color: #fff;
+    color: var(--on-accent);
 }
 
 /* One highlight that slides between options (layoutId in primitives.jsx). */
@@ -1366,7 +1375,7 @@ body {
 .chip.active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
 }
 
 .picker-search input {
@@ -2404,7 +2413,7 @@ body {
 .choice.checked {
     background: var(--accent);
     border-color: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
 }
 
 .choice:focus-visible {
@@ -2462,7 +2471,7 @@ body {
     height: 56px;
     border-radius: 50%;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     font-size: 26px;
     font-weight: 700;
 }
@@ -2814,7 +2823,7 @@ body {
     padding: 9px 16px;
     border-radius: 980px;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;

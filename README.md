@@ -157,10 +157,10 @@ flowchart TD
     N --> N1[Reads your logs: what is stale, what you lift]
     N1 --> N2[Full-body session: push + pull + legs + core]
 
-    style A fill:#f97316,stroke:#333,color:#fff
-    style I1 fill:#f97316,stroke:#333,color:#fff
-    style L1 fill:#f97316,stroke:#333,color:#fff
-    style N2 fill:#f97316,stroke:#333,color:#fff
+    style A fill:#7048e8,stroke:#333,color:#fff
+    style I1 fill:#7048e8,stroke:#333,color:#fff
+    style L1 fill:#7048e8,stroke:#333,color:#fff
+    style N2 fill:#7048e8,stroke:#333,color:#fff
 ```
 
 **In short:** each entry is tagged to one muscle group → the body map shades by

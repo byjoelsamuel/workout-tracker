@@ -8,7 +8,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
-const COLORS = ["var(--accent)", "#ffb347", "#ffd9a8", "var(--accent-hover)"];
+const COLORS = ["var(--accent)", "#9775fa", "#e5dbff", "var(--accent-hover)"];
 
 // Triggers can be a counter or an id string; either becomes a numeric seed.
 function toSeed(trigger) {
