@@ -80,7 +80,7 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
                 layout="position"
                 initial={{ opacity: 0, y: -8, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                // Inside AnimatePresence, so a tween (see CLAUDE.md).
+                // Inside AnimatePresence, so a tween (see motionVariants.js).
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.14, ease: "easeIn" } }}
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
               >

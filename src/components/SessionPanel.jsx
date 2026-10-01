@@ -56,7 +56,7 @@ export function SessionPanel({ logs, unit, active }) {
       {logs.length > 0 && (
         <ul className="data-list">
           {/* Newest on top, sliding the rest down — the one you just logged is
-              the one you're checking. Exits are tweens (see CLAUDE.md). */}
+              the one you're checking. Exits are tweens (see motionVariants.js). */}
           <AnimatePresence initial={false}>
             {logs.map((log) => (
               <motion.li
