@@ -10,48 +10,44 @@ import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platf
 const WHERE = isDesktop ? "on this computer" : hasOwnStorage ? "in this app" : "in this browser";
 
 const HOW = [
-  ["Log", "Pick a movement and record each set's reps and weight. Anything you've done before starts from last time."],
-  ["Body map", "Muscle groups light up as you train them and fade over a few weeks, so it shows what you've worked lately — and what you've skipped."],
-  ["Progress", "Lifetime sessions per muscle group, personal bests, and every entry, editable."],
-  ["Naru", "An optional planner: a full-body session built from your own logs and best lifts, worked out on your device."],
+  ["Log", "Pick an exercise and enter the reps and weight for each set. If you've done it before, your last session is filled in for you."],
+  ["Body map", "Muscles light up when you train them and fade over the next few weeks. A dim muscle is one you haven't worked in a while."],
+  ["Progress", "Sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
+  ["Naru", "Optional. It builds a full-body workout from your history and suggests starting weights based on your best sets."],
 ];
 
-// The one line that differs most between website, desktop app and phone.
-function elsewhere() {
+// The one point that differs between website, desktop app and phone.
+function otherDevices() {
   if (isDesktop) {
     return (
       <>
-        A prompt appears here when a new version is out. On iPhone, open{" "}
-        <a href={SITE_URL}>the website</a> in Safari and Add to Home Screen.
+        You'll get a prompt here when a new version is out. On iPhone, open{" "}
+        <a href={SITE_URL}>the website</a> in Safari and tap Share, then Add to Home Screen.
       </>
     );
   }
-  if (isInstalledWebApp) return "This is the installed version: it works offline and updates with the website.";
-  const desktop = (
-    <>
-      <a href={DOWNLOAD_URL}>desktop app</a> for Windows 11 and Fedora
-    </>
-  );
+  if (isInstalledWebApp) return "This is the installed version. It works offline and updates along with the website.";
+  const desktop = <a href={DOWNLOAD_URL}>desktop app</a>;
   return isIOS ? (
-    <>Safari → Share → Add to Home Screen makes it an app that works offline. There's a {desktop} too.</>
+    <>Tap Share, then Add to Home Screen, to use it as an app that works offline. There's also a {desktop} for Windows 11 and Fedora.</>
   ) : (
-    <>There's a {desktop}, and on iPhone, Safari → Share → Add to Home Screen.</>
+    <>There's a {desktop} for Windows 11 and Fedora. On iPhone, open this site in Safari and tap Share, then Add to Home Screen.</>
   );
 }
 
 const DATA = [
   [
     "Private",
-    `Everything stays ${WHERE}: no account, no server. Compare only lists profiles made here.${
-      isDesktop ? " The app's one network request is a check for new versions." : ""
+    `Everything is saved ${WHERE}. There's no account and no server, and Compare only shows profiles saved here.${
+      isDesktop ? " The only thing the app sends online is a check for new versions." : ""
     }`,
   ],
   [
-    "Yours to move",
-    "Settings → Backup exports a file that imports into any copy of the app — and it's the only way back if this data is ever cleared.",
+    "Backup",
+    "Settings → Backup saves a file you can import into any copy of the app. Keep one, because clearing this data deletes your history.",
   ],
-  ["Everywhere", elsewhere()],
-  ["Free", "No ads, no tracking, no sign-up. MIT-licensed, with the code on GitHub."],
+  ["Other devices", otherDevices()],
+  ["Free", "No ads or tracking. The code is open source under the MIT licence."],
 ];
 
 function Points({ items }) {

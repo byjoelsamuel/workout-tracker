@@ -92,8 +92,7 @@ website.
   rest of the interface on big screens.
 - Desktop: a second launch could briefly open a window of its own before
   handing over to the one already running.
-- About page back to real prose — what it does and where your data lives, in
-  two mirrored cards that still fit on one screen.
+- About page wording rewritten in plain language; the layout is unchanged.
 
 </details>
 
