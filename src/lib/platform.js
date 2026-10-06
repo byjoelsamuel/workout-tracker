@@ -30,6 +30,9 @@ export const isApp = isDesktop || isInstalledWebApp;
 // Chrome or Edge shares the browser's, so it isn't separate there.
 export const hasOwnStorage = isDesktop || (isIOS && isInstalledWebApp);
 
+// "this app" or "this browser", for copy about where profiles and history are.
+export const STORAGE_HOME = hasOwnStorage ? "this app" : "this browser";
+
 // Asks the desktop shell whether a newer release is out:
 // { current, latest, available } — or { failed: true } when GitHub couldn't be
 // reached. Always null on the website, which is updated by deploying it.

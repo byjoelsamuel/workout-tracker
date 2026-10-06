@@ -20,7 +20,10 @@ import { Button } from "./primitives.jsx";
 const PAD = 10;
 const GAP = 14;
 const EDGE = 16;
-const CARD_WIDTH = 340;
+// In rem, like the stylesheet, so the card grows with the rest of the interface
+// on a big screen instead of squeezing larger text into a fixed 340px.
+const CARD_WIDTH_REM = 21.25;
+const cardWidth = () => CARD_WIDTH_REM * parseFloat(getComputedStyle(document.documentElement).fontSize);
 
 function measure(selector) {
   if (!selector) return null;
@@ -34,8 +37,9 @@ function measure(selector) {
 // Below the target when it fits, above when it doesn't, and pinned to the
 // bottom edge when the target is taller than the space either side of it.
 function placeCard(rect, cardHeight, vw, vh) {
-  if (!rect) return { x: (vw - CARD_WIDTH) / 2, y: (vh - cardHeight) / 2 };
-  const x = Math.min(Math.max(rect.left, EDGE), vw - CARD_WIDTH - EDGE);
+  const width = cardWidth();
+  if (!rect) return { x: (vw - width) / 2, y: (vh - cardHeight) / 2 };
+  const x = Math.min(Math.max(rect.left, EDGE), vw - width - EDGE);
   const below = rect.top + rect.height + PAD + GAP;
   const above = rect.top - PAD - GAP - cardHeight;
   if (below + cardHeight <= vh - EDGE) return { x, y: below };
@@ -135,7 +139,7 @@ export function Tour({ steps, onClose, onFinish }) {
       <motion.div
         ref={cardRef}
         className={`tour-card ${docked ? "docked" : ""}`}
-        style={docked ? undefined : { width: CARD_WIDTH }}
+        style={docked ? undefined : { width: cardWidth() }}
         initial={docked ? { y: 40, opacity: 0 } : { ...card, opacity: 0, scale: 0.94 }}
         animate={docked ? { y: 0, opacity: 1 } : { ...card, opacity: 1, scale: 1 }}
         transition={spring}

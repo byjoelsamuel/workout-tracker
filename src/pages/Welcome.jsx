@@ -15,6 +15,7 @@ import { useProfiles } from "../hooks/useStore.js";
 import { setLastUserId } from "../lib/store.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 import { relativeDay } from "../lib/time.js";
+import { STORAGE_HOME } from "../lib/platform.js";
 
 export function Welcome() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export function Welcome() {
 
       <div className="card-stack">
         <Card>
-          <h2>Profiles on this browser</h2>
+          <h2>Profiles in {STORAGE_HOME}</h2>
           <motion.ul className="profile-list" variants={listVariants} initial="hidden" animate="show">
             {profiles.map((profile) => (
               <motion.li key={profile.id} variants={listItemVariants}>

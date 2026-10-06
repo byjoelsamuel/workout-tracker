@@ -46,7 +46,7 @@ function tourSteps(name, withNaru) {
     {
       target: "[data-tour='map']",
       title: "Watch muscles light up",
-      body: "Trained muscles glow orange, then fade over a few weeks if you leave them — so a dim muscle is one you've been skipping. Tap one to find exercises for it.",
+      body: "Trained muscles light up, then fade over a few weeks if you leave them — so a dim muscle is one you've been skipping. Tap one to find exercises for it.",
     },
     {
       target: "[data-tour='goal']",
@@ -180,8 +180,10 @@ export function Dashboard() {
 
   // What you actually want to know opening this screen is whether you're
   // already training and, if not, how long it's been. `logs` is newest-first.
+  // No duration here: this only renders when something changes, so "· 3m"
+  // stayed "3m" for the rest of the session. The pinned bar has the live clock.
   const eyebrow = workout
-    ? `Workout in progress · ${formatDuration(workout.startedAt)}`
+    ? "Workout in progress"
     : logs.length > 0
       ? `Last trained ${relativeDay(logs[0].loggedAt)}`
       : "Ready when you are";
