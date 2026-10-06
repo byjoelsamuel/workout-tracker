@@ -95,6 +95,35 @@ export function totalSeconds(logs) {
   }, 0);
 }
 
+// Limits that catch a typo (800 for 80, 100 reps for 10 is fine, 1000 isn't)
+// without policing anyone's training. Weight is checked in kilograms after
+// conversion, so the line sits in the same place whichever unit was typed.
+const MAX_REPS = 1000;
+const MAX_SECONDS = 3600;
+const MAX_KG = 1000;
+
+// The one check the log form and the history editor both run before writing.
+// The editor used to save whatever it was given — a negative weight went into
+// storage and was subtracted from every total it fed. `sets` are the forms'
+// string rows; returns a message, or "" when they're fine to store.
+export function checkSets(sets, { timed = false, bodyweight = false, unit = "kg" } = {}) {
+  for (const set of sets) {
+    const reps = Number(set.reps);
+    if (set.reps === "" || !Number.isFinite(reps) || reps < 1) {
+      return timed ? "Every set needs a hold time of at least a second." : "Every set needs at least one rep.";
+    }
+    if (!Number.isInteger(reps)) return timed ? "Hold times are whole seconds." : "Reps are whole numbers.";
+    if (reps > (timed ? MAX_SECONDS : MAX_REPS)) {
+      return timed ? "A hold over an hour looks like a typo." : `More than ${MAX_REPS} reps in one set looks like a typo.`;
+    }
+    if (bodyweight || set.weight === "" || set.weight == null) continue;
+    const weight = Number(set.weight);
+    if (!Number.isFinite(weight) || weight < 0) return "Weight can't be negative.";
+    if (toKg(weight, unit) > MAX_KG) return `More than ${formatWeight(MAX_KG, unit)} on one set looks like a typo.`;
+  }
+  return "";
+}
+
 // "3 × 10" when every set matches, "10, 8, 8, 6" when they don't. Collapsing
 // the uniform case keeps the common row short while still showing a ramp
 // honestly.
