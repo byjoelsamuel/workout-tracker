@@ -48,8 +48,11 @@ protocol.registerSchemesAsPrivileged([
 
 // A second launch focuses the window that's already open rather than starting
 // another copy writing to the same storage.
+// app.quit() is asynchronous, so the second copy has to stop here as well:
+// carrying on would register its handlers and briefly open a window of its own.
 if (!app.requestSingleInstanceLock()) {
   app.quit();
+  return;
 }
 
 function resolveRequest(url) {

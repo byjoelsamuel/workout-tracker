@@ -2,7 +2,7 @@
 // pure I/O; these add just enough local state to re-render after a write.
 // An app this small doesn't need a state library — mutations are rare and
 // always originate from one component.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addLog,
   deleteLog,
@@ -16,7 +16,6 @@ import {
   getRestSeconds,
   getUnit,
   getUser,
-  getWorkoutLogs,
   listProfiles,
   setCoachEnabled,
   setRestSeconds,
@@ -143,7 +142,13 @@ export function useExerciseLog(userId) {
     return finished;
   }, [userId, refresh]);
 
-  const workoutLogs = state.workout ? getWorkoutLogs(userId, state.workout.id) : [];
+  // From the logs already in hand. getWorkoutLogs re-read and re-parsed the
+  // whole of storage on every render of the dashboard to get the same rows.
+  const workoutId = state.workout?.id;
+  const workoutLogs = useMemo(
+    () => (workoutId ? state.logs.filter((entry) => entry.workoutId === workoutId) : []),
+    [state.logs, workoutId]
+  );
 
   return { ...state, workoutLogs, log, undo, editEntry, removeEntry, finish, refresh };
 }
@@ -165,6 +170,11 @@ export function useUnit() {
 // Rest timer length, same shape as useUnit.
 export function useRestSeconds() {
   const [seconds, setSecondsState] = useState(getRestSeconds);
-  const change = useCallback((next) => setSecondsState(setRestSeconds(next)), []);
+  // Hands back the clamped value that was actually saved.
+  const change = useCallback((next) => {
+    const saved = setRestSeconds(next);
+    setSecondsState(saved);
+    return saved;
+  }, []);
   return [seconds, change];
 }

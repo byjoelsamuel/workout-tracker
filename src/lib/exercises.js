@@ -16,7 +16,7 @@
 // training. Compound lifts are filed under the muscle doing most of the
 // work (deadlift under back, dip under chest), so the body map doesn't
 // double-count a single session.
-import { BODY_GROUPS } from "./bodyGroups.js";
+import { GROUP_LABELS } from "./bodyGroups.js";
 
 export const EXERCISES = {
   shoulders: [
@@ -198,8 +198,6 @@ export const EXERCISES = {
 export function findExercise(bodyGroup, name) {
   return (EXERCISES[bodyGroup] || []).find((e) => e.name === name) || null;
 }
-
-const GROUP_LABELS = Object.fromEntries(BODY_GROUPS.map((g) => [g.id, g.label]));
 
 // Flattened once at module load. Search runs across every movement rather than
 // within the selected group, because knowing a lift's name is common and

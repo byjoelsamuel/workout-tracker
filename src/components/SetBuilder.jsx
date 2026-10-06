@@ -8,13 +8,14 @@ import { AnimatePresence, motion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";
 import { Segmented } from "./primitives.jsx";
 import { PLATE_STEP, UNITS, fromKg, setVolume, toKg } from "../lib/units.js";
+import { newId } from "../lib/id.js";
 
 export function newSet(previous, { timed = false } = {}) {
   // A new set copies the one above it, because the overwhelmingly common case
   // is doing the same thing again. Starting blank would mean retyping
   // identical numbers three or four times a movement.
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     reps: previous?.reps ?? (timed ? "30" : "10"),
     weight: previous?.weight ?? "",
   };

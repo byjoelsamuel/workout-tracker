@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { AnimatedList, AnimatedListItem, Button } from "./primitives.jsx";
 import { SetBuilder } from "./SetBuilder.jsx";
 import { relativeDay, sessionKey } from "../lib/time.js";
-import { describeReps, formatVolume, formatWeight, fromKg, logVolume, toKg, topWeight, totalVolume } from "../lib/units.js";
+import { checkSets, describeReps, formatVolume, formatWeight, fromKg, logVolume, toKg, topWeight, totalVolume } from "../lib/units.js";
 
 // "3 × 10 · 60 kg", or "10, 8, 8, 6 · up to 85 kg" when the sets differ.
 // Returns null for rows saved before sets existed, so those show the exercise
@@ -40,6 +40,7 @@ const timeFormat = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute:
 function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClose }) {
   const [confirming, setConfirming] = useState(false);
   const [draft, setDraft] = useState([]);
+  const [error, setError] = useState("");
   const detail = summarise(log, unit);
   const volume = logVolume(log);
   const editable = Boolean(onEdit && onDelete);
@@ -47,10 +48,16 @@ function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClo
   function startEditing() {
     setDraft(toEditable(log, unit));
     setConfirming(false);
+    setError("");
     onOpen();
   }
 
   function save() {
+    const problem = checkSets(draft, { timed: log.timed, bodyweight: log.bodyweight, unit });
+    if (problem) {
+      setError(problem);
+      return;
+    }
     onEdit(log.id, {
       sets: draft.map((set) => ({
         id: set.id,
@@ -110,6 +117,12 @@ function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClo
               unit={unit}
               onUnitChange={onUnitChange}
             />
+
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
 
             <div className="history-editor-actions">
               <Button size="small" onClick={save}>

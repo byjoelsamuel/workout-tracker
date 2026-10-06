@@ -9,6 +9,7 @@ import { STORAGE_KEYS } from "./storageKeys.js";
 import { BODY_GROUPS } from "./bodyGroups.js";
 import { findExercise } from "./exercises.js";
 import { sessionKey } from "./time.js";
+import { newId } from "./id.js";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -19,8 +20,22 @@ export const DEFAULT_WEEKLY_GOAL = 3;
 export const MIN_WEEKLY_GOAL = 1;
 export const MAX_WEEKLY_GOAL = 7;
 
+// A value that isn't a JSON array (cut short by a full disk, or written by
+// something else) reads as empty rather than throwing on every page. Its raw
+// text is set aside first, once, so the next write can't destroy the only copy
+// of data that might still be recoverable by hand.
 function read(key) {
-  return JSON.parse(localStorage.getItem(key) || "[]");
+  const raw = localStorage.getItem(key);
+  if (!raw) return [];
+  try {
+    const value = JSON.parse(raw);
+    if (Array.isArray(value)) return value;
+  } catch {
+    // Falls through to the same handling as a non-array.
+  }
+  const aside = STORAGE_KEYS.unreadable(key);
+  if (!localStorage.getItem(aside)) localStorage.setItem(aside, raw);
+  return [];
 }
 
 function write(key, value) {
@@ -46,7 +61,7 @@ function clampGoal(goal) {
 export function createUser({ name, bodyweight, height, age, weeklyGoal }) {
   const users = read(STORAGE_KEYS.users);
   const user = {
-    id: crypto.randomUUID(),
+    id: newId(),
     name: name.trim(),
     bodyweight: bodyweight ? Number(bodyweight) : null,
     height: height ? Number(height) : null,
@@ -180,9 +195,11 @@ function normalizeLog(log) {
 // carries no load, and 0 would imply one.
 function toStoredSets(sets) {
   return sets.map((set) => ({
-    id: set.id ?? crypto.randomUUID(),
+    id: set.id ?? newId(),
     reps: Number(set.reps) || null,
-    weight: set.weight === "" || set.weight == null ? null : Number(set.weight),
+    // Negative or unparseable is no load at all, never a subtraction from the
+    // totals — the forms check this, but storage is where it has to hold.
+    weight: Number(set.weight) > 0 ? Number(set.weight) : null,
   }));
 }
 
@@ -191,7 +208,7 @@ function toStoredSets(sets) {
 export function addLog(userId, { bodyGroup, exerciseName, sets, timed, bodyweight }) {
   const logs = read(STORAGE_KEYS.logs);
   const log = {
-    id: crypto.randomUUID(),
+    id: newId(),
     userId,
     bodyGroup,
     exerciseName: exerciseName.trim(),
@@ -336,7 +353,7 @@ export function getActiveWorkout(userId) {
 function ensureActiveWorkout(userId) {
   const existing = getActiveWorkout(userId);
   if (existing) return existing;
-  const workout = { id: crypto.randomUUID(), startedAt: new Date().toISOString() };
+  const workout = { id: newId(), startedAt: new Date().toISOString() };
   localStorage.setItem(STORAGE_KEYS.activeWorkout(userId), JSON.stringify(workout));
   return workout;
 }

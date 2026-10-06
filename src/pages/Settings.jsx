@@ -19,13 +19,13 @@ import { formatClock } from "../lib/time.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { downloadUpdate, hasOwnStorage, isDesktop, isIOS } from "../lib/platform.js";
+import { downloadUpdate, hasOwnStorage, isDesktop, isIOS, STORAGE_HOME } from "../lib/platform.js";
 import { APP_VERSION } from "../lib/site.js";
 import { useUpdateCheck } from "../hooks/useUpdate.js";
 
 // Where the data lives, in words — the browser on the web; the app on desktop
 // or as an iPhone Home Screen app, which each keep their own.
-const HERE = hasOwnStorage ? "this app" : "this browser";
+const HERE = STORAGE_HOME;
 
 const BACKUP_NOTE = isDesktop
   ? "Everything lives in this app, separately from the website. Import a backup exported from the website to bring your history here."
@@ -73,6 +73,40 @@ function UpdateRow() {
         </Button>
       )}
     </Row>
+  );
+}
+
+// Typed values are held as a draft and saved on blur or Enter; the − / +
+// buttons save straight away. Saving on every keystroke clamped each digit as
+// it landed, so typing 120 went 1 → 15 → 152 → 600.
+function RestField({ seconds, onSave }) {
+  const [draft, setDraft] = useState(String(seconds));
+  const [last, setLast] = useState(seconds);
+  if (seconds !== last) {
+    setLast(seconds);
+    setDraft(String(seconds));
+  }
+  const commit = () => setDraft(String(onSave(Number(draft) || seconds)));
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        commit();
+      }}
+    >
+      <NumberStepper
+        value={draft}
+        onChange={(next, source) => {
+          setDraft(next);
+          if (source === "step") onSave(Number(next));
+        }}
+        onBlur={commit}
+        step={15}
+        min={15}
+        max={600}
+        label="Rest timer, seconds"
+      />
+    </form>
   );
 }
 
@@ -258,14 +292,7 @@ export function Settings() {
           </Row>
           <Row title="Rest timer" detail={`Starts after every set you log · ${formatClock(restSeconds * 1000)}`}>
             <span className="settings-stepper">
-              <NumberStepper
-                value={String(restSeconds)}
-                onChange={(v) => v !== "" && setRestSeconds(Number(v))}
-                step={15}
-                min={15}
-                max={600}
-                label="Rest timer, seconds"
-              />
+              <RestField seconds={restSeconds} onSave={setRestSeconds} />
             </span>
           </Row>
           <Row title="Naru" detail="The workout planner on the dashboard.">

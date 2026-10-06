@@ -15,14 +15,15 @@ import { findExercise } from "../lib/exercises.js";
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
 import { bestByMovement, lastTimeFor } from "../lib/records.js";
 import { relativeDay } from "../lib/time.js";
-import { describeReps, formatWeight, fromKg, toKg, topWeight } from "../lib/units.js";
+import { newId } from "../lib/id.js";
+import { checkSets, describeReps, formatWeight, fromKg, toKg, topWeight } from "../lib/units.js";
 
 // What you did last time, as editable rows in the unit on screen — the same
 // conversion the history editor uses. Fresh ids, because these are new sets
 // that happen to start from old numbers, not the old sets themselves.
 function setsFrom(log, unit) {
   return log.sets.map((set) => ({
-    id: crypto.randomUUID(),
+    id: newId(),
     reps: set.reps == null ? "" : String(set.reps),
     weight: set.weight == null ? "" : String(Math.round(fromKg(set.weight, unit) * 10) / 10),
   }));
@@ -53,12 +54,9 @@ export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnit
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (sets.some((set) => !Number(set.reps) || Number(set.reps) < 1)) {
-      setError(timed ? "Every set needs a hold time of at least a second." : "Every set needs at least one rep.");
-      return;
-    }
-    if (sets.some((set) => set.weight !== "" && Number(set.weight) < 0)) {
-      setError("Weight can't be negative.");
+    const problem = checkSets(sets, { timed, bodyweight, unit });
+    if (problem) {
+      setError(problem);
       return;
     }
 
@@ -79,7 +77,7 @@ export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnit
     // Keep the movement selected, with the rows just logged still in place —
     // logging set by set, between sets, means doing the same thing again in
     // two minutes. "Change" is one tap when you move on.
-    setSets(sets.map((set) => ({ ...set, id: crypto.randomUUID() })));
+    setSets(sets.map((set) => ({ ...set, id: newId() })));
     setError("");
   }
 

@@ -5,6 +5,7 @@ import { Button, Card, PageHeader } from "../components/primitives.jsx";
 import { useCompareData } from "../hooks/useStore.js";
 import { countHeat } from "../lib/heat.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
+import { STORAGE_HOME } from "../lib/platform.js";
 
 export function Compare() {
   const users = useCompareData();
@@ -20,7 +21,7 @@ export function Compare() {
       <PageHeader
         eyebrow="Last 7 days"
         title="Everyone's week"
-        subhead="Every profile on this browser, side by side."
+        subhead={`Every profile in ${STORAGE_HOME}, side by side.`}
       />
 
       {users.length === 0 ? (

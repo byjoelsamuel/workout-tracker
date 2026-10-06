@@ -2,6 +2,7 @@ node_modules/
 dist/
 release/
 
-# Private notes, kept out of the public repo.
+# Private notes and local tool settings, kept out of the public repo.
 CLAUDE.md
 CLAUDE.local.md
+.claude/

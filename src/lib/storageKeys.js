@@ -21,4 +21,7 @@ export const STORAGE_KEYS = {
   // The workout currently in progress, if any. Per-profile so two people
   // sharing a browser can't end up logging into each other's session.
   activeWorkout: (userId) => `workoutTracker.activeWorkout.${userId}`,
+  // Where an unparseable users/logs value is copied before anything can
+  // overwrite it (see read() in store.js). Never read back by the app.
+  unreadable: (key) => `${key}.unreadable`,
 };
