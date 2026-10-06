@@ -67,6 +67,37 @@ website.
 ## Changelog
 
 <details open>
+<summary><strong>1.3.1</strong> — 6 Oct 2026 · bug fixes from a full code review</summary>
+
+- **Works over plain HTTP on a local network.** Served from a homelab box or
+  `vite --host` and opened by IP, the app crashed on the first save
+  (`crypto.randomUUID` only exists on HTTPS/localhost) and no profile could be
+  created. IDs now fall back to `crypto.getRandomValues`.
+- **The history editor validates before saving.** It used to store whatever it
+  was given — a negative weight was saved and subtracted from lifetime volume,
+  and a cleared reps box saved a set with no reps. The log form and the editor
+  now share one check: whole-number reps, no negative weights, and anything
+  over 1,000 reps or 1,000 kg is flagged as a likely typo.
+- **The rest timer field accepts typing.** Each keystroke was saved and clamped
+  as it landed, so typing 120 ended up as 600. Typing now saves when you leave
+  the field; the − / + buttons still save at once.
+- **Corrupted storage no longer breaks every page.** An unreadable value now
+  reads as empty, with the raw text kept aside under a `.unreadable` key so
+  nothing is lost.
+- The dashboard header's workout duration froze at whatever it read when the
+  page last re-rendered; it now just says the workout is in progress, next to
+  the live clock in the pinned bar.
+- The walkthrough said muscles "glow orange"; profile lists said "this browser"
+  inside the desktop and iPhone apps; the walkthrough card didn't scale with the
+  rest of the interface on big screens.
+- Desktop: a second launch could briefly open a window of its own before
+  handing over to the one already running.
+- About page back to real prose — what it does and where your data lives, in
+  two mirrored cards that still fit on one screen.
+
+</details>
+
+<details>
 <summary><strong>1.3.0</strong> — 1 Oct 2026 · iPhone app, one-screen About, update diagnostics</summary>
 
 - **Installable on iPhone and iPad** from Safari's *Add to Home Screen*, and on
