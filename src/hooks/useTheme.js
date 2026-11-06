@@ -16,7 +16,7 @@ import { STORAGE_KEYS } from "../lib/storageKeys.js";
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 // Each theme's --background, repeated for the theme-color meta. Keep in step
 // with global.css and public/theme-init.js.
-const THEME_COLOR = { dark: "#050505", light: "#ffffff" };
+const THEME_COLOR = { dark: "#060b1c", light: "#e8eff9" };
 const listeners = new Set();
 
 function readPreference() {

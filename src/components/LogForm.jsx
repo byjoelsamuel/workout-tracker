@@ -200,7 +200,7 @@ export function LogForm({
               </p>
             )}
 
-            <Button type="submit" block>
+            <Button type="submit" block className="go">
               Add {sets.length} {sets.length === 1 ? "set" : "sets"}
             </Button>
           </motion.form>
