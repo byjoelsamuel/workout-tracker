@@ -4,6 +4,23 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — a new top bar · branch `redesign/phase-2-nav`
+
+Built on the window-chrome branch. No version bump, and nothing about how data is
+stored has changed.
+
+### Changed
+- **The top bar is no longer a logo-left, links-right row.** It is two lines:
+  the name (slightly crooked, with 強くなる beside it) and a small system tray on
+  the right — a clock, settings and the theme switch — over the pages written as
+  one line, `SYS:// DASHBOARD ◈ HISTORY ◈ FOOD ◈ ABOUT ▮`, the way the header on
+  the owner's site reads. The page you're on is highlighted like a selected item
+  in Windows XP, and the cursor blinks (it stays still if you've asked your
+  device for reduced motion).
+- Settings and the theme switch are drawn glyphs (▣ and ◐) instead of icons.
+- On phones the `SYS://` label is dropped so all four pages still fit on one line
+  at a comfortable tap size.
+
 ## Unreleased — redesign, phase 2 (look), step 2: window chrome on History · branch `redesign/phase-2-chrome`
 
 First trial of the Windows XP look, on the History screen only. Built on the
