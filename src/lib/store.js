@@ -1,6 +1,6 @@
 // All persistence. There's no server — profiles and exercise logs live in
 // this browser's localStorage, which is why data is per-browser and the
-// compare page really means "every profile created here."
+// History page really means "every profile created here."
 //
 // These stay plain functions rather than hooks: hooks in src/hooks/ wrap
 // them for reactivity, but the read/write shapes are deliberately kept
@@ -74,7 +74,7 @@ export function createUser({ name, bodyweight, height, age, weeklyGoal }) {
   return user;
 }
 
-// Just id + name, for the compare roster and anything else that only needs to
+// Just id + name, for the History roster and anything else that only needs to
 // say who exists.
 export function listUsers() {
   return read(STORAGE_KEYS.users)
@@ -283,7 +283,7 @@ export function getWorkoutLogs(userId, workoutId) {
 //
 // Counted by session (lib/time.js's sessionKey), not by log row. This used to
 // add one per row, so a single evening of squats, leg press and curls showed on
-// the compare page as "3 sessions" — the same entry-versus-session confusion
+// the History page as "3 sessions" — the same entry-versus-session confusion
 // heat.js was rewritten to stop. `total` is distinct sessions across every
 // group, which is why it isn't the sum of the per-group counts: one full-body
 // workout is one session, not seven.
@@ -304,7 +304,7 @@ export function getSummary(userId, range = "all") {
   };
 }
 
-export function getCompareData() {
+export function getWeekData() {
   return listUsers().map((u) => {
     const { groups, total } = getSummary(u.id, "week");
     return { ...u, summary: groups, sessions: total };

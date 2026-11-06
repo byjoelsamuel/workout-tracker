@@ -1,6 +1,6 @@
 // The mid-workout screen. Deliberately only three things: what you've trained,
 // what you're logging, and where the session stands. The breakdown, personal
-// bests and full history live on /progress — they're what you read between
+// bests and full history live on /history — they're what you read between
 // workouts, not between sets.
 //
 // On a phone the log form comes before the body map (see .dashboard-grid in
@@ -15,13 +15,14 @@ import { Coach } from "../components/Coach.jsx";
 import { ConfirmDialog } from "../components/Dialog.jsx";
 import { HeatLegend } from "../components/HeatLegend.jsx";
 import { LogForm } from "../components/LogForm.jsx";
+import { Mascot } from "../components/Mascot.jsx";
 import { SessionPanel } from "../components/SessionPanel.jsx";
 import { Tour } from "../components/Tour.jsx";
 import { WeeklyGoal } from "../components/WeeklyGoal.jsx";
 import { WorkoutBar } from "../components/WorkoutBar.jsx";
 import { WorkoutSummary } from "../components/WorkoutSummary.jsx";
 import { useToast } from "../components/Toaster.jsx";
-import { Card, PageHeader } from "../components/primitives.jsx";
+import { PageHeader, XpWindow } from "../components/primitives.jsx";
 import { useCoachEnabled, useExerciseLog, useRestSeconds, useUnit, useUser } from "../hooks/useStore.js";
 import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
 import { pageVariants } from "../lib/motionVariants.js";
@@ -69,6 +70,37 @@ function tourSteps(name, withNaru) {
 
 let restId = 0;
 
+// The logger holds two exercise panels, stacked, with one open at a time — the
+// other folds down to a single line you tap to switch back. That fits a
+// superset (alternate between two movements) and logging two things
+// independently, and it keeps only one set of big rows on screen.
+//
+// `panels` is one object rather than two states because every change touches
+// both halves: picking something moves the open panel as well as filling it.
+const EMPTY_PANELS = { slots: [null, null], active: 0 };
+
+// Where a newly chosen movement should land: the open panel if it's empty,
+// otherwise the free one, so picking a second exercise never wipes the first.
+// With both panels full it replaces the open one, the same as "Change".
+function freeSlot({ slots, active }) {
+  if (!slots[active]) return active;
+  return !slots[1 - active] ? 1 - active : active;
+}
+
+// Pure transitions, so they can run inside a state updater.
+function place(panels, exercise) {
+  const target = freeSlot(panels);
+  const slots = panels.slots.slice();
+  slots[target] = exercise;
+  return { slots, active: target };
+}
+
+function setSlot(panels, index, exercise) {
+  const slots = panels.slots.slice();
+  slots[index] = exercise;
+  return { slots, active: index };
+}
+
 export function Dashboard() {
   const userId = useSearchParams()[0].get("user");
   const location = useLocation();
@@ -81,7 +113,10 @@ export function Dashboard() {
   const [restSeconds] = useRestSeconds();
   const [coachEnabled] = useCoachEnabled();
 
-  const [selected, setSelected] = useState(null);
+  const [panels, setPanels] = useState(EMPTY_PANELS);
+  // The open panel's movement. The map highlight, the tour and the group
+  // browser all ask "what is being logged right now", which is this.
+  const selected = panels.slots[panels.active];
   const [browseGroup, setBrowseGroup] = useState(null);
   const [mapView, setMapView] = useState("anterior");
   const [pulse, setPulse] = useState(null);
@@ -109,9 +144,13 @@ export function Dashboard() {
   // changes the hook count between renders.
   const heat = useMemo(() => recencyHeat(logs), [logs]);
 
+  // Browsing a muscle opens a picker, which needs an empty panel to appear in —
+  // so with one exercise already open, this uses the free panel instead of
+  // closing the one you're in the middle of. Leaving browse mode (no group)
+  // only clears the open panel, as it always did.
   const browse = useCallback((group) => {
     setBrowseGroup(group);
-    setSelected(null);
+    setPanels((p) => (group ? place(p, null) : setSlot(p, p.active, null)));
     if (group && GROUP_VIEW[group]) setMapView(GROUP_VIEW[group]);
   }, []);
 
@@ -156,7 +195,7 @@ export function Dashboard() {
     toast.clear();
     setConfirmingEnd(false);
     setRest(null);
-    setSelected(null);
+    setPanels(EMPTY_PANELS);
     setFinished(finish());
   }
 
@@ -170,7 +209,7 @@ export function Dashboard() {
 
   function pickFromPlan(exercise) {
     setNaruOpen(false);
-    setSelected(exercise);
+    setPanels((p) => place(p, exercise));
     setBrowseGroup(null);
     // On a phone the form can be off-screen behind the sheet; bring it back.
     requestAnimationFrame(() =>
@@ -196,7 +235,12 @@ export function Dashboard() {
       animate="animate"
       exit="exit"
     >
-      <PageHeader eyebrow={eyebrow} title={`${user.name}'s workout`} />
+      {/* The mascot's slot: beside the title, small, so it's there on the
+          screen you open most without taking space from the logger. */}
+      <div className="page-header-row">
+        <PageHeader eyebrow={eyebrow} title={`${user.name}'s workout`} />
+        <Mascot size="sm" />
+      </div>
 
       <WeeklyGoal
         logs={logs}
@@ -206,7 +250,7 @@ export function Dashboard() {
       />
 
       <div className="dashboard-grid">
-        <Card className="map-card" data-tour="map">
+        <XpWindow title="body map" ext="bmp" className="map-card" data-tour="map">
           <BodyMap
             heat={heat}
             showToggle
@@ -220,36 +264,44 @@ export function Dashboard() {
             pulse={pulse}
           />
           <HeatLegend heat={heat} onPickGroup={browse} />
-        </Card>
+        </XpWindow>
 
         <div className="dashboard-column">
-          <Card className="log-card" data-tour="log">
+          <XpWindow title="log an exercise" ext="exe" className="log-card" data-tour="log">
             <Burst trigger={recordBurst} count={20} />
-            <div className="card-title-row">
-              <h2>Log an exercise</h2>
-              {/* Where Naru opens from now. The corner button it replaces sat
-                  over the body map and personal bests on a phone. */}
-              {coachEnabled && (
+            {/* Where Naru opens from now. The corner button it replaces sat
+                over the body map and personal bests on a phone. The heading
+                that used to share this row is the window's title bar now. */}
+            {coachEnabled && (
+              <div className="card-title-row">
                 <button type="button" className="row-action" onClick={() => setNaruOpen(true)} data-tour="plan">
                   Plan with Naru
                 </button>
-              )}
-            </div>
-            <LogForm
-              selected={selected}
-              onSelect={(exercise) => {
-                setSelected(exercise);
-                if (exercise) setBrowseGroup(null);
-              }}
-              onLog={handleLog}
-              recents={recents}
-              logs={logs}
-              unit={unit}
-              onUnitChange={setUnit}
-              group={browseGroup}
-              onGroupChange={browse}
-            />
-          </Card>
+              </div>
+            )}
+            {/* Both panels stay mounted so the open one's sets survive a
+                switch; the closed one just renders as a single line. */}
+            {panels.slots.map((slot, i) => (
+              <LogForm
+                key={i}
+                selected={slot}
+                collapsed={i !== panels.active}
+                hasPartner={Boolean(panels.slots[1 - i])}
+                onActivate={() => setPanels((p) => ({ ...p, active: i }))}
+                onSelect={(exercise) => {
+                  setPanels((p) => setSlot(p, i, exercise));
+                  if (exercise) setBrowseGroup(null);
+                }}
+                onLog={handleLog}
+                recents={recents}
+                logs={logs}
+                unit={unit}
+                onUnitChange={setUnit}
+                group={browseGroup}
+                onGroupChange={browse}
+              />
+            ))}
+          </XpWindow>
 
           <SessionPanel logs={workoutLogs} unit={unit} active={Boolean(workout)} />
         </div>

@@ -2,7 +2,7 @@
 // session you last did it in. All of it is derived from the log on demand, so
 // it can never disagree with history — including after an entry is edited.
 //
-// Progress, Naru and the log form all ask these questions. Each used to keep
+// History, Naru and the log form all ask these questions. Each used to keep
 // its own loop over the log, which is how two of them could reach different
 // answers about the same lift.
 import { topWeight } from "./units.js";

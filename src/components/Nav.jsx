@@ -1,8 +1,13 @@
 // One nav for the whole app — previously this markup was copy-pasted into
 // all five HTML files.
 //
-// On phones the links drop to a second row under the brand. Kept on one row,
-// the brand ran into "Dashboard" and "About" slid underneath the icons.
+// Two rows, on purpose. The top one is the brand and a small tray (settings,
+// theme); the second is the pages written as a single directory
+// line — `SYS:// dashboard ◈ history ◈ food ◈ about ▮` — with the current page
+// highlighted the way XP highlights a selected item. It borrows the header of
+// the owner's own site rather than the usual logo-left, links-right row, and it
+// stays text on the page background (no blue title bar) so the logging screen
+// stays calm.
 import { motion } from "motion/react";
 import { Link, NavLink } from "react-router-dom";
 import { useTheme } from "../hooks/useTheme.js";
@@ -15,19 +20,16 @@ function ThemeToggle() {
   const { theme, toggle } = useTheme();
   return (
     <motion.button
-      className="icon-button"
+      className="tray-button"
       type="button"
       onClick={toggle}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       {...iconPress}
     >
-      <svg className="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-      </svg>
-      <svg className="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
-      </svg>
+      {/* A half-filled circle rather than a sun and moon icon set. Drawn in CSS
+          because the ◐ glyph falls back to a different font on every device and
+          comes out a different size each time. */}
+      <span className="glyph-half" aria-hidden="true" />
     </motion.button>
   );
 }
@@ -39,47 +41,62 @@ export function Nav() {
   const signedIn = Boolean(lastUserId && getUser(lastUserId));
   const withUser = (path) => (signedIn ? `${path}?user=${lastUserId}` : path);
   const active = ({ isActive }) => (isActive ? "active" : "");
+  const Sep = () => (
+    <span className="nav-sep" aria-hidden="true">
+      ◈
+    </span>
+  );
 
   return (
     <nav className="nav" aria-label="Main">
-      <Link to="/" className="nav-brand">
-        Tsyoku<span>-naru</span>
-      </Link>
+      <div className="nav-top">
+        <Link to="/" className="nav-brand">
+          <span className="nav-name">
+            Tsyoku<span>-naru</span>
+          </span>
+          <small aria-hidden="true">強くなる</small>
+        </Link>
+
+        <div className="nav-tray">
+          {/* Where the "?" button used to be. Replaying the walkthrough now
+              lives in Settings, alongside everything else you set once. */}
+          {signedIn && (
+            <motion.span className="icon-motion" {...iconPress}>
+              <NavLink
+                to={withUser("/settings")}
+                className={({ isActive }) => `tray-button ${isActive ? "active" : ""}`.trim()}
+                aria-label="Settings"
+              >
+                <span className="glyph-box" aria-hidden="true" />
+              </NavLink>
+            </motion.span>
+          )}
+          <ThemeToggle />
+        </div>
+      </div>
 
       <div className="nav-links">
+        <span className="nav-prompt" aria-hidden="true">
+          SYS://
+        </span>
         <NavLink to={withUser("/dashboard")} className={active}>
           Dashboard
         </NavLink>
-        <NavLink to={withUser("/progress")} className={active}>
-          Progress
+        <Sep />
+        <NavLink to={withUser("/history")} className={active}>
+          History
         </NavLink>
-        <NavLink to={withUser("/compare")} className={active}>
-          Compare
+        <Sep />
+        <NavLink to={withUser("/food")} className={active}>
+          Food
         </NavLink>
+        <Sep />
         <NavLink to="/about" className={active}>
           About
         </NavLink>
-      </div>
-
-      <div className="nav-icons">
-        {/* Where the "?" button used to be. Replaying the walkthrough now
-            lives in Settings, alongside everything else you set once. */}
-        {signedIn && (
-          <motion.span className="icon-motion" {...iconPress}>
-            <NavLink
-              to={withUser("/settings")}
-              className={({ isActive }) => `icon-button ${isActive ? "active" : ""}`.trim()}
-              aria-label="Settings"
-            >
-              <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
-                <circle cx="16" cy="7" r="2" />
-                <circle cx="10" cy="17" r="2" />
-              </svg>
-            </NavLink>
-          </motion.span>
-        )}
-        <ThemeToggle />
+        <span className="nav-cursor" aria-hidden="true">
+          ▮
+        </span>
       </div>
     </nav>
   );

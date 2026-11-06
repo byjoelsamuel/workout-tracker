@@ -2,7 +2,7 @@
 // your data on the right, mirrored. It used to be eight headed sections of
 // prose; the same answers fit in a sentence or two each.
 import { motion } from "motion/react";
-import { Card, PageHeader } from "../components/primitives.jsx";
+import { PageHeader, XpWindow } from "../components/primitives.jsx";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
 import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platform.js";
@@ -12,7 +12,7 @@ const WHERE = isDesktop ? "on this computer" : hasOwnStorage ? "in this app" : "
 const HOW = [
   ["Log", "Pick an exercise and enter the reps and weight for each set. If you've done it before, your last session is filled in for you."],
   ["Body map", "Muscles light up when you train them and fade over the next few weeks. A dim muscle is one you haven't worked in a while."],
-  ["Progress", "Sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
+  ["History", "Your last 7 days, sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
   ["Naru", "Optional. It builds a full-body workout from your history and suggests starting weights based on your best sets."],
 ];
 
@@ -38,7 +38,7 @@ function otherDevices() {
 const DATA = [
   [
     "Private",
-    `Everything is saved ${WHERE}. There's no account and no server, and Compare only shows profiles saved here.${
+    `Everything is saved ${WHERE}. There's no account and no server, and History only lists profiles saved here.${
       isDesktop ? " The only thing the app sends online is a check for new versions." : ""
     }`,
   ],
@@ -75,19 +75,17 @@ export function About() {
 
       <motion.div className="about-grid" variants={listVariants} initial="hidden" animate="show">
         <motion.div variants={listItemVariants}>
-          <Card className="about-card">
-            <h2>How it works</h2>
+          <XpWindow title="how it works" ext="chm" className="about-card">
             <Points items={HOW} />
             <p className="about-meta">
               Built with React, Vite and <a href="https://motion.dev">Motion</a> · body map from{" "}
               <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a>
             </p>
-          </Card>
+          </XpWindow>
         </motion.div>
 
         <motion.div variants={listItemVariants}>
-          <Card className="about-card end">
-            <h2>Your data</h2>
+          <XpWindow title="your data" ext="sys" className="about-card end">
             <Points items={DATA} />
             <p className="about-meta">
               Version {APP_VERSION} · <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</a> ·{" "}
@@ -102,7 +100,7 @@ export function About() {
                 </>
               )}
             </p>
-          </Card>
+          </XpWindow>
         </motion.div>
       </motion.div>
     </motion.main>

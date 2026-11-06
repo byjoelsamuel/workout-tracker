@@ -41,7 +41,8 @@ SOFTWARE.
 
 ## Rubik
 
-The interface typeface. Installed from npm as `@fontsource-variable/rubik` and
+The fallback interface typeface, used wherever Tahoma and Trebuchet MS (Windows
+and Mac system fonts, not bundled) aren't installed. Installed from npm as `@fontsource-variable/rubik` and
 bundled into the build by Vite, so the website serves it itself and the
 desktop app has it offline. Unmodified.
 

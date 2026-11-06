@@ -11,7 +11,7 @@
 // it counts half, three weeks later it has almost gone. The map answers "what
 // have I been working lately, and what have I let go stale" — which is a
 // question with a changing answer. "What have I ever done" is a real question
-// too, and it's the one the Progress page's lifetime counts exist to answer.
+// too, and it's the one the History page's lifetime counts exist to answer.
 import { sessionKey } from "./time.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -89,9 +89,8 @@ export function recencyHeat(logs, now = Date.now()) {
   return heat;
 }
 
-// The undecayed reading, for the compare page — five profiles side by side are
-// being measured against each other over one fixed week, so there is no "stale"
-// for decay to express. Same shape, so BodyMap doesn't care which it was given.
+// The undecayed reading, for the History page's last-7-days map — one fixed week, so
+// there is no "stale" for decay to express. Same shape, so BodyMap doesn't care which it was given.
 export function countHeat(summary = {}, full = 5) {
   const heat = {};
   for (const [group, count] of Object.entries(summary)) {

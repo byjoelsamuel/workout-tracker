@@ -10,7 +10,7 @@ import {
   endWorkout,
   getActiveWorkout,
   getCoachEnabled,
-  getCompareData,
+  getWeekData,
   getLogsForUser,
   getRecentExercises,
   getRestSeconds,
@@ -67,12 +67,12 @@ export function useCoachEnabled() {
   return [enabled, update];
 }
 
-export function useCompareData() {
-  const [data] = useState(getCompareData);
+export function useWeekData() {
+  const [data] = useState(getWeekData);
   return data;
 }
 
-// Bundles what the dashboard and progress views need, so any write refreshes
+// Bundles what the dashboard and history views need, so any write refreshes
 // the history, the body map, the recents and the in-progress workout together.
 // Every mutation goes through `refresh` rather than patching local state,
 // because the derived values (summary, recents, personal bests) are computed

@@ -10,7 +10,7 @@
 // a <select> and a second button: two steps to do one thing.
 import { motion } from "motion/react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Button, Card, PageHeader } from "../components/primitives.jsx";
+import { Button, PageHeader, XpWindow } from "../components/primitives.jsx";
 import { useProfiles } from "../hooks/useStore.js";
 import { setLastUserId } from "../lib/store.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
@@ -38,8 +38,7 @@ export function Welcome() {
       />
 
       <div className="card-stack">
-        <Card>
-          <h2>Profiles in {STORAGE_HOME}</h2>
+        <XpWindow title={`profiles in ${STORAGE_HOME}`} ext="sys">
           <motion.ul className="profile-list" variants={listVariants} initial="hidden" animate="show">
             {profiles.map((profile) => (
               <motion.li key={profile.id} variants={listItemVariants}>
@@ -61,7 +60,7 @@ export function Welcome() {
           <Button to="/welcome/new" variant="secondary" block>
             Create a new profile
           </Button>
-        </Card>
+        </XpWindow>
       </div>
     </motion.main>
   );

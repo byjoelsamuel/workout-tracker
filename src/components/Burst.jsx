@@ -8,7 +8,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
-const COLORS = ["var(--accent)", "#9775fa", "#e5dbff", "var(--accent-hover)"];
+// The theme's three colours, so a record bursts in blue, yellow and green and
+// follows the palette if it changes again — it used to hold hard-coded violets.
+const COLORS = ["var(--accent)", "var(--sticker)", "var(--go)", "var(--accent-hover)"];
 
 // Triggers can be a counter or an id string; either becomes a numeric seed.
 function toSeed(trigger) {

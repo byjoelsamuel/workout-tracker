@@ -11,7 +11,7 @@ import { ConfirmDialog } from "../components/Dialog.jsx";
 import { BodyFields } from "../components/ProfileFields.jsx";
 import { useToast } from "../components/Toaster.jsx";
 import { NumberStepper } from "../components/NumberStepper.jsx";
-import { Button, Card, Field, PageHeader, Segmented, Switch } from "../components/primitives.jsx";
+import { Button, Field, PageHeader, Segmented, Switch, XpWindow } from "../components/primitives.jsx";
 import { useCoachEnabled, useExerciseLog, useRestSeconds, useUnit, useUser } from "../hooks/useStore.js";
 import { useTheme } from "../hooks/useTheme.js";
 import { deleteUser, exportBackup, importBackup } from "../lib/store.js";
@@ -110,13 +110,12 @@ function RestField({ seconds, onSave }) {
   );
 }
 
-function Section({ title, children, className = "" }) {
+function Section({ title, ext = "ini", children, className = "" }) {
   return (
     <motion.div variants={listItemVariants}>
-      <Card className={className}>
-        <h2>{title}</h2>
+      <XpWindow title={title.toLowerCase()} ext={ext} className={className}>
         {children}
-      </Card>
+      </XpWindow>
     </motion.div>
   );
 }
@@ -303,7 +302,7 @@ export function Settings() {
           </Row>
         </Section>
 
-        <Section title="Help">
+        <Section title="Help" ext="chm">
           <Row title="Show the walkthrough" detail="The short tour of the dashboard.">
             <Button
               variant="secondary"
@@ -316,7 +315,7 @@ export function Settings() {
           {isDesktop && <UpdateRow />}
         </Section>
 
-        <Section title="Backup">
+        <Section title="Backup" ext="zip">
           <p className="field-note settings-note">{BACKUP_NOTE}</p>
           <Row title="Export" detail={`Every profile in ${HERE} · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
             <Button variant="secondary" size="small" onClick={exportData}>
@@ -339,7 +338,7 @@ export function Settings() {
           </Row>
         </Section>
 
-        <Section title="Delete profile" className="danger-card">
+        <Section title="Delete profile" ext="exe" className="danger-card">
           <Row title={`Delete ${user.name}`} detail={`Removes this profile and its history from ${HERE}. Other profiles are untouched.`}>
             <button type="button" className="row-danger" onClick={() => setDeleting(true)}>
               Delete…

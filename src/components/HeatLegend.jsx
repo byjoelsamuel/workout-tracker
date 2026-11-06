@@ -7,7 +7,7 @@
 // the tone it takes on as it ages — and names the muscle that has gone longest
 // without work, which is the one piece of advice this map can give.
 //
-// Kept out of BodyMap on purpose. The compare page renders several small maps
+// Kept out of BodyMap on purpose. The History page renders a small map
 // where a legend is noise.
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
 import { DECAY_SAMPLES } from "../lib/heat.js";

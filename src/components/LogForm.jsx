@@ -29,7 +29,23 @@ function setsFrom(log, unit) {
   }));
 }
 
-export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnitChange, group, onGroupChange }) {
+export function LogForm({
+  selected,
+  onSelect,
+  onLog,
+  recents,
+  logs,
+  unit,
+  onUnitChange,
+  group,
+  onGroupChange,
+  // The dashboard stacks two of these. `collapsed` folds this one to a single
+  // tappable line; `hasPartner` says the other panel has a movement in it, which
+  // is the moment an empty second panel becomes worth offering.
+  collapsed = false,
+  hasPartner = false,
+  onActivate,
+}) {
   const exercise = selected ? findExercise(selected.bodyGroup, selected.name) : null;
   const timed = Boolean(exercise?.timed);
   const bodyweight = Boolean(exercise?.bodyweight);
@@ -50,6 +66,37 @@ export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnit
     setSets(last ? setsFrom(last, unit) : [newSet(undefined, { timed })]);
     setError("");
   }, [selected?.bodyGroup, selected?.name]);
+
+  // Folded away. This comes after every hook above on purpose: the component
+  // stays mounted while collapsed, so whatever you'd typed into its sets is
+  // still there when you tap back. An empty folded panel shows nothing at all
+  // until the other one has a movement — a single-exercise session looks
+  // exactly as it did before there were two.
+  if (collapsed) {
+    if (!selected && !hasPartner) return null;
+    return (
+      <div className="log-form">
+        <button
+          type="button"
+          className={`log-slot-collapsed ${selected ? "" : "add"}`.trim()}
+          onClick={onActivate}
+          aria-label={selected ? `Switch to ${selected.name}` : "Add another exercise"}
+        >
+          {selected ? (
+            <>
+              <span className="selected-text">
+                <span className="picker-label">{GROUP_LABELS[selected.bodyGroup] ?? selected.bodyGroup}</span>
+                <strong>◇ {selected.name}</strong>
+              </span>
+              <span className="slot-hint">tap to switch</span>
+            </>
+          ) : (
+            <span className="slot-hint">+ add another exercise</span>
+          )}
+        </button>
+      </div>
+    );
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -117,7 +164,7 @@ export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnit
                 <span className="picker-label">
                   Logging · {GROUP_LABELS[selected.bodyGroup] ?? selected.bodyGroup}
                 </span>
-                <strong>{selected.name}</strong>
+                <strong>◈ {selected.name}</strong>
               </span>
               <button type="button" className="row-action" onClick={() => onSelect(null)}>
                 Change
@@ -153,7 +200,7 @@ export function LogForm({ selected, onSelect, onLog, recents, logs, unit, onUnit
               </p>
             )}
 
-            <Button type="submit" block>
+            <Button type="submit" block className="go">
               Add {sets.length} {sets.length === 1 ? "set" : "sets"}
             </Button>
           </motion.form>

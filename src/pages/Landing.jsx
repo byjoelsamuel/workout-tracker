@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Button } from "../components/primitives.jsx";
+import { Button, XpWindow } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { getLastUserId, getUser } from "../lib/store.js";
 import { DOWNLOAD_URL } from "../lib/site.js";
@@ -70,26 +70,28 @@ export function Landing() {
       animate="animate"
       exit="exit"
     >
-      <Headline />
-      <p className="subhead">
-        Log every session, and see exactly which muscles you've been working — and
-        which ones you've been avoiding.
-      </p>
-      <Button to={returning ? `/dashboard?user=${lastUserId}` : "/welcome"} size="large">
-        {returning ? "Back to your dashboard" : "Get started"}
-      </Button>
-      <p className="intro-meaning">強くなる — tsuyoku naru — "to become stronger"</p>
-      <p className="intro-download">
-        {isIOS ? (
-          <>
-            Make it an app: tap <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>
-          </>
-        ) : (
-          <>
-            Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
-          </>
-        )}
-      </p>
+      <XpWindow title="welcome" ext="exe" as="p" className="intro-window">
+        <Headline />
+        <p className="subhead">
+          Log every session, and see exactly which muscles you've been working — and
+          which ones you've been avoiding.
+        </p>
+        <Button to={returning ? `/dashboard?user=${lastUserId}` : "/welcome"} size="large">
+          {returning ? "Back to your dashboard" : "Get started"}
+        </Button>
+        <p className="intro-meaning">強くなる — tsuyoku naru — "to become stronger"</p>
+        <p className="intro-download">
+          {isIOS ? (
+            <>
+              Make it an app: tap <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>
+            </>
+          ) : (
+            <>
+              Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
+            </>
+          )}
+        </p>
+      </XpWindow>
     </motion.main>
   );
 }

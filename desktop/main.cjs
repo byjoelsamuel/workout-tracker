@@ -23,7 +23,7 @@ const DIST = path.join(__dirname, "..", "dist");
 
 // Same backgrounds as global.css, so the window never flashes white before
 // the page's own theme script runs.
-const BACKGROUND = { dark: "#050505", light: "#ffffff" };
+const BACKGROUND = { dark: "#060b1c", light: "#e8eff9" };
 
 // Everything the app needs and nothing else: its own scripts and styles, no
 // remote code, no frames, no plugins. Motion and React set styles through the

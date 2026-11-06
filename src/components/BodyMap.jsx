@@ -3,7 +3,7 @@
 //
 // This component does no arithmetic on training data. It is given a value per
 // group and draws it — which is what lets the dashboard show decayed recency,
-// the compare page a flat weekly count, and the landing page a looping demo,
+// the History page a flat weekly count, and the landing page a looping demo,
 // all through the same map.
 //
 // Every muscle is drawn twice: once into a base layer in a neutral tone, then

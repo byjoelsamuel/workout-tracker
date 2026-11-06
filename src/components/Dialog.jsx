@@ -99,28 +99,32 @@ function DialogSurface({ onClose, title, description, children, variant, classNa
         animate="show"
         exit="exit"
       >
+        {/* The XP title bar. Unlike the decorative squares on a page window, the
+            close square here is the real close button. */}
         {(title || !hideClose) && (
-          <div className="dialog-head">
-            <div>
-              {title && (
-                <h2 id={titleId} className="dialog-title">
-                  {title}
-                </h2>
-              )}
-              {description && (
-                <p id={descId} className="dialog-desc">
-                  {description}
-                </p>
-              )}
-            </div>
+          <div className="dialog-head xp-titlebar">
+            {title ? (
+              <h2 id={titleId} className="dialog-title xp-title">
+                {title}
+              </h2>
+            ) : (
+              <span />
+            )}
             {!hideClose && (
-              <button type="button" className="icon-button dialog-close" onClick={onClose} aria-label="Close">
-                ×
+              <button type="button" className="xp-close-button" onClick={onClose} aria-label="Close">
+                <i className="xp-close" aria-hidden="true" />
               </button>
             )}
           </div>
         )}
-        {children}
+        <div className="dialog-body">
+          {description && (
+            <p id={descId} className="dialog-desc">
+              {description}
+            </p>
+          )}
+          {children}
+        </div>
       </motion.div>
     </div>
   );
