@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";
 import { Burst } from "./Burst.jsx";
-import { Button, Card, CountUp } from "./primitives.jsx";
+import { Button, CountUp, XpWindow } from "./primitives.jsx";
 import { MAX_WEEKLY_GOAL, MIN_WEEKLY_GOAL } from "../lib/store.js";
 import { drawTransition } from "../lib/motionVariants.js";
 import { weeklyProgress } from "../lib/time.js";
@@ -77,57 +77,59 @@ export function WeeklyGoal({ logs, goal, onGoalChange, onMet }) {
         : `${remaining} more ${remaining === 1 ? "workout" : "workouts"} to hit your goal.`;
 
   return (
-    <Card className={`weekly-goal${met ? " met" : ""}`} data-tour="goal">
-      <div className="weekly-goal-meter">
-        <GoalRing progress={progress} />
-        <Burst trigger={celebrate} />
-        <span className="weekly-goal-count">
-          <CountUp value={done} format={(n) => String(Math.round(n))} />
-          <span className="weekly-goal-of">of {goal}</span>
-        </span>
-      </div>
-
-      <div className="weekly-goal-body">
-        <div className="weekly-goal-head">
-          <h2>This week</h2>
-          <button type="button" className="row-action" onClick={editing ? save : startEditing}>
-            {editing ? "Save" : "Edit goal"}
-          </button>
+    <XpWindow title="weekly goal" ext="ini" data-tour="goal">
+      <div className={`weekly-goal${met ? " met" : ""}`}>
+        <div className="weekly-goal-meter">
+          <GoalRing progress={progress} />
+          <Burst trigger={celebrate} />
+          <span className="weekly-goal-count">
+            <CountUp value={done} format={(n) => String(Math.round(n))} />
+            <span className="weekly-goal-of">of {goal}</span>
+          </span>
         </div>
-        <p className="weekly-goal-copy">{copy}</p>
-        {/* A streak of one is just "this week" and reads as filler. */}
-        {streak > 1 && (
-          <p className="weekly-goal-streak">
-            <span aria-hidden="true">▲</span> {streak} weeks in a row
-          </p>
+
+        <div className="weekly-goal-body">
+          <div className="weekly-goal-head">
+            <h2>This week</h2>
+            <button type="button" className="row-action" onClick={editing ? save : startEditing}>
+              {editing ? "Save" : "Edit goal"}
+            </button>
+          </div>
+          <p className="weekly-goal-copy">{copy}</p>
+          {/* A streak of one is just "this week" and reads as filler. */}
+          {streak > 1 && (
+            <p className="weekly-goal-streak">
+              <span aria-hidden="true">▲</span> {streak} weeks in a row
+            </p>
+          )}
+        </div>
+
+        {/* A plain conditional rather than AnimatePresence: this is a 40px
+            control appearing, not a reveal, and it keeps the exit-must-be-a-tween
+            hazard out of a card that has no other reason to meet it. The form
+            is so Enter in the stepper saves, the same as pressing Save. */}
+        {editing && (
+          <form
+            className="weekly-goal-edit"
+            onSubmit={(event) => {
+              event.preventDefault();
+              save();
+            }}
+          >
+            <NumberStepper
+              value={draft}
+              onChange={setDraft}
+              min={MIN_WEEKLY_GOAL}
+              max={MAX_WEEKLY_GOAL}
+              step={1}
+              label="Workouts per week"
+            />
+            <Button size="small" variant="secondary" onClick={() => setEditing(false)}>
+              Cancel
+            </Button>
+          </form>
         )}
       </div>
-
-      {/* A plain conditional rather than AnimatePresence: this is a 40px
-          control appearing, not a reveal, and it keeps the exit-must-be-a-tween
-          hazard out of a card that has no other reason to meet it. The form
-          is so Enter in the stepper saves, the same as pressing Save. */}
-      {editing && (
-        <form
-          className="weekly-goal-edit"
-          onSubmit={(event) => {
-            event.preventDefault();
-            save();
-          }}
-        >
-          <NumberStepper
-            value={draft}
-            onChange={setDraft}
-            min={MIN_WEEKLY_GOAL}
-            max={MAX_WEEKLY_GOAL}
-            step={1}
-            label="Workouts per week"
-          />
-          <Button size="small" variant="secondary" onClick={() => setEditing(false)}>
-            Cancel
-          </Button>
-        </form>
-      )}
-    </Card>
+    </XpWindow>
   );
 }

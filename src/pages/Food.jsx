@@ -13,7 +13,7 @@ export function Food() {
   return (
     <motion.main className="page" variants={pageVariants} initial="initial" animate="animate" exit="exit">
       <PageHeader eyebrow="Coming soon" title="Food log" />
-      <XpWindow title="food" className="food-placeholder">
+      <XpWindow title="food" ext="tmp" className="food-placeholder">
         <Mascot size="lg" />
         <p className="empty">
           Nothing to log here yet. Meals and macros arrive after the new look is settled — your workouts come first.

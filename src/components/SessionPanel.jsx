@@ -8,17 +8,16 @@
 // Elapsed time lives on the pinned workout bar now, which ticks every second
 // and is on screen for the whole session.
 import { AnimatePresence, motion } from "motion/react";
-import { CountUp } from "./primitives.jsx";
+import { CountUp, XpWindow } from "./primitives.jsx";
 import { GROUP_LABELS } from "../lib/bodyGroups.js";
 import { describeReps, formatVolume, fromKg, logVolume, rankGroups, totalSets } from "../lib/units.js";
 
 export function SessionPanel({ logs, unit, active }) {
   if (!active) {
     return (
-      <div className="card session-panel idle">
-        <h2>This session</h2>
+      <XpWindow title="this session" ext="sav" className="session-panel idle">
         <p className="empty">Your workout starts the moment you log your first exercise.</p>
-      </div>
+      </XpWindow>
     );
   }
 
@@ -29,8 +28,7 @@ export function SessionPanel({ logs, unit, active }) {
   const top = hardest ? GROUP_LABELS[hardest.group] ?? hardest.group : null;
 
   return (
-    <div className="card session-panel">
-      <h2>This session</h2>
+    <XpWindow title="this session" ext="sav" className="session-panel">
 
       <div className="session-total">
         <span className="session-total-value">
@@ -77,6 +75,6 @@ export function SessionPanel({ logs, unit, active }) {
           </AnimatePresence>
         </ul>
       )}
-    </div>
+    </XpWindow>
   );
 }

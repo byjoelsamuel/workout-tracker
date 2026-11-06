@@ -302,7 +302,7 @@ export function Settings() {
           </Row>
         </Section>
 
-        <Section title="Help" ext="txt">
+        <Section title="Help" ext="chm">
           <Row title="Show the walkthrough" detail="The short tour of the dashboard.">
             <Button
               variant="secondary"
@@ -315,7 +315,7 @@ export function Settings() {
           {isDesktop && <UpdateRow />}
         </Section>
 
-        <Section title="Backup" ext="sav">
+        <Section title="Backup" ext="zip">
           <p className="field-note settings-note">{BACKUP_NOTE}</p>
           <Row title="Export" detail={`Every profile in ${HERE} · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
             <Button variant="secondary" size="small" onClick={exportData}>

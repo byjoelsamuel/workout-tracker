@@ -10,13 +10,22 @@ Built on the top-bar branch. No version bump, and nothing about how data is
 stored has changed.
 
 ### Changed
-- **The XP windows from History now cover the other browse screens**: the food
-  tab (`food.log`), the profile picker (`profiles in this browser.sys`), new
-  profile setup (`new profile.exe`), every Settings section (`profile.ini`,
-  `training.ini`, `help.txt`, `backup.sav`) and both About panels. The delete
-  section keeps its reddish frame and is named `delete profile.exe`.
-- **The dashboard is deliberately left alone.** The body map and the logging
-  panel stay the calm cards, so nothing busy sits next to your sets.
+- **XP windows everywhere.** The windows from History now cover the whole app:
+  the home page (`welcome.exe`), the dashboard (`weekly goal.ini`,
+  `log an exercise.exe`, `this session.sav`, `body map.bmp`), the food tab, the
+  profile picker, new profile setup, every Settings section and both About
+  panels. The delete section keeps its reddish frame.
+- **Pop-ups are windows too** — the workout summary, the end-workout and delete
+  confirmations and Naru's planner. Their title bar's × is a real close button.
+- **Windows XP's own type.** Tahoma for text and Trebuchet MS for titles. They
+  are Windows and Mac system fonts and can't be bundled, so on Android, Linux
+  and iPhone (Tahoma) the app falls back to Rubik, which looks like it did before.
+- **Window names no longer all end in `.log`.** Each gets an extension that
+  fits it: `.bmp` for the body maps, `.mdb` for the full history, `.lnk` for the
+  other profiles, `.tmp` for the unfinished food tab, `.chm` for help, and so on.
+- The pages in the top bar stay on one line on narrow phones whichever font is
+  in use.
+- README screenshots retaken (they show the Rubik fallback).
 
 ## Unreleased — a new top bar · branch `redesign/phase-2-nav`
 

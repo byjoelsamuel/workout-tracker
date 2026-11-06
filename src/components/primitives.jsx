@@ -26,16 +26,17 @@ export function Card({ className = "", children, as: Tag = "div", ...rest }) {
 // A browse-screen window in the Windows XP style: title bar, cream body, white
 // inset box. The title is the heading (so it stays an <h2> for screen readers);
 // `ext` is the fake file extension, hidden from them, because "history dot log"
-// is noise. The three buttons are decoration, not controls — nothing here
+// is noise. `as` lets a page whose own <h1> sits inside the window (the landing
+// hero) keep a sensible heading order. The three buttons are decoration, not controls — nothing here
 // closes or resizes, and a dead button on a tap-first screen would be a lie.
-export function XpWindow({ title, ext = "log", className = "", children, ...rest }) {
+export function XpWindow({ title, ext = "txt", as: Heading = "h2", className = "", children, ...rest }) {
   return (
     <section className={`xp-window ${className}`.trim()} {...rest}>
       <header className="xp-titlebar">
-        <h2 className="xp-title" aria-label={title}>
+        <Heading className="xp-title" aria-label={title}>
           {title}
           <span aria-hidden="true">.{ext}</span>
-        </h2>
+        </Heading>
         <span className="xp-controls" aria-hidden="true">
           <i className="xp-min" />
           <i className="xp-max" />

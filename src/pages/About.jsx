@@ -75,7 +75,7 @@ export function About() {
 
       <motion.div className="about-grid" variants={listVariants} initial="hidden" animate="show">
         <motion.div variants={listItemVariants}>
-          <XpWindow title="how it works" ext="txt" className="about-card">
+          <XpWindow title="how it works" ext="chm" className="about-card">
             <Points items={HOW} />
             <p className="about-meta">
               Built with React, Vite and <a href="https://motion.dev">Motion</a> · body map from{" "}
@@ -85,7 +85,7 @@ export function About() {
         </motion.div>
 
         <motion.div variants={listItemVariants}>
-          <XpWindow title="your data" ext="txt" className="about-card end">
+          <XpWindow title="your data" ext="sys" className="about-card end">
             <Points items={DATA} />
             <p className="about-meta">
               Version {APP_VERSION} · <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</a> ·{" "}

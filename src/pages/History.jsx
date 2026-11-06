@@ -63,7 +63,7 @@ export function History() {
       <div className="progress-grid">
         <div className="dashboard-column">
           {mine && (
-            <XpWindow title="last 7 days" className="week-card">
+            <XpWindow title="last 7 days" ext="bmp" className="week-card">
               {/* Workouts, not log rows — see getSummary in store.js. */}
               <p className="subhead small">
                 {mine.sessions} {mine.sessions === 1 ? "session" : "sessions"}
@@ -118,7 +118,7 @@ export function History() {
           </XpWindow>
 
           {others.length > 0 && (
-            <XpWindow title="everyone's week">
+            <XpWindow title="everyone's week" ext="lnk">
               <AnimatedList>
                 {others.map((other) => (
                   <AnimatedListItem key={other.id}>
@@ -133,7 +133,7 @@ export function History() {
           )}
         </div>
 
-        <XpWindow title="full history">
+        <XpWindow title="full history" ext="mdb">
           <HistoryList
             logs={logs}
             unit={unit}

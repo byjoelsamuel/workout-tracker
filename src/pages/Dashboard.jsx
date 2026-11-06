@@ -22,7 +22,7 @@ import { WeeklyGoal } from "../components/WeeklyGoal.jsx";
 import { WorkoutBar } from "../components/WorkoutBar.jsx";
 import { WorkoutSummary } from "../components/WorkoutSummary.jsx";
 import { useToast } from "../components/Toaster.jsx";
-import { Card, PageHeader } from "../components/primitives.jsx";
+import { PageHeader, XpWindow } from "../components/primitives.jsx";
 import { useCoachEnabled, useExerciseLog, useRestSeconds, useUnit, useUser } from "../hooks/useStore.js";
 import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
 import { pageVariants } from "../lib/motionVariants.js";
@@ -250,7 +250,7 @@ export function Dashboard() {
       />
 
       <div className="dashboard-grid">
-        <Card className="map-card" data-tour="map">
+        <XpWindow title="body map" ext="bmp" className="map-card" data-tour="map">
           <BodyMap
             heat={heat}
             showToggle
@@ -264,21 +264,21 @@ export function Dashboard() {
             pulse={pulse}
           />
           <HeatLegend heat={heat} onPickGroup={browse} />
-        </Card>
+        </XpWindow>
 
         <div className="dashboard-column">
-          <Card className="log-card" data-tour="log">
+          <XpWindow title="log an exercise" ext="exe" className="log-card" data-tour="log">
             <Burst trigger={recordBurst} count={20} />
-            <div className="card-title-row">
-              <h2>Log an exercise</h2>
-              {/* Where Naru opens from now. The corner button it replaces sat
-                  over the body map and personal bests on a phone. */}
-              {coachEnabled && (
+            {/* Where Naru opens from now. The corner button it replaces sat
+                over the body map and personal bests on a phone. The heading
+                that used to share this row is the window's title bar now. */}
+            {coachEnabled && (
+              <div className="card-title-row">
                 <button type="button" className="row-action" onClick={() => setNaruOpen(true)} data-tour="plan">
                   Plan with Naru
                 </button>
-              )}
-            </div>
+              </div>
+            )}
             {/* Both panels stay mounted so the open one's sets survive a
                 switch; the closed one just renders as a single line. */}
             {panels.slots.map((slot, i) => (
@@ -301,7 +301,7 @@ export function Dashboard() {
                 onGroupChange={browse}
               />
             ))}
-          </Card>
+          </XpWindow>
 
           <SessionPanel logs={workoutLogs} unit={unit} active={Boolean(workout)} />
         </div>
