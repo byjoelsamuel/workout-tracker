@@ -69,7 +69,7 @@ look, then food — so each one can be judged before the next begins.
 | Phase | What | Status |
 |---|---|---|
 | **1 · Layout** | Two-exercise logger, a Food tab, a spot for the mascot | Done |
-| **2 · Look** | Early-web window chrome, a dark logging screen, a hand-drawn mascot, sticker-style rewards | Next |
+| **2 · Look** | XP blue palette, early-web window chrome, a dark logging screen, a hand-drawn mascot, sticker-style rewards | In progress — colours done |
 | **3 · Food log** | Log meals next to workouts | Planned |
 
 Details of every change are in the [changelog](CHANGELOG.md).

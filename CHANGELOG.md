@@ -4,6 +4,31 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — redesign, phase 2 (look), step 1: colours · branch `redesign/phase-2-look`
+
+Colour only. Type, window chrome and the shape of the stickers come next. No
+version bump, and nothing about how data is stored has changed. This branch is
+built on the phase 1 branch, so the two land together unless phase 1 merges first.
+
+### Changed
+- **Blue replaces violet as the app's colour** — Windows XP's own Luna blue
+  (`#0054e3`) on the light theme and the brighter end of its title bar
+  (`#3593ff`) on the dark one. The body map, goal ring, links and toggles follow.
+- **The dark theme is navy, not black** (`#060b1c` page, `#0f1a38` cards) — the
+  colour of the Persona memory-card panel on the owner's site. **The light
+  theme** is a pale-sky page (`#e8eff9`) under white cards.
+- **Two more colours, one job each.** Green is the "log a set" button and
+  nothing else, like XP's Start button. Yellow is the sticker: a filled label
+  with dark ink, shown only when something happens — a new personal best gets a
+  yellow ring on its toast and a yellow "New best" line in the workout summary.
+  No orange anywhere.
+- Record confetti uses blue, yellow and green instead of hard-coded violets.
+- The app icon (web, iPhone, maskable, desktop) is recoloured to the same blue
+  gradient with white bars; the shapes are unchanged.
+- The browser, installed-app and desktop-window background colours now match
+  the page, so there is no flash of the old colour while it loads.
+- README screenshots retaken.
+
 ## Unreleased — redesign, phase 1 (layout) · branch `redesign/phase-1-layout`
 
 Layout and structure only. The new look (colours, type, window chrome, stickers)
