@@ -18,7 +18,9 @@ built on the phase 1 branch, so the two land together unless phase 1 merges firs
   colour of the Persona memory-card panel on the owner's site. **The light
   theme** is a pale-sky page (`#e8eff9`) under white cards.
 - **Two more colours, one job each.** Green is the "log a set" button and
-  nothing else, like XP's Start button. Yellow is the sticker: a filled label
+  nothing else, like XP's Start button — an outline at rest that fills solid
+  when you press it, so it stays the main action without being the loudest
+  thing on screen. Yellow is the sticker: a filled label
   with dark ink, shown only when something happens — a new personal best gets a
   yellow ring on its toast and a yellow "New best" line in the workout summary.
   No orange anywhere.

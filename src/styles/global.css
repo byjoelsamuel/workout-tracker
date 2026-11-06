@@ -583,16 +583,24 @@ body {
 /* The one green button: the one you press to log a set, which is the most
    pressed control in the app and the nearest thing it has to XP's Start
    button. Kept to that single use — green anywhere else would turn "go" into
-   decoration. */
+   decoration.
+
+   An outline at rest, solid when you press: a full-width green fill was the
+   loudest thing on the light dashboard. The text is the green itself, which
+   holds 5.4:1 on a white card and 6.5:1 on the dark one. The inset shadow
+   thickens the 1px border to 2px without making the button taller, and the
+   background is transparent so it takes whatever surface it sits on. */
 .button.go {
-    color: var(--on-go);
-    background: var(--go);
+    color: var(--go);
+    background: transparent;
     border-color: var(--go);
+    box-shadow: inset 0 0 0 1px var(--go);
 }
 
 .button.go:hover:not(:disabled) {
-    background: var(--go-hover);
-    border-color: var(--go-hover);
+    color: var(--on-go);
+    background: var(--go);
+    border-color: var(--go);
 }
 
 .button.go:focus-visible {
