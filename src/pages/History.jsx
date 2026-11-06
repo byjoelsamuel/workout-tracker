@@ -1,25 +1,31 @@
-// Everything you look at between workouts: the group breakdown, personal
-// bests, and the full history with the ability to correct it.
+// Everything you look at between workouts: this week, the group breakdown,
+// personal bests, and the full history with the ability to correct it.
 //
 // These used to sit on the dashboard alongside the log form, which meant the
-// screen you use mid-set was mostly things you don't read mid-set.
+// screen you use mid-set was mostly things you don't read mid-set. This page
+// also absorbed the old Compare tab: one person's week is the first card here,
+// and the other profiles on the device only appear (as a short list) when there
+// are any — a tab that was empty for a one-profile install earned no place in
+// the nav.
 import { motion } from "motion/react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { BodyMap } from "../components/BodyMap.jsx";
 import { HistoryList } from "../components/HistoryList.jsx";
 import { AnimatedList, AnimatedListItem, Card, PageHeader } from "../components/primitives.jsx";
-import { useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
+import { useWeekData, useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
-import { recencyHeat } from "../lib/heat.js";
+import { countHeat, recencyHeat } from "../lib/heat.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { personalBests } from "../lib/records.js";
 import { relativeDay } from "../lib/time.js";
 import { formatVolume, formatWeight, totalVolume } from "../lib/units.js";
 
-export function Progress() {
+export function History() {
   const userId = useSearchParams()[0].get("user");
   const [user] = useUser(userId);
   const { logs, editEntry, removeEntry } = useExerciseLog(userId);
   const [unit, setUnit] = useUnit();
+  const week = useWeekData();
 
   if (!user) return <Navigate to="/welcome" replace />;
 
@@ -37,6 +43,9 @@ export function Progress() {
 
   const bests = personalBests(logs);
 
+  const mine = week.find((u) => u.id === userId);
+  const others = week.filter((u) => u.id !== userId);
+
   return (
     <motion.main
       className="page"
@@ -47,12 +56,28 @@ export function Progress() {
     >
       <PageHeader
         eyebrow={`${formatVolume(totalVolume(logs), unit)} moved all time`}
-        title={`${user.name}'s progress`}
+        title={`${user.name}'s history`}
         subhead="Every set you've logged. Open a row to correct or remove it."
       />
 
       <div className="progress-grid">
         <div className="dashboard-column">
+          {mine && (
+            <Card className="week-card">
+              <h2>Last 7 days</h2>
+              {/* Workouts, not log rows — see getSummary in store.js. */}
+              <p className="subhead small">
+                {mine.sessions} {mine.sessions === 1 ? "session" : "sessions"}
+              </p>
+              {/* The toggle is needed here as much as on the dashboard: back
+                  and hamstrings only exist on the posterior view, so without
+                  it a week of nothing but back reads as an untouched body.
+                  A flat count rather than the dashboard's decay — this is one
+                  fixed week, so there is no "stale" for decay to express. */}
+              <BodyMap heat={countHeat(mine.summary)} showToggle />
+            </Card>
+          )}
+
           <Card>
             <h2>Sessions by muscle group</h2>
             {/* A bare column of numbers made you do the comparing yourself.
@@ -94,6 +119,22 @@ export function Progress() {
               </AnimatedList>
             )}
           </Card>
+
+          {others.length > 0 && (
+            <Card>
+              <h2>Everyone's week</h2>
+              <AnimatedList>
+                {others.map((other) => (
+                  <AnimatedListItem key={other.id}>
+                    <Link to={`/history?user=${other.id}`}>{other.name}</Link>
+                    <span className="count">
+                      {other.sessions} {other.sessions === 1 ? "session" : "sessions"}
+                    </span>
+                  </AnimatedListItem>
+                ))}
+              </AnimatedList>
+            </Card>
+          )}
         </div>
 
         <Card>

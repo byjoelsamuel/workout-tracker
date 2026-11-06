@@ -85,7 +85,7 @@ function currentStreak(weeks, thisWeek) {
 }
 
 // A calendar week (Mon–Sun), not the rolling seven days getSummary("week") and
-// the compare page use. A goal needs an edge the user can name: on a rolling
+// the History page use. A goal needs an edge the user can name: on a rolling
 // window the count drops silently overnight as old sessions age out, so a meter
 // reading 3 of 3 last night reads 2 of 3 this morning with nothing having
 // happened. That's fine for a leaderboard and wrong for a target.

@@ -12,7 +12,7 @@ const WHERE = isDesktop ? "on this computer" : hasOwnStorage ? "in this app" : "
 const HOW = [
   ["Log", "Pick an exercise and enter the reps and weight for each set. If you've done it before, your last session is filled in for you."],
   ["Body map", "Muscles light up when you train them and fade over the next few weeks. A dim muscle is one you haven't worked in a while."],
-  ["Progress", "Sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
+  ["History", "Your last 7 days, sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
   ["Naru", "Optional. It builds a full-body workout from your history and suggests starting weights based on your best sets."],
 ];
 
@@ -38,7 +38,7 @@ function otherDevices() {
 const DATA = [
   [
     "Private",
-    `Everything is saved ${WHERE}. There's no account and no server, and Compare only shows profiles saved here.${
+    `Everything is saved ${WHERE}. There's no account and no server, and History only lists profiles saved here.${
       isDesktop ? " The only thing the app sends online is a check for new versions." : ""
     }`,
   ],

@@ -50,14 +50,11 @@ export function Nav() {
         <NavLink to={withUser("/dashboard")} className={active}>
           Dashboard
         </NavLink>
-        <NavLink to={withUser("/progress")} className={active}>
-          Progress
+        <NavLink to={withUser("/history")} className={active}>
+          History
         </NavLink>
         <NavLink to={withUser("/food")} className={active}>
           Food
-        </NavLink>
-        <NavLink to={withUser("/compare")} className={active}>
-          Compare
         </NavLink>
         <NavLink to="/about" className={active}>
           About

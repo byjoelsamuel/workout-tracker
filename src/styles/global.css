@@ -1071,6 +1071,13 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* A link in a row (a profile name on History) would otherwise take the browser's
+   visited purple — the one colour this palette retired. */
+.data-list > li > a {
+    color: var(--accent);
+    font-weight: 550;
+}
+
 .data-list .count.zero {
     color: var(--text-secondary);
     opacity: 0.5;
@@ -1173,46 +1180,20 @@ body {
     color: var(--accent);
 }
 
-/* ---- Compare ---- */
-
-.compare-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13.125rem, 1fr));
-    gap: 1.25rem;
-}
-
-.compare-card {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-}
-
-.compare-card h3 {
-    font-size: 1.0625rem;
-    font-weight: 650;
-}
-
-.compare-card .body-map-wrap {
-    margin: 0.875rem 0 1.125rem;
-}
+/* ---- Last 7 days ---- */
 
 /* Keeps the plate close to the figure at this size — full card width would
    leave the small body adrift in a large panel. */
-.compare-card .body-map-plate {
-    max-width: 13.125rem;
+.week-card .body-map-wrap {
+    margin-top: 0.875rem;
+}
+
+.week-card .body-map-plate {
     padding: 0.875rem;
 }
 
-.compare-card .body-map {
+.week-card .body-map {
     max-width: 9.375rem;
-}
-
-.compare-card .button {
-    margin-top: auto;
-}
-
-.compare-grid .empty {
-    grid-column: 1 / -1;
 }
 
 /* ---- About ---- */
@@ -1857,7 +1838,7 @@ body {
     margin-top: 0.75rem;
 }
 
-/* ---- Progress page ---- */
+/* ---- History page ---- */
 
 /* minmax(0, 1fr) rather than 1fr: a bare fr track floors at min-content, so a
    long movement name ("Incline Bench Press (Dumbbell)") widens the column past

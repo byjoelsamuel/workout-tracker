@@ -8,9 +8,8 @@ import { Landing } from "../pages/Landing.jsx";
 import { Welcome } from "../pages/Welcome.jsx";
 import { Onboarding } from "../pages/Onboarding.jsx";
 import { Dashboard } from "../pages/Dashboard.jsx";
-import { Progress } from "../pages/Progress.jsx";
+import { History } from "../pages/History.jsx";
 import { Food } from "../pages/Food.jsx";
-import { Compare } from "../pages/Compare.jsx";
 import { Settings } from "../pages/Settings.jsx";
 import { About } from "../pages/About.jsx";
 import { getLastUserId, getUser } from "../lib/store.js";
@@ -27,9 +26,8 @@ const TITLES = {
   "/welcome": "Who's training?",
   "/welcome/new": "New profile",
   "/dashboard": "Dashboard",
-  "/progress": "Progress",
+  "/history": "History",
   "/food": "Food",
-  "/compare": "Compare",
   "/settings": "Settings",
   "/about": "About",
 };
@@ -85,8 +83,8 @@ export function Layout() {
     document.title = page ? `${page} · Tsyoku-naru` : "Tsyoku-naru";
   }, [location.pathname]);
 
-  // A new page starts at its top. Without this, opening Progress from halfway
-  // down the dashboard landed halfway down Progress.
+  // A new page starts at its top. Without this, opening History from halfway
+  // down the dashboard landed halfway down History.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -120,9 +118,18 @@ export function Layout() {
                 {/* The old sign-up URL, so bookmarks still land somewhere. */}
                 <Route path="/onboarding" element={<Navigate to="/welcome" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/progress" element={<Progress />} />
+                <Route path="/history" element={<History />} />
+                {/* Progress and Compare became History. Keeps ?user= so a
+                    bookmarked profile still opens that profile. */}
+                <Route
+                  path="/progress"
+                  element={<Navigate to={{ pathname: "/history", search: location.search }} replace />}
+                />
+                <Route
+                  path="/compare"
+                  element={<Navigate to={{ pathname: "/history", search: location.search }} replace />}
+                />
                 <Route path="/food" element={<Food />} />
-                <Route path="/compare" element={<Compare />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/about" element={<About />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,6 +4,21 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — History replaces Progress and Compare · branch `redesign/history-page`
+
+Structure only, built on the phase 2 branch. No version bump, and nothing about
+how data is stored has changed.
+
+### Changed
+- **Progress is now History**, and the Compare tab is gone. History opens with
+  your last 7 days (sessions and the body map), then sessions per muscle group,
+  personal bests and the full list you can edit.
+- **Other profiles on the same device** show up on History as a short "Everyone's
+  week" list, but only when there are any. Tap a name to open their history. The
+  per-profile body maps from Compare are not carried over.
+- Old `/progress` and `/compare` links still work: they land on History, on the
+  same profile.
+
 ## Unreleased — redesign, phase 2 (look), step 1: colours · branch `redesign/phase-2-look`
 
 Colour only. Type, window chrome and the shape of the stickers come next. No

@@ -3,7 +3,7 @@
 // Workouts are derived, not stored: ending a session deletes it (see
 // endWorkout), so this counts distinct sessions inside the current Monday-to-
 // Sunday week. lib/time.js carries the reasoning for a calendar week rather
-// than the rolling seven days the compare page uses.
+// than the rolling seven days the History page uses.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";

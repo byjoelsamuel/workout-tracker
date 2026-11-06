@@ -1,6 +1,6 @@
 // The mid-workout screen. Deliberately only three things: what you've trained,
 // what you're logging, and where the session stands. The breakdown, personal
-// bests and full history live on /progress — they're what you read between
+// bests and full history live on /history — they're what you read between
 // workouts, not between sets.
 //
 // On a phone the log form comes before the body map (see .dashboard-grid in
