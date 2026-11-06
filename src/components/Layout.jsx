@@ -9,6 +9,7 @@ import { Welcome } from "../pages/Welcome.jsx";
 import { Onboarding } from "../pages/Onboarding.jsx";
 import { Dashboard } from "../pages/Dashboard.jsx";
 import { Progress } from "../pages/Progress.jsx";
+import { Food } from "../pages/Food.jsx";
 import { Compare } from "../pages/Compare.jsx";
 import { Settings } from "../pages/Settings.jsx";
 import { About } from "../pages/About.jsx";
@@ -27,6 +28,7 @@ const TITLES = {
   "/welcome/new": "New profile",
   "/dashboard": "Dashboard",
   "/progress": "Progress",
+  "/food": "Food",
   "/compare": "Compare",
   "/settings": "Settings",
   "/about": "About",
@@ -119,6 +121,7 @@ export function Layout() {
                 <Route path="/onboarding" element={<Navigate to="/welcome" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/progress" element={<Progress />} />
+                <Route path="/food" element={<Food />} />
                 <Route path="/compare" element={<Compare />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/about" element={<About />} />

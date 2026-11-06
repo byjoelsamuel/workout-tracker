@@ -53,6 +53,9 @@ export function Nav() {
         <NavLink to={withUser("/progress")} className={active}>
           Progress
         </NavLink>
+        <NavLink to={withUser("/food")} className={active}>
+          Food
+        </NavLink>
         <NavLink to={withUser("/compare")} className={active}>
           Compare
         </NavLink>

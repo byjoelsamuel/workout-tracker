@@ -169,7 +169,7 @@ body {
     }
 }
 
-/* Below this the brand, four links and two icons can't share one line — the
+/* Below this the brand, five links and two icons can't share one line — the
    brand ran into "Dashboard" and "About" slid under the icons. So the links
    take a row of their own beneath the brand, spread across the width. */
 @media (max-width: 640px) {
@@ -2819,6 +2819,108 @@ body {
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+}
+
+/* ---- Two-panel logger ----
+   Layout only; the look of these lines is phase 2. The folded panel is one
+   tap target at least as tall as a stepper button, so it works with a thumb. */
+
+.log-form + .log-form {
+    margin-top: 0.625rem;
+}
+
+.log-slot-collapsed {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    border: 1px dashed var(--card-border);
+    border-radius: 0.75rem;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.log-slot-collapsed:hover {
+    background: var(--accent-soft);
+}
+
+.log-slot-collapsed.add {
+    justify-content: center;
+}
+
+.slot-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ---- Mascot ----
+   A slot for the owner's drawing (see components/Mascot.jsx). The art is black
+   marker on a transparent background, so the dark theme flips it to white —
+   otherwise it vanishes into the page. */
+
+.mascot {
+    display: block;
+    height: auto;
+    user-select: none;
+    pointer-events: none;
+}
+
+.mascot-sm {
+    width: 4rem;
+}
+
+.mascot-lg {
+    width: min(16rem, 70%);
+    margin: 0 auto 1rem;
+}
+
+:root[data-theme="dark"] .mascot {
+    filter: invert(1);
+}
+
+/* The cat floats at the edge so the title stays centred; the title's side
+   padding is symmetrical so a long name wraps instead of running into it. */
+.page-header-row {
+    position: relative;
+}
+
+.page-header-row .page-header {
+    padding-inline: 4.75rem;
+}
+
+.page-header-row .mascot {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* On a phone the title needs the full width or it wraps to two lines, so the
+   cat moves up beside the short eyebrow line instead of beside the title. */
+@media (max-width: 480px) {
+    .mascot-sm {
+        width: 3rem;
+    }
+
+    .page-header-row .page-header {
+        padding-inline: 0;
+    }
+
+    .page-header-row .mascot {
+        top: 0;
+        transform: none;
+    }
+}
+
+.food-placeholder {
+    text-align: center;
 }
 
 .history-hint {
