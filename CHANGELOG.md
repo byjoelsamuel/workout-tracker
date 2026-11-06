@@ -4,6 +4,20 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — redesign, phase 2 (look), step 2: window chrome on History · branch `redesign/phase-2-chrome`
+
+First trial of the Windows XP look, on the History screen only. Built on the
+History branch. No version bump, and nothing about how data is stored has changed.
+
+### Added
+- **History is now a stack of little XP windows**: a blue title bar with
+  minimise / maximise / close squares, a cream body and a white inset box for
+  the content. Each one is named like a file — `last 7 days.log`,
+  `muscle groups.dat`, `personal bests.sav`, `full history.log`. The three
+  squares are decoration; nothing closes or resizes. They are all blue, since
+  XP's red-orange close button would bring orange back.
+- The dark theme gets the same windows in navy.
+
 ## Unreleased — History replaces Progress and Compare · branch `redesign/history-page`
 
 Structure only, built on the phase 2 branch. No version bump, and nothing about

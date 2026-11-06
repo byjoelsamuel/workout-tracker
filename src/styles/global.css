@@ -43,6 +43,14 @@
     --map-plate: #e4ecf8;
     --map-muscle: #b9c6dc;
     --map-structure: #d2dcec;
+    /* Window chrome for the browse screens (XP's Luna): a blue title bar over a
+       cream body with a white inset box, as on the owner's site. */
+    --xp-bar: linear-gradient(180deg, #3d8dff 0%, #0a5ae8 9%, #0054e3 55%, #0046c4 92%, #0039a8 100%);
+    --xp-frame: #0541c9;
+    --xp-panel: #ece9d8;
+    --xp-inset: #ffffff;
+    --xp-inset-border: #7f9db9;
+    --xp-shadow: 0 2px 10px rgba(0, 30, 110, 0.22);
     /* Native scrollbars, form controls and autofill follow the theme. Without
        it a dark page kept a bright white scrollbar down its right edge. */
     color-scheme: light;
@@ -76,6 +84,12 @@
     --map-plate: #0a1224;
     --map-muscle: #2a3a5f;
     --map-structure: #172340;
+    --xp-bar: linear-gradient(180deg, #2b6fd8 0%, #1550b8 9%, #123f93 55%, #0e3379 92%, #0a2a66 100%);
+    --xp-frame: #1b4aa5;
+    --xp-panel: #132350;
+    --xp-inset: #0a1226;
+    --xp-inset-border: #2c4380;
+    --xp-shadow: none;
     color-scheme: dark;
 }
 
@@ -427,6 +441,109 @@ body {
     max-width: 28.75rem;
     margin: 0 auto;
     width: 100%;
+}
+
+/* ---- XP window ---- */
+
+.xp-window {
+    border: 3px solid var(--xp-frame);
+    border-top: 0;
+    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
+    background: var(--xp-panel);
+    box-shadow: var(--xp-shadow);
+    overflow: hidden;
+}
+
+.xp-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.375rem 0.25rem 0.75rem;
+    background: var(--xp-bar);
+}
+
+.xp-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: #ffffff;
+    text-shadow: 1px 1px 0 rgba(0, 20, 90, 0.7);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.xp-title span {
+    font-weight: 500;
+    opacity: 0.75;
+}
+
+.xp-controls {
+    display: flex;
+    gap: 0.1875rem;
+    flex-shrink: 0;
+}
+
+/* Three small squares, all blue: XP's close button is red-orange, and orange is
+   the one colour this palette rules out. Glyphs are drawn with borders so there
+   is no icon font to load. */
+.xp-controls i {
+    position: relative;
+    width: 1.3125rem;
+    height: 1.3125rem;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 0.1875rem;
+    background: linear-gradient(180deg, #4a98ff, #0a50d8);
+}
+
+.xp-min::after,
+.xp-max::after,
+.xp-close::before,
+.xp-close::after {
+    content: "";
+    position: absolute;
+    background: #ffffff;
+}
+
+.xp-min::after {
+    left: 0.25rem;
+    bottom: 0.25rem;
+    width: 0.5rem;
+    height: 0.1875rem;
+}
+
+.xp-max::after {
+    inset: 0.25rem;
+    background: none;
+    border: 1px solid #ffffff;
+    border-top-width: 0.1875rem;
+}
+
+.xp-close::before,
+.xp-close::after {
+    left: 50%;
+    top: 50%;
+    width: 0.6875rem;
+    height: 0.125rem;
+}
+
+.xp-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.xp-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.xp-body {
+    padding: 0.5rem;
+}
+
+.xp-inset {
+    background: var(--xp-inset);
+    border: 1px solid var(--xp-inset-border);
+    padding: 0.875rem 1rem 1rem;
 }
 
 /* ---- Forms ---- */

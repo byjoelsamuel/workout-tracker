@@ -23,6 +23,32 @@ export function Card({ className = "", children, as: Tag = "div", ...rest }) {
   );
 }
 
+// A browse-screen window in the Windows XP style: title bar, cream body, white
+// inset box. The title is the heading (so it stays an <h2> for screen readers);
+// `ext` is the fake file extension, hidden from them, because "history dot log"
+// is noise. The three buttons are decoration, not controls — nothing here
+// closes or resizes, and a dead button on a tap-first screen would be a lie.
+export function XpWindow({ title, ext = "log", className = "", children, ...rest }) {
+  return (
+    <section className={`xp-window ${className}`.trim()} {...rest}>
+      <header className="xp-titlebar">
+        <h2 className="xp-title" aria-label={title}>
+          {title}
+          <span aria-hidden="true">.{ext}</span>
+        </h2>
+        <span className="xp-controls" aria-hidden="true">
+          <i className="xp-min" />
+          <i className="xp-max" />
+          <i className="xp-close" />
+        </span>
+      </header>
+      <div className="xp-body">
+        <div className="xp-inset">{children}</div>
+      </div>
+    </section>
+  );
+}
+
 const press = { whileHover: { scale: 1.025, y: -1 }, whileTap: { scale: 0.96 }, transition: snappy };
 const still = {};
 

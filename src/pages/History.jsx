@@ -11,7 +11,7 @@ import { motion } from "motion/react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
 import { HistoryList } from "../components/HistoryList.jsx";
-import { AnimatedList, AnimatedListItem, Card, PageHeader } from "../components/primitives.jsx";
+import { AnimatedList, AnimatedListItem, PageHeader, XpWindow } from "../components/primitives.jsx";
 import { useWeekData, useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { countHeat, recencyHeat } from "../lib/heat.js";
@@ -63,8 +63,7 @@ export function History() {
       <div className="progress-grid">
         <div className="dashboard-column">
           {mine && (
-            <Card className="week-card">
-              <h2>Last 7 days</h2>
+            <XpWindow title="last 7 days" className="week-card">
               {/* Workouts, not log rows — see getSummary in store.js. */}
               <p className="subhead small">
                 {mine.sessions} {mine.sessions === 1 ? "session" : "sessions"}
@@ -75,11 +74,10 @@ export function History() {
                   A flat count rather than the dashboard's decay — this is one
                   fixed week, so there is no "stale" for decay to express. */}
               <BodyMap heat={countHeat(mine.summary)} showToggle />
-            </Card>
+            </XpWindow>
           )}
 
-          <Card>
-            <h2>Sessions by muscle group</h2>
+          <XpWindow title="muscle groups" ext="dat">
             {/* A bare column of numbers made you do the comparing yourself.
                 The bar carries the ranking, and the date is the part that
                 actually prompts action — a group last trained a month ago is
@@ -102,10 +100,9 @@ export function History() {
                 </AnimatedListItem>
               ))}
             </AnimatedList>
-          </Card>
+          </XpWindow>
 
-          <Card>
-            <h2>Personal bests</h2>
+          <XpWindow title="personal bests" ext="sav">
             {bests.length === 0 ? (
               <p className="empty">Log a loaded set and your bests will show up here.</p>
             ) : (
@@ -118,11 +115,10 @@ export function History() {
                 ))}
               </AnimatedList>
             )}
-          </Card>
+          </XpWindow>
 
           {others.length > 0 && (
-            <Card>
-              <h2>Everyone's week</h2>
+            <XpWindow title="everyone's week">
               <AnimatedList>
                 {others.map((other) => (
                   <AnimatedListItem key={other.id}>
@@ -133,12 +129,11 @@ export function History() {
                   </AnimatedListItem>
                 ))}
               </AnimatedList>
-            </Card>
+            </XpWindow>
           )}
         </div>
 
-        <Card>
-          <h2>Full history</h2>
+        <XpWindow title="full history">
           <HistoryList
             logs={logs}
             unit={unit}
@@ -147,7 +142,7 @@ export function History() {
             onDelete={removeEntry}
             empty="Nothing logged yet. Head to the dashboard to start a workout."
           />
-        </Card>
+        </XpWindow>
       </div>
     </motion.main>
   );
