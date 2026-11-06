@@ -4,6 +4,20 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — window chrome on the browse screens · branch `redesign/phase-2-windows`
+
+Built on the top-bar branch. No version bump, and nothing about how data is
+stored has changed.
+
+### Changed
+- **The XP windows from History now cover the other browse screens**: the food
+  tab (`food.log`), the profile picker (`profiles in this browser.sys`), new
+  profile setup (`new profile.exe`), every Settings section (`profile.ini`,
+  `training.ini`, `help.txt`, `backup.sav`) and both About panels. The delete
+  section keeps its reddish frame and is named `delete profile.exe`.
+- **The dashboard is deliberately left alone.** The body map and the logging
+  panel stay the calm cards, so nothing busy sits next to your sets.
+
 ## Unreleased — a new top bar · branch `redesign/phase-2-nav`
 
 Built on the window-chrome branch. No version bump, and nothing about how data is
@@ -11,12 +25,12 @@ stored has changed.
 
 ### Changed
 - **The top bar is no longer a logo-left, links-right row.** It is two lines:
-  the name (slightly crooked, with 強くなる beside it) and a small system tray on
-  the right — a clock, settings and the theme switch — over the pages written as
-  one line, `SYS:// DASHBOARD ◈ HISTORY ◈ FOOD ◈ ABOUT ▮`, the way the header on
-  the owner's site reads. The page you're on is highlighted like a selected item
-  in Windows XP, and the cursor blinks (it stays still if you've asked your
-  device for reduced motion).
+  the name (with 強くなる beside it) and a small tray on the right — settings and
+  the theme switch — over the pages written as one line,
+  `SYS:// DASHBOARD ◈ HISTORY ◈ FOOD ◈ ABOUT ▮`, the way the header on the
+  owner's site reads. The page you're on is highlighted like a selected item in
+  Windows XP, and the cursor blinks (it stays still if you've asked your device
+  for reduced motion).
 - Settings and the theme switch are drawn glyphs (▣ and ◐) instead of icons.
 - On phones the `SYS://` label is dropped so all four pages still fit on one line
   at a comfortable tap size.

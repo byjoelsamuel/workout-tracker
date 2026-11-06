@@ -171,8 +171,6 @@ body {
     min-height: 2.25rem;
 }
 
-/* A hair off level, like a sticker pressed on a touch crooked — the one thing
-   on the bar that isn't aligned to the grid. */
 .nav-brand {
     display: inline-flex;
     align-items: baseline;
@@ -183,8 +181,6 @@ body {
     color: var(--text-primary);
     text-decoration: none;
     white-space: nowrap;
-    transform: rotate(-1.5deg);
-    transform-origin: left center;
 }
 
 .nav-name span {
@@ -198,19 +194,11 @@ body {
     color: var(--text-secondary);
 }
 
-/* The system tray: a clock and two square glyph buttons. */
+/* The tray: two square glyph buttons. */
 .nav-tray {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.tray-clock {
-    font-size: 0.75rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-secondary);
-    margin-right: 0.25rem;
 }
 
 .icon-motion {
@@ -570,6 +558,7 @@ body {
     text-shadow: 1px 1px 0 rgba(0, 20, 90, 0.7);
     min-width: 0;
     overflow-wrap: anywhere;
+    text-align: left;
 }
 
 .xp-title span {
@@ -1437,8 +1426,16 @@ body {
     flex-direction: column;
 }
 
-.about-card h2 {
-    font-size: 1.1875rem;
+.about-card .xp-body {
+    flex: 1;
+    display: flex;
+}
+
+.about-card .xp-inset {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
 }
 
 .about-points {
@@ -1506,8 +1503,8 @@ body {
         margin-top: 0.5rem;
     }
 
-    .about-card {
-        padding: 1.375rem 1.625rem;
+    .about-card .xp-inset {
+        padding: 0.75rem 1.25rem;
     }
 
     .about-points {
@@ -2928,10 +2925,6 @@ body {
 .settings-row:last-child {
     border-bottom: none;
     padding-bottom: 0;
-}
-
-.card h2 + .settings-row {
-    margin-top: 0.375rem;
 }
 
 .settings-text {

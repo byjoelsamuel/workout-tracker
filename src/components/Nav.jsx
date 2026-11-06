@@ -1,14 +1,13 @@
 // One nav for the whole app — previously this markup was copy-pasted into
 // all five HTML files.
 //
-// Two rows, on purpose. The top one is the brand and a system tray (clock,
-// settings, theme); the second is the pages written as a single directory
+// Two rows, on purpose. The top one is the brand and a small tray (settings,
+// theme); the second is the pages written as a single directory
 // line — `SYS:// dashboard ◈ history ◈ food ◈ about ▮` — with the current page
 // highlighted the way XP highlights a selected item. It borrows the header of
 // the owner's own site rather than the usual logo-left, links-right row, and it
 // stays text on the page background (no blue title bar) so the logging screen
 // stays calm.
-import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Link, NavLink } from "react-router-dom";
 import { useTheme } from "../hooks/useTheme.js";
@@ -32,22 +31,6 @@ function ThemeToggle() {
           comes out a different size each time. */}
       <span className="glyph-half" aria-hidden="true" />
     </motion.button>
-  );
-}
-
-// The system-tray clock. Re-read twice a minute rather than every second: it
-// only shows minutes, and a one-second timer would re-render the nav for
-// nothing. aria-hidden because a clock that announces itself is noise.
-function Clock() {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30000);
-    return () => clearInterval(id);
-  }, []);
-  return (
-    <span className="tray-clock" aria-hidden="true">
-      {now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
-    </span>
   );
 }
 
@@ -75,7 +58,6 @@ export function Nav() {
         </Link>
 
         <div className="nav-tray">
-          <Clock />
           {/* Where the "?" button used to be. Replaying the walkthrough now
               lives in Settings, alongside everything else you set once. */}
           {signedIn && (

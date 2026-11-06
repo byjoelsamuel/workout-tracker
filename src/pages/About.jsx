@@ -2,7 +2,7 @@
 // your data on the right, mirrored. It used to be eight headed sections of
 // prose; the same answers fit in a sentence or two each.
 import { motion } from "motion/react";
-import { Card, PageHeader } from "../components/primitives.jsx";
+import { PageHeader, XpWindow } from "../components/primitives.jsx";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
 import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platform.js";
@@ -75,19 +75,17 @@ export function About() {
 
       <motion.div className="about-grid" variants={listVariants} initial="hidden" animate="show">
         <motion.div variants={listItemVariants}>
-          <Card className="about-card">
-            <h2>How it works</h2>
+          <XpWindow title="how it works" ext="txt" className="about-card">
             <Points items={HOW} />
             <p className="about-meta">
               Built with React, Vite and <a href="https://motion.dev">Motion</a> · body map from{" "}
               <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a>
             </p>
-          </Card>
+          </XpWindow>
         </motion.div>
 
         <motion.div variants={listItemVariants}>
-          <Card className="about-card end">
-            <h2>Your data</h2>
+          <XpWindow title="your data" ext="txt" className="about-card end">
             <Points items={DATA} />
             <p className="about-meta">
               Version {APP_VERSION} · <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</a> ·{" "}
@@ -102,7 +100,7 @@ export function About() {
                 </>
               )}
             </p>
-          </Card>
+          </XpWindow>
         </motion.div>
       </motion.div>
     </motion.main>

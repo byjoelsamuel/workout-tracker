@@ -6,19 +6,19 @@
 // doesn't save anything.
 import { motion } from "motion/react";
 import { Mascot } from "../components/Mascot.jsx";
-import { Card, PageHeader } from "../components/primitives.jsx";
+import { PageHeader, XpWindow } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 
 export function Food() {
   return (
     <motion.main className="page" variants={pageVariants} initial="initial" animate="animate" exit="exit">
       <PageHeader eyebrow="Coming soon" title="Food log" />
-      <Card className="food-placeholder">
+      <XpWindow title="food" className="food-placeholder">
         <Mascot size="lg" />
         <p className="empty">
           Nothing to log here yet. Meals and macros arrive after the new look is settled — your workouts come first.
         </p>
-      </Card>
+      </XpWindow>
     </motion.main>
   );
 }

@@ -15,7 +15,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Burst } from "../components/Burst.jsx";
 import { BodyFields } from "../components/ProfileFields.jsx";
-import { Button, Card, Field, PageHeader } from "../components/primitives.jsx";
+import { Button, Field, PageHeader, XpWindow } from "../components/primitives.jsx";
 import { createUser, getUnit, listUsers, setLastUserId, setUnit, DEFAULT_WEEKLY_GOAL } from "../lib/store.js";
 import { pageVariants, stepVariants } from "../lib/motionVariants.js";
 import { fromProfileDraft, validateProfile } from "../lib/profile.js";
@@ -208,7 +208,7 @@ export function Onboarding() {
           />
 
           <div className="card-stack">
-            <Card>
+            <XpWindow title="new profile" ext="exe">
               {id !== "ready" && (
                 <div
                   className="progress-track"
@@ -361,7 +361,7 @@ export function Onboarding() {
                   </div>
                 )}
               </form>
-            </Card>
+            </XpWindow>
           </div>
         </motion.div>
       </AnimatePresence>
