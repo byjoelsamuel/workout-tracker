@@ -155,7 +155,7 @@ export function Dashboard() {
   }, []);
 
   const onGoalMet = useCallback(
-    (done) => toast.show({ tone: "record", title: "Weekly goal hit!" }),
+    () => toast.show({ tone: "record", title: "Weekly goal hit!" }),
     [toast]
   );
 

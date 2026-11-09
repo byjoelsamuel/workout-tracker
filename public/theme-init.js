@@ -8,7 +8,9 @@
   var saved = null;
   try {
     saved = localStorage.getItem("workoutTracker.theme");
-  } catch (e) {}
+  } catch {
+    // Storage blocked: fall through to the OS preference.
+  }
   var theme =
     saved === "light" || saved === "dark"
       ? saved
