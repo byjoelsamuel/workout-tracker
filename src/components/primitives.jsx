@@ -5,12 +5,12 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import { Link } from "react-router-dom";
 import { listItemVariants, listVariants, snappy } from "../lib/motionVariants.js";
 
-export function PageHeader({ eyebrow, title, subhead }) {
+// Just the title. Pages used to carry a small line above it and a sentence
+// under it; neither said anything the page itself doesn't.
+export function PageHeader({ title }) {
   return (
     <header className="page-header">
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
       <h1>{title}</h1>
-      {subhead && <p className="subhead">{subhead}</p>}
     </header>
   );
 }
@@ -23,28 +23,25 @@ export function Card({ className = "", children, as: Tag = "div", ...rest }) {
   );
 }
 
-// A browse-screen window in the Windows XP style: title bar, cream body, white
-// inset box. The title is the heading (so it stays an <h2> for screen readers);
-// `ext` is the fake file extension, hidden from them, because "history dot log"
-// is noise. `as` lets a page whose own <h1> sits inside the window (the landing
-// hero) keep a sensible heading order. The three buttons are decoration, not controls — nothing here
-// closes or resizes, and a dead button on a tap-first screen would be a lie.
-export function XpWindow({ title, ext = "txt", as: Heading = "h2", className = "", children, ...rest }) {
+// A window in the Windows 98 style: a title bar with a plain, big title over a
+// grey beveled frame, content on a white sunken panel. The title is the
+// heading (an <h2> for screen readers); `as` lets a page whose own <h1> sits
+// inside the window (the landing hero) keep a sensible heading order. The three
+// squares are decoration, not controls — nothing here minimises or resizes, and
+// a dead button on a tap-first screen would be a lie.
+export function AppWindow({ title, as: Heading = "h2", className = "", children, ...rest }) {
   return (
-    <section className={`xp-window ${className}`.trim()} {...rest}>
-      <header className="xp-titlebar">
-        <Heading className="xp-title" aria-label={title}>
-          {title}
-          <span aria-hidden="true">.{ext}</span>
-        </Heading>
-        <span className="xp-controls" aria-hidden="true">
-          <i className="xp-min" />
-          <i className="xp-max" />
-          <i className="xp-close" />
+    <section className={`win-window ${className}`.trim()} {...rest}>
+      <header className="win-titlebar">
+        <Heading className="win-title">{title}</Heading>
+        <span className="win-controls" aria-hidden="true">
+          <i className="win-min" />
+          <i className="win-max" />
+          <i className="win-close" />
         </span>
       </header>
-      <div className="xp-body">
-        <div className="xp-inset">{children}</div>
+      <div className="win-body">
+        <div className="win-inset">{children}</div>
       </div>
     </section>
   );

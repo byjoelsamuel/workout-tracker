@@ -7,7 +7,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";
 import { Segmented } from "./primitives.jsx";
-import { PLATE_STEP, UNITS, fromKg, setVolume, toKg } from "../lib/units.js";
+import { PLATE_STEP, UNITS, fromKg, toKg } from "../lib/units.js";
 import { newId } from "../lib/id.js";
 
 export function newSet(previous, { timed = false } = {}) {
@@ -70,10 +70,6 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
       <ul className="set-list">
         <AnimatePresence initial={false}>
           {sets.map((set, i) => {
-            // Preview in the entered unit, so the number shown matches the
-            // number typed rather than the kilograms it will be stored as.
-            const volume =
-              !timed && set.weight ? setVolume({ reps: Number(set.reps), weight: Number(set.weight) }) : 0;
             return (
               <motion.li
                 key={set.id}
@@ -109,11 +105,6 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
                       label={`weight for set ${i + 1}, in ${unit}`}
                       placeholder="—"
                     />
-                    {volume > 0 && (
-                      <span className="set-volume">
-                        {Math.round(volume).toLocaleString()} {unit}
-                      </span>
-                    )}
                   </span>
                 )}
                 <button
@@ -137,7 +128,6 @@ export function SetBuilder({ sets, onChange, timed, bodyweight, unit, onUnitChan
         + Add set
       </button>
 
-      {bodyweight && <p className="field-note">Bodyweight — no load recorded.</p>}
     </div>
   );
 }

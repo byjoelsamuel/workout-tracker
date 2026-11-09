@@ -12,11 +12,9 @@ import { Button } from "./primitives.jsx";
 import { ExercisePicker } from "./ExercisePicker.jsx";
 import { SetBuilder, newSet } from "./SetBuilder.jsx";
 import { findExercise } from "../lib/exercises.js";
-import { GROUP_LABELS } from "../lib/bodyGroups.js";
 import { bestByMovement, lastTimeFor } from "../lib/records.js";
-import { relativeDay } from "../lib/time.js";
 import { newId } from "../lib/id.js";
-import { checkSets, describeReps, formatWeight, fromKg, toKg, topWeight } from "../lib/units.js";
+import { checkSets, formatWeight, fromKg, toKg } from "../lib/units.js";
 
 // What you did last time, as editable rows in the unit on screen — the same
 // conversion the history editor uses. Fresh ids, because these are new sets
@@ -80,19 +78,8 @@ export function LogForm({
           type="button"
           className={`log-slot-collapsed ${selected ? "" : "add"}`.trim()}
           onClick={onActivate}
-          aria-label={selected ? `Switch to ${selected.name}` : "Add another exercise"}
         >
-          {selected ? (
-            <>
-              <span className="selected-text">
-                <span className="picker-label">{GROUP_LABELS[selected.bodyGroup] ?? selected.bodyGroup}</span>
-                <strong>◇ {selected.name}</strong>
-              </span>
-              <span className="slot-hint">tap to switch</span>
-            </>
-          ) : (
-            <span className="slot-hint">+ add another exercise</span>
-          )}
+          {selected ? `Switch to ${selected.name}` : "+ Add exercise"}
         </button>
       </div>
     );
@@ -160,30 +147,15 @@ export function LogForm({
             exit={{ opacity: 0, y: -6, transition: { duration: 0.12, ease: "easeIn" } }}
           >
             <div className="selected-exercise">
-              <span className="selected-text">
-                <span className="picker-label">
-                  Logging · {GROUP_LABELS[selected.bodyGroup] ?? selected.bodyGroup}
-                </span>
-                <strong>◈ {selected.name}</strong>
-              </span>
+              <strong className="selected-text">{selected.name}</strong>
               <button type="button" className="row-action" onClick={() => onSelect(null)}>
                 Change
               </button>
             </div>
 
-            {/* Pre-filled from here: the sets below start as last time's. */}
-            {(last || best) && (
-              <p className="field-note history-hint">
-                {last && (
-                  <>
-                    Last time ({relativeDay(last.loggedAt)}): {describeReps(last)}
-                    {topWeight(last) != null && ` · ${formatWeight(topWeight(last), unit)}`}
-                  </>
-                )}
-                {last && best && " · "}
-                {best && <>Best {formatWeight(best.weight, unit)}</>}
-              </p>
-            )}
+            {/* Last time's sets are already filled in below, so the only
+                number worth its own line is the best. */}
+            {best && <p className="history-hint">Best: {formatWeight(best.weight, unit)}</p>}
 
             <SetBuilder
               sets={sets}

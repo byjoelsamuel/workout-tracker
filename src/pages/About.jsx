@@ -2,7 +2,7 @@
 // your data on the right, mirrored. It used to be eight headed sections of
 // prose; the same answers fit in a sentence or two each.
 import { motion } from "motion/react";
-import { PageHeader, XpWindow } from "../components/primitives.jsx";
+import { PageHeader, AppWindow } from "../components/primitives.jsx";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
 import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platform.js";
@@ -71,21 +71,21 @@ export function About() {
 
   return (
     <motion.main className="page about" variants={pageVariants} initial="initial" animate="animate" exit="exit">
-      <PageHeader eyebrow="About" title="Tsyoku-naru" subhead="強くなる — tsuyoku naru — “to become stronger.”" />
+      <PageHeader title="About" />
 
       <motion.div className="about-grid" variants={listVariants} initial="hidden" animate="show">
         <motion.div variants={listItemVariants}>
-          <XpWindow title="how it works" ext="chm" className="about-card">
+          <AppWindow title="How it works" className="about-card">
             <Points items={HOW} />
             <p className="about-meta">
               Built with React, Vite and <a href="https://motion.dev">Motion</a> · body map from{" "}
               <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a>
             </p>
-          </XpWindow>
+          </AppWindow>
         </motion.div>
 
         <motion.div variants={listItemVariants}>
-          <XpWindow title="your data" ext="sys" className="about-card end">
+          <AppWindow title="Your data" className="about-card end">
             <Points items={DATA} />
             <p className="about-meta">
               Version {APP_VERSION} · <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</a> ·{" "}
@@ -100,7 +100,7 @@ export function About() {
                 </>
               )}
             </p>
-          </XpWindow>
+          </AppWindow>
         </motion.div>
       </motion.div>
     </motion.main>

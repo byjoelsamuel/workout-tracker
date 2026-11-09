@@ -20,7 +20,6 @@ export function UpdatePrompt() {
         key: "update",
         tone: "update",
         title: `Tsyoku-naru ${result.latest} is out`,
-        body: `You have ${result.current}. Install it over this one — your workouts stay.`,
         action: { label: "Download", onClick: downloadUpdate },
         duration: 15000,
       });

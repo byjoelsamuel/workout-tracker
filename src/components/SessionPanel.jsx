@@ -8,48 +8,33 @@
 // Elapsed time lives on the pinned workout bar now, which ticks every second
 // and is on screen for the whole session.
 import { AnimatePresence, motion } from "motion/react";
-import { CountUp, XpWindow } from "./primitives.jsx";
-import { GROUP_LABELS } from "../lib/bodyGroups.js";
-import { describeReps, formatVolume, fromKg, logVolume, rankGroups, totalSets } from "../lib/units.js";
+import { CountUp, AppWindow } from "./primitives.jsx";
+import { describeReps, formatVolume, fromKg, logVolume, totalSets } from "../lib/units.js";
 
 export function SessionPanel({ logs, unit, active }) {
   if (!active) {
     return (
-      <XpWindow title="this session" ext="sav" className="session-panel idle">
-        <p className="empty">Your workout starts the moment you log your first exercise.</p>
-      </XpWindow>
+      <AppWindow title="This session" className="session-panel idle">
+        <p className="empty">Nothing logged yet.</p>
+      </AppWindow>
     );
   }
 
   const volume = logs.reduce((sum, log) => sum + logVolume(log), 0);
-  // Same ranking the end-of-workout summary uses, so the group named here can't
-  // disagree with the one named seconds later.
-  const hardest = rankGroups(logs)[0];
-  const top = hardest ? GROUP_LABELS[hardest.group] ?? hardest.group : null;
 
   return (
-    <XpWindow title="this session" ext="sav" className="session-panel">
+    <AppWindow title="This session" className="session-panel">
 
       <div className="session-total">
+        <span className="session-total-label">Total</span>
         <span className="session-total-value">
           <CountUp value={volume} format={(n) => `${Math.round(fromKg(n, unit)).toLocaleString()} ${unit}`} />
         </span>
-        <span className="session-total-label">moved so far</span>
       </div>
 
-      <div className="session-meta">
-        <span>
-          <strong>{logs.length}</strong> {logs.length === 1 ? "exercise" : "exercises"}
-        </span>
-        <span>
-          <strong>{totalSets(logs)}</strong> sets
-        </span>
-        {top && (
-          <span>
-            mostly <strong>{top}</strong>
-          </span>
-        )}
-      </div>
+      <p className="session-meta">
+        {logs.length} {logs.length === 1 ? "exercise" : "exercises"} · {totalSets(logs)} sets
+      </p>
 
       {logs.length > 0 && (
         <ul className="data-list">
@@ -75,6 +60,6 @@ export function SessionPanel({ logs, unit, active }) {
           </AnimatePresence>
         </ul>
       )}
-    </XpWindow>
+    </AppWindow>
   );
 }

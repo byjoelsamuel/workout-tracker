@@ -102,11 +102,3 @@ export function countHeat(summary = {}, full = 5) {
   }
   return heat;
 }
-
-// What a single session looks like at 0, 1, 2 and 3 weeks old. The legend draws
-// these to show the decay itself, since a bare "less → more" ramp can't explain
-// why a muscle you trained hard last month is dim.
-export const DECAY_SAMPLES = [0, 1, 2, 3].map((weeks) => ({
-  weeks,
-  value: toValue(0.5 ** ((weeks * 7) / HALF_LIFE_DAYS)),
-}));
