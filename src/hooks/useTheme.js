@@ -55,8 +55,9 @@ function paint(theme) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? THEME_COLOR.dark : THEME_COLOR.light);
 }
 
-// The switch itself, as a pixel mosaic: the new theme fills in as square
-// blocks in a random order, a few at a time, like an old console dissolve.
+// The switch itself, as a blurred pixel mosaic: the new theme fills in as
+// square blocks in a random order, a few at a time, like an old console
+// dissolve, while the old page blurs out and the new one sharpens.
 // View Transitions snapshot the old page and lay the new one over it; the new
 // one is masked by a grid that gains blocks each step. Where the API is
 // missing, or motion is reduced, the swap is instant.
@@ -104,15 +105,26 @@ function reveal(theme) {
     .then(() => {
       // mask-image can't tween, so each keyframe holds until the next: the
       // blocks land in steps rather than fading.
-      // Held on the last (full) frame until the transition tears down, then
-      // dropped so it doesn't linger on the document.
-      const animation = document.documentElement.animate(frames, {
-        duration: DURATION,
-        easing: "linear",
-        fill: "forwards",
-        pseudoElement: "::view-transition-new(root)",
-      });
-      transition.finished.finally(() => animation.cancel());
+      const root = document.documentElement;
+      const timing = { duration: DURATION, fill: "forwards" };
+      // Blur on top of the blocks: the old page goes soft as it's covered,
+      // and the new one comes in out of focus and sharpens as it lands.
+      // Held on the last frame until the transition tears down, then dropped
+      // so nothing lingers on the document.
+      const animations = [
+        root.animate(frames, { ...timing, easing: "linear", pseudoElement: "::view-transition-new(root)" }),
+        root.animate([{ filter: "blur(12px)" }, { filter: "blur(0)" }], {
+          ...timing,
+          easing: "ease-out",
+          pseudoElement: "::view-transition-new(root)",
+        }),
+        root.animate([{ filter: "blur(0)" }, { filter: "blur(8px)" }], {
+          ...timing,
+          easing: "ease-in",
+          pseudoElement: "::view-transition-old(root)",
+        }),
+      ];
+      transition.finished.finally(() => animations.forEach((animation) => animation.cancel()));
     })
     .catch(() => {});
 }

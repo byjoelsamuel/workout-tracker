@@ -22,7 +22,8 @@ No version bump, and nothing about how data is stored has changed.
   under it.
 - **Pixel mosaic theme switch.** Switching light/dark now fills the new
   theme in as random square blocks over about half a second, in place of the
-  circle that grew from the toggle. Works from the nav button, Settings and
+  circle that grew from the toggle. The old page blurs out as it's covered and
+  the new one sharpens as it lands. Works from the nav button, Settings and
   when the OS theme changes; instant with reduced motion or in browsers
   without View Transitions.
 - **README links to the Netlify site** (tsyoku-naru.netlify.app) instead of
