@@ -94,7 +94,7 @@ export function ExercisePicker({ recents = [], value, onChange, group, onGroupCh
 
       <div className="picker-section">
         <label className="picker-search" data-tour="search">
-          <span className="picker-label">Search all exercises</span>
+          <span className="picker-label">Search</span>
           <input
             ref={inputRef}
             type="text"
@@ -106,7 +106,7 @@ export function ExercisePicker({ recents = [], value, onChange, group, onGroupCh
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={onSearchKey}
-            placeholder="Try “bench”, “curl”, “squat”…"
+            placeholder="Exercise name"
             autoComplete="off"
             spellCheck="false"
           />
@@ -144,7 +144,7 @@ export function ExercisePicker({ recents = [], value, onChange, group, onGroupCh
 
       {!searching && (
         <div className="picker-section">
-          <span className="picker-label">Browse by muscle group</span>
+          <span className="picker-label">Muscle groups</span>
           <div className="chip-row" role="group" aria-label="Muscle groups">
             {BODY_GROUPS.map((g) => (
               <button

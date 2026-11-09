@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { NumberStepper } from "./NumberStepper.jsx";
 import { Burst } from "./Burst.jsx";
-import { Button, CountUp, XpWindow } from "./primitives.jsx";
+import { Button, CountUp, AppWindow } from "./primitives.jsx";
 import { MAX_WEEKLY_GOAL, MIN_WEEKLY_GOAL } from "../lib/store.js";
 import { drawTransition } from "../lib/motionVariants.js";
 import { weeklyProgress } from "../lib/time.js";
@@ -68,16 +68,8 @@ export function WeeklyGoal({ logs, goal, onGoalChange, onMet }) {
     setEditing(true);
   }
 
-  const remaining = goal - done;
-  const copy =
-    logs.length === 0
-      ? "Log your first exercise and the week starts here."
-      : met
-        ? `Goal hit — ${done} ${done === 1 ? "workout" : "workouts"} this week.`
-        : `${remaining} more ${remaining === 1 ? "workout" : "workouts"} to hit your goal.`;
-
   return (
-    <XpWindow title="weekly goal" ext="ini" data-tour="goal">
+    <AppWindow title="Weekly goal" data-tour="goal">
       <div className={`weekly-goal${met ? " met" : ""}`}>
         <div className="weekly-goal-meter">
           <GoalRing progress={progress} />
@@ -89,19 +81,13 @@ export function WeeklyGoal({ logs, goal, onGoalChange, onMet }) {
         </div>
 
         <div className="weekly-goal-body">
-          <div className="weekly-goal-head">
-            <h2>This week</h2>
-            <button type="button" className="row-action" onClick={editing ? save : startEditing}>
-              {editing ? "Save" : "Edit goal"}
-            </button>
-          </div>
-          <p className="weekly-goal-copy">{copy}</p>
-          {/* A streak of one is just "this week" and reads as filler. */}
-          {streak > 1 && (
-            <p className="weekly-goal-streak">
-              <span aria-hidden="true">▲</span> {streak} weeks in a row
-            </p>
-          )}
+          {/* The ring already says how many of how many; the only other
+              number worth a line is the streak. A streak of one is just "this
+              week" and reads as filler. */}
+          <p className="weekly-goal-streak">{met ? "Goal hit" : streak > 1 ? `${streak} week streak` : "This week"}</p>
+          <button type="button" className="row-action" onClick={editing ? save : startEditing}>
+            {editing ? "Save" : "Edit goal"}
+          </button>
         </div>
 
         {/* A plain conditional rather than AnimatePresence: this is a 40px
@@ -130,6 +116,6 @@ export function WeeklyGoal({ logs, goal, onGoalChange, onMet }) {
           </form>
         )}
       </div>
-    </XpWindow>
+    </AppWindow>
   );
 }

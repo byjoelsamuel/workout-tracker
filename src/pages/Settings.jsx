@@ -11,27 +11,16 @@ import { ConfirmDialog } from "../components/Dialog.jsx";
 import { BodyFields } from "../components/ProfileFields.jsx";
 import { useToast } from "../components/Toaster.jsx";
 import { NumberStepper } from "../components/NumberStepper.jsx";
-import { Button, Field, PageHeader, Segmented, Switch, XpWindow } from "../components/primitives.jsx";
+import { Button, Field, PageHeader, Segmented, Switch, AppWindow } from "../components/primitives.jsx";
 import { useCoachEnabled, useExerciseLog, useRestSeconds, useUnit, useUser } from "../hooks/useStore.js";
 import { useTheme } from "../hooks/useTheme.js";
 import { deleteUser, exportBackup, importBackup } from "../lib/store.js";
-import { formatClock } from "../lib/time.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { downloadUpdate, hasOwnStorage, isDesktop, isIOS, STORAGE_HOME } from "../lib/platform.js";
+import { downloadUpdate, isDesktop, isIOS } from "../lib/platform.js";
 import { APP_VERSION } from "../lib/site.js";
 import { useUpdateCheck } from "../hooks/useUpdate.js";
-
-// Where the data lives, in words — the browser on the web; the app on desktop
-// or as an iPhone Home Screen app, which each keep their own.
-const HERE = STORAGE_HOME;
-
-const BACKUP_NOTE = isDesktop
-  ? "Everything lives in this app, separately from the website. Import a backup exported from the website to bring your history here."
-  : hasOwnStorage
-    ? "Everything lives in this app, separately from Safari. Import a backup exported from Safari to bring your history here."
-    : "Everything lives in this browser. Export a backup to keep a copy, or to move your history to the desktop app, your phone or another device.";
 
 const THEMES = [
   { id: "system", label: "System" },
@@ -55,11 +44,11 @@ function Row({ title, detail, children }) {
 // request; Download appears only once there's something to download.
 function UpdateRow() {
   const { status, checking, check } = useUpdateCheck();
-  let detail = `Version ${APP_VERSION}.`;
-  if (checking) detail = "Checking GitHub…";
-  else if (status?.failed) detail = `Couldn't reach GitHub${status.reason ? ` (${status.reason})` : ""}. Check your connection and try again.`;
-  else if (status?.available) detail = `Version ${status.latest} is out — you have ${status.current}. Install it over this one; your workouts stay.`;
-  else if (status) detail = `You're on the latest version, ${status.current}.`;
+  let detail = `Version ${APP_VERSION}`;
+  if (checking) detail = "Checking…";
+  else if (status?.failed) detail = "Check failed";
+  else if (status?.available) detail = `${status.latest} available`;
+  else if (status) detail = `Up to date (${status.current})`;
 
   return (
     <Row title="Updates" detail={detail}>
@@ -110,12 +99,12 @@ function RestField({ seconds, onSave }) {
   );
 }
 
-function Section({ title, ext = "ini", children, className = "" }) {
+function Section({ title, children, className = "" }) {
   return (
     <motion.div variants={listItemVariants}>
-      <XpWindow title={title.toLowerCase()} ext={ext} className={className}>
+      <AppWindow title={title} className={className}>
         {children}
-      </XpWindow>
+      </AppWindow>
     </motion.div>
   );
 }
@@ -228,7 +217,7 @@ export function Settings() {
       if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({ files: [file] });
-          toast.show({ title: "Backup exported", body: `It holds every profile in ${HERE}.` });
+          toast.show({ title: "Backup exported" });
           return;
         } catch (error) {
           if (error.name === "AbortError") return;
@@ -237,7 +226,7 @@ export function Settings() {
       }
     }
     download(name, text);
-    toast.show({ title: "Backup downloaded", body: `It holds every profile in ${HERE}.` });
+    toast.show({ title: "Backup downloaded" });
   }
 
   async function importData(event) {
@@ -267,13 +256,13 @@ export function Settings() {
   function removeProfile() {
     deleteUser(user.id);
     setDeleting(false);
-    toast.show({ title: `Deleted ${user.name}`, body: `Their profile and history are gone from ${HERE}.` });
+    toast.show({ title: `Deleted ${user.name}` });
     navigate("/welcome", { replace: true });
   }
 
   return (
     <motion.main className="page" variants={pageVariants} initial="initial" animate="animate" exit="exit">
-      <PageHeader eyebrow={user.name} title="Settings" />
+      <PageHeader title="Settings" />
 
       <motion.div className="card-stack wide" variants={listVariants} initial="hidden" animate="show">
         <ProfileSection
@@ -286,24 +275,24 @@ export function Settings() {
         />
 
         <Section title="Training">
-          <Row title="Units" detail="How weights are shown. History is stored in kilograms and never changes.">
+          <Row title="Units">
             <Segmented size="small" label="Weight unit" options={UNITS} value={unit} onChange={setUnit} />
           </Row>
-          <Row title="Rest timer" detail={`Starts after every set you log · ${formatClock(restSeconds * 1000)}`}>
+          <Row title="Rest timer">
             <span className="settings-stepper">
               <RestField seconds={restSeconds} onSave={setRestSeconds} />
             </span>
           </Row>
-          <Row title="Naru" detail="The workout planner on the dashboard.">
+          <Row title="Naru">
             <Switch checked={coachEnabled} onChange={setCoachEnabled} label="Show Naru" />
           </Row>
-          <Row title="Theme" detail="System follows your device's light or dark setting.">
+          <Row title="Theme">
             <Segmented size="small" label="Theme" options={THEMES} value={preference} onChange={(next) => setPreference(next)} />
           </Row>
         </Section>
 
-        <Section title="Help" ext="chm">
-          <Row title="Show the walkthrough" detail="The short tour of the dashboard.">
+        <Section title="Help">
+          <Row title="Show the walkthrough">
             <Button
               variant="secondary"
               size="small"
@@ -315,14 +304,13 @@ export function Settings() {
           {isDesktop && <UpdateRow />}
         </Section>
 
-        <Section title="Backup" ext="zip">
-          <p className="field-note settings-note">{BACKUP_NOTE}</p>
-          <Row title="Export" detail={`Every profile in ${HERE} · ${logs.length} ${logs.length === 1 ? "entry" : "entries"} for ${user.name}`}>
+        <Section title="Backup">
+                    <Row title="Export">
             <Button variant="secondary" size="small" onClick={exportData}>
               Export
             </Button>
           </Row>
-          <Row title="Import" detail="Adds what's missing. Nothing already here is overwritten.">
+          <Row title="Import">
             <Button variant="secondary" size="small" onClick={() => fileRef.current?.click()}>
               Import
             </Button>
@@ -338,8 +326,8 @@ export function Settings() {
           </Row>
         </Section>
 
-        <Section title="Delete profile" ext="exe" className="danger-card">
-          <Row title={`Delete ${user.name}`} detail={`Removes this profile and its history from ${HERE}. Other profiles are untouched.`}>
+        <Section title="Delete profile" className="danger-card">
+          <Row title={`Delete ${user.name}`}>
             <button type="button" className="row-danger" onClick={() => setDeleting(true)}>
               Delete…
             </button>
@@ -351,7 +339,7 @@ export function Settings() {
         open={deleting}
         tone="danger"
         title={`Delete ${user.name}?`}
-        body={`This permanently removes ${user.name}'s profile and ${logs.length} logged ${logs.length === 1 ? "entry" : "entries"} from ${HERE}. It can't be undone — export a backup first if you might want them back.`}
+        body={`${logs.length} ${logs.length === 1 ? "entry" : "entries"} will be deleted.`}
         confirmText={user.name}
         confirmLabel="Delete profile"
         onConfirm={removeProfile}

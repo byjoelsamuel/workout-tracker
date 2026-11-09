@@ -16,7 +16,7 @@
 import { useMemo, useState } from "react";
 import { Dialog } from "./Dialog.jsx";
 import { Button } from "./primitives.jsx";
-import { explainPlan, planWorkout } from "../lib/coach.js";
+import { planWorkout } from "../lib/coach.js";
 import { formatWeight, roundToPlate } from "../lib/units.js";
 
 // "New plan" survives closing the sheet and moving between pages, but not a
@@ -44,12 +44,10 @@ export function Coach({ open, onClose, userId, logs, workoutLogs, unit, onPick }
       onClose={onClose}
       variant="sheet"
       title="Naru"
-      description={`Today · full body · ~${plan.minutes} min · ${plan.totalSets} sets`}
+      description={`~${plan.minutes} min · ${plan.totalSets} sets`}
       className="coach-sheet"
     >
       <div className="coach-body">
-        <p className="coach-why">{explainPlan(plan)}</p>
-
         <ol className="coach-plan">
           {plan.exercises.map((ex) => {
             const ticked = done.has(ex.name);
@@ -80,8 +78,6 @@ export function Coach({ open, onClose, userId, logs, workoutLogs, unit, onPick }
             );
           })}
         </ol>
-
-        <p className="coach-note">A starting point — log what you actually do. You can turn Naru off in Settings.</p>
       </div>
 
       <div className="coach-actions">

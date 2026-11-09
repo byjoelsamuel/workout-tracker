@@ -8,50 +8,61 @@
     /* Height of the sticky nav. Anything that pins itself below the nav
        offsets by this rather than hard-coding a number that drifts when the
        nav's padding changes. */
-    --nav-offset: 5.5625rem;
-    --font-title: "Trebuchet MS", "Rubik Variable", sans-serif;
-    --text-primary: #0b1220;
-    --text-secondary: #566179;
-    /* Windows XP's own blue — the Luna title bar's #0054e3 — which reads as
-       text on both the page and the cards (5.4:1 and 6.2:1). The dark theme
-       uses the lighter end of the same title-bar gradient instead. */
-    --accent: #0054e3;
-    --accent-hover: #0040ab;
-    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
-    /* Text and icons sitting on an accent fill. */
+    --nav-offset: 6.75rem;
+    /* Big labels — title bars, headings, buttons, the top bar — are set in a
+       bitmap-style face, bundled (src/main.jsx) so the desktop app has it
+       offline. Body text stays in a plain, readable sans. */
+    --font-title: "Pixelify Sans Variable", Tahoma, "Rubik Variable", sans-serif;
+    /* Windows 98, toned down: grey windows on a muted slate desktop, black
+       text, and one colour — the navy of the title bar — for everything that
+       has to stand out. No greens, no bright blues, no light-grey small print. */
+    --text-primary: #000000;
+    --text-secondary: #2b2b2b;
+    --accent: #0a246a;
+    --accent-hover: #1c3c8c;
+    --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
     --on-accent: #ffffff;
-    /* The two other colours, each with one job, so blue stays the identity and
-       nothing here competes with it (XP's own complaint was colour everywhere).
-       "Go" is the Start-button green and goes only on the button you press to
-       log a set. The sticker is yellow and appears only when something
-       happens — a new best — as a filled label with dark ink, because yellow
-       on a white card is 1.4:1 and an outline of it would vanish. */
-    --go: #2d7a22;
-    --go-hover: #246219;
-    --on-go: #ffffff;
-    --sticker: #ffd51b;
+    /* The main button is the same grey as every other, just bolder and wider.
+       A filled green "go" was the loudest thing on the screen. */
+    --go: #c0c0c0;
+    --go-hover: #d4d0c8;
+    --on-go: #000000;
+    /* A new best still gets marked, in a muted gold rather than signal yellow. */
+    --sticker: #d8c27a;
     --sticker-ink: #1d1700;
-    /* A pale-sky page under white cards: the XP desktop, without the wallpaper. */
-    --background: #e8eff9;
-    --surface: #f3f7fd;
-    --card-bg: #ffffff;
-    --card-border: rgba(0, 40, 120, 0.14);
-    --card-shadow: 0 1px 3px rgba(0, 30, 90, 0.08);
-    --danger: #e5342a;
+    /* The desktop, the window face, and the white panel content sits on. */
+    --background: #5c7a7a;
+    --on-background: #ffffff;
+    --surface: #ffffff;
+    --card-bg: #c0c0c0;
+    --card-border: #808080;
+    --card-shadow: none;
+    --danger: #a00000;
+    /* Win98's four bevel tones: light edge, inner light, inner shadow, dark
+       edge. Raised things (windows, buttons) put the light on the top-left;
+       sunken things (inputs, panels) put it on the bottom-right. */
+    --bevel-light: #ffffff;
+    --bevel-mid: #dfdfdf;
+    --bevel-shadow: #808080;
+    --bevel-dark: #0a0a0a;
+    --raised: inset -1px -1px var(--bevel-dark), inset 1px 1px var(--bevel-light),
+        inset -2px -2px var(--bevel-shadow), inset 2px 2px var(--bevel-mid);
+    --sunken: inset 1px 1px var(--bevel-shadow), inset -1px -1px var(--bevel-light),
+        inset 2px 2px var(--bevel-dark), inset -2px -2px var(--bevel-mid);
     /* Body map. The plate is a surface for the figure to sit on; muscle is
        the untrained tone the accent fades in over; structure (head, knees)
        has to stay quieter than muscle so it never out-weighs the anatomy. */
-    --map-plate: #e4ecf8;
-    --map-muscle: #b9c6dc;
-    --map-structure: #d2dcec;
-    /* Window chrome for the browse screens (XP's Luna): a blue title bar over a
-       cream body with a white inset box, as on the owner's site. */
-    --xp-bar: linear-gradient(180deg, #3d8dff 0%, #0a5ae8 9%, #0054e3 55%, #0046c4 92%, #0039a8 100%);
-    --xp-frame: #0541c9;
-    --xp-panel: #ece9d8;
-    --xp-inset: #ffffff;
-    --xp-inset-border: #7f9db9;
-    --xp-shadow: 0 2px 10px rgba(0, 30, 110, 0.22);
+    --map-plate: #ffffff;
+    --map-muscle: #c6c6c6;
+    --map-structure: #e2e2e2;
+    /* Window chrome: the Windows 2000 title-bar gradient, which is the calmer
+       end of the Win98 one, over the grey face. */
+    --win-bar: linear-gradient(90deg, #0a246a, #3a6ea5);
+    --win-frame: #c0c0c0;
+    --win-panel: #c0c0c0;
+    --win-inset: #ffffff;
+    --win-inset-border: #808080;
+    --win-shadow: none;
     /* Native scrollbars, form controls and autofill follow the theme. Without
        it a dark page kept a bright white scrollbar down its right edge. */
     color-scheme: light;
@@ -59,38 +70,40 @@
 
 /* Theme comes from public/theme-init.js before first paint; the toggle just
    flips this attribute. Explicit blocks rather than prefers-color-scheme so a
-   manual choice always beats the OS setting. */
+   manual choice always beats the OS setting. The dark theme is the same
+   windows in charcoal on a near-black desktop. */
 :root[data-theme="dark"] {
-    --text-primary: #eaf1ff;
-    --text-secondary: #94a3c4;
-    /* The bright end of the Luna title bar, #3593ff: 5.5:1 as text on a card.
-       Too light to carry white type, so fills of it take near-black navy text
-       instead (--on-accent). */
-    --accent: #3593ff;
-    --accent-hover: #6cb0ff;
+    --text-primary: #f0f0f0;
+    --text-secondary: #d6d6d6;
+    --accent: #9db4e4;
+    --accent-hover: #bccbee;
     --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
-    --on-accent: #031029;
-    /* The green from the XP logo, which is light enough to need dark text. */
-    --go: #78ae43;
-    --go-hover: #8fc558;
-    --on-go: #08150a;
-    /* Dark navy rather than black — the colour of the Persona "memory card"
-       panel on the owner's site, which is the target for the logging screen. */
-    --background: #060b1c;
-    --surface: #0a1226;
-    --card-bg: #0f1a38;
-    --card-border: rgba(130, 170, 255, 0.16);
+    --on-accent: #0b1430;
+    --go: #3c3c3c;
+    --go-hover: #474747;
+    --on-go: #f0f0f0;
+    --sticker: #b9a45e;
+    --sticker-ink: #171200;
+    --background: #161a1a;
+    --on-background: #f0f0f0;
+    --surface: #1f1f1f;
+    --card-bg: #3c3c3c;
+    --card-border: #1a1a1a;
     --card-shadow: none;
-    --danger: #ff5b52;
-    --map-plate: #0a1224;
-    --map-muscle: #2a3a5f;
-    --map-structure: #172340;
-    --xp-bar: linear-gradient(180deg, #2b6fd8 0%, #1550b8 9%, #123f93 55%, #0e3379 92%, #0a2a66 100%);
-    --xp-frame: #1b4aa5;
-    --xp-panel: #132350;
-    --xp-inset: #0a1226;
-    --xp-inset-border: #2c4380;
-    --xp-shadow: none;
+    --danger: #ff7b72;
+    --bevel-light: #6e6e6e;
+    --bevel-mid: #505050;
+    --bevel-shadow: #262626;
+    --bevel-dark: #000000;
+    --map-plate: #1f1f1f;
+    --map-muscle: #474747;
+    --map-structure: #333333;
+    --win-bar: linear-gradient(90deg, #1b2a52, #44608f);
+    --win-frame: #3c3c3c;
+    --win-panel: #3c3c3c;
+    --win-inset: #1f1f1f;
+    --win-inset-border: #262626;
+    --win-shadow: none;
     color-scheme: dark;
 }
 
@@ -152,16 +165,16 @@ body {
 
 /* ---- Nav ---- */
 
+/* The Windows 98 taskbar, at the top: a grey raised bar. */
 .nav {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem 2rem 0.25rem;
+    gap: 0.375rem;
+    padding: 0.5rem 1.5rem;
     position: sticky;
     top: 0;
-    background: color-mix(in srgb, var(--background) 82%, transparent);
-    backdrop-filter: saturate(180%) blur(1rem);
-    border-bottom: 1px solid var(--card-border);
-    transition: background-color 0.25s ease, border-color 0.25s ease;
+    background: var(--card-bg);
+    box-shadow: var(--raised);
     z-index: 20;
 }
 
@@ -169,184 +182,87 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 2.25rem;
+    gap: 0.75rem;
 }
 
 .nav-brand {
     font-family: var(--font-title);
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    font-weight: 750;
-    font-size: 1rem;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    font-size: 1.625rem;
+    line-height: 1.1;
     color: var(--text-primary);
     text-decoration: none;
     white-space: nowrap;
 }
 
-.nav-name span {
-    color: var(--accent);
-}
-
-.nav-brand small {
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
-}
-
-/* The tray: two square glyph buttons. */
 .nav-tray {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
 }
 
-.icon-motion {
-    display: inline-flex;
-}
-
-.tray-button {
+/* Every button in the bar — tray and pages — is the same Win98 push button:
+   grey, raised, black label; pressed in when it's the page you're on. */
+.tray-button,
+.nav-links a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-    border: 1px solid var(--card-border);
-    border-radius: 0.25rem;
-    background: var(--card-bg);
-    color: var(--text-primary);
-    font-size: 1.0625rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
-}
-
-.tray-button:hover,
-.tray-button.active {
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
-.tray-button:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
-/* The tray glyphs, drawn rather than typed (see ThemeToggle). ▣ and ◐ from the
-   owner's glyph set, at one size and weight on every device. */
-.glyph-box,
-.glyph-half {
-    display: block;
-    width: 1rem;
-    height: 1rem;
-}
-
-.glyph-box {
-    border: 2px solid currentColor;
-    background: radial-gradient(currentColor 0 0) center / 0.375rem 0.375rem no-repeat;
-}
-
-.glyph-half {
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    background: linear-gradient(90deg, transparent 50%, currentColor 50%);
-}
-
-:root[data-theme="dark"] .glyph-half {
-    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
-}
-
-/* The pages as one directory line. Each link is a text entry with generous
-   padding (a big tap target without looking like a row of buttons); the current
-   page is the selected item — accent fill, inverse text — and a cursor sits at
-   the end of the line, as on the owner's site. */
-.nav-links {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
     min-height: 2.5rem;
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    padding: 0.25rem 1rem;
+    border: 0;
+    background: var(--card-bg);
+    box-shadow: var(--raised);
+    color: var(--text-primary);
+    font-family: var(--font-title);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
-.nav-prompt {
-    margin-right: 0.375rem;
-    color: var(--text-secondary);
-    opacity: 0.75;
+.tray-button:active,
+.nav-links a:active,
+.tray-button.active,
+.nav-links a.active {
+    box-shadow: var(--sunken);
+    background: color-mix(in srgb, var(--card-bg) 70%, var(--bevel-light));
 }
 
-.nav-sep {
-    font-size: 0.5rem;
-    color: var(--text-secondary);
-    opacity: 0.6;
+.tray-button:focus-visible,
+.nav-links a:focus-visible {
+    outline: 2px dotted var(--text-primary);
+    outline-offset: -6px;
+}
+
+.nav-links {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.375rem;
 }
 
 .nav-links a {
-    padding: 0.5rem 0.625rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.nav-links a:hover {
-    color: var(--text-primary);
-}
-
-.nav-links a:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-}
-
-.nav-links a.active {
-    background: var(--accent);
-    color: var(--on-accent);
-    font-weight: 600;
-}
-
-.nav-cursor {
-    margin-left: 0.375rem;
-    color: var(--accent);
-    animation: nav-blink 1.1s steps(1) infinite;
-}
-
-@keyframes nav-blink {
-    50% {
-        opacity: 0;
-    }
+    font-size: 1.25rem;
 }
 
 @media (max-width: 760px) {
     .nav {
-        padding: 0.5rem 1rem 0.25rem;
-    }
-}
-
-/* At phone width the prompt is the first thing to go: with it, four links and
-   their separators don't fit on one line at a tappable size. */
-@media (max-width: 480px) {
-    .nav-prompt {
-        display: none;
+        padding: 0.5rem 0.75rem;
     }
 
-    /* One line no matter which face is in use: Tahoma is narrower than the
-       fallback but a wider system font would otherwise push ABOUT onto a second
-       row and make the bar taller than --nav-offset says it is. */
-    .nav-links {
-        flex-wrap: nowrap;
-        font-size: clamp(0.6875rem, 3vw, 0.8125rem);
-        letter-spacing: 0.03em;
+    .nav-brand {
+        font-size: 1.375rem;
+    }
+
+    .tray-button {
+        padding: 0.25rem 0.75rem;
+        font-size: 1rem;
     }
 
     .nav-links a {
-        padding: 0.5rem 0.375rem;
-    }
-
-    .nav-cursor {
-        margin-left: 0.125rem;
+        padding: 0.25rem 0.25rem;
+        font-size: 1.0625rem;
     }
 }
 
@@ -479,7 +395,7 @@ body {
     max-width: 48rem;
 }
 
-.intro-window .xp-inset {
+.intro-window .win-inset {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -563,128 +479,133 @@ body {
     width: 100%;
 }
 
-/* ---- XP window ---- */
+/* ---- Windows ---- */
 
-.xp-window {
-    border: 3px solid var(--xp-frame);
-    border-top: 0;
-    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
-    background: var(--xp-panel);
-    box-shadow: var(--xp-shadow);
+/* Windows 98: a raised grey frame, square corners, a gradient title bar and a
+   white sunken panel inside. */
+.win-window {
+    background: var(--win-panel);
+    padding: 3px;
+    box-shadow: var(--raised);
 }
 
-.xp-titlebar {
+.win-titlebar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    min-height: 2rem;
-    padding: 0.25rem 0.375rem 0.25rem 0.75rem;
-    background: var(--xp-bar);
-    /* Not overflow:hidden on the window: the logging window's confetti has to
-       be able to leave it. So the bar rounds its own top corners instead. */
-    border-radius: 0.3125rem 0.3125rem 0 0;
+    min-height: 2.5rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.625rem;
+    background: var(--win-bar);
 }
 
-.xp-title {
+.win-title {
     font-family: var(--font-title);
-    font-size: 0.9375rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.15;
     color: #ffffff;
-    text-shadow: 1px 1px 0 rgba(0, 20, 90, 0.7);
     min-width: 0;
     overflow-wrap: anywhere;
     text-align: left;
 }
 
-.xp-title span {
-    font-weight: 500;
-    opacity: 0.75;
-}
-
-.xp-controls {
+.win-controls {
     display: flex;
-    gap: 0.1875rem;
+    gap: 2px;
     flex-shrink: 0;
 }
 
-/* Three small squares, all blue: XP's close button is red-orange, and orange is
-   the one colour this palette rules out. Glyphs are drawn with borders so there
-   is no icon font to load. */
-.xp-controls i,
-.xp-close-button {
+/* Grey beveled squares with black glyphs, drawn with pseudo-elements so there
+   is no icon font to load. The minimise/maximise pair sits flush; close has a
+   gap before it, as on Windows 98. */
+.win-controls i,
+.win-close-button {
     position: relative;
-    width: 1.3125rem;
+    width: 1.5rem;
     height: 1.3125rem;
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    border-radius: 0.1875rem;
-    background: linear-gradient(180deg, #4a98ff, #0a50d8);
+    border: 0;
+    background: var(--card-bg);
+    box-shadow: var(--raised);
+    color: var(--text-primary);
+}
+
+.win-controls .win-close,
+.win-close-button {
+    margin-left: 2px;
 }
 
 /* A close square that does something. A <button> has no ::before/::after to
    spare for the cross, so the glyph lives on the <i> inside it. */
-.xp-close-button {
+.win-close-button {
     padding: 0;
     cursor: pointer;
 }
 
-.xp-close-button:hover {
-    background: linear-gradient(180deg, #7ab4ff, #1f6bf0);
+.win-close-button i {
+    position: absolute;
+    inset: 0;
 }
 
-.xp-close-button:focus-visible {
-    outline: 2px solid #ffffff;
+.win-close-button:active {
+    box-shadow: var(--sunken);
+}
+
+.win-close-button:focus-visible {
+    outline: 2px dotted #ffffff;
     outline-offset: 1px;
 }
 
-.xp-min::after,
-.xp-max::after,
-.xp-close::before,
-.xp-close::after {
+.win-min::after,
+.win-max::after,
+.win-close::before,
+.win-close::after {
     content: "";
     position: absolute;
-    background: #ffffff;
+    background: currentColor;
 }
 
-.xp-min::after {
-    left: 0.25rem;
-    bottom: 0.25rem;
+.win-min::after {
+    left: 0.375rem;
+    bottom: 0.3125rem;
     width: 0.5rem;
-    height: 0.1875rem;
+    height: 2px;
 }
 
-.xp-max::after {
-    inset: 0.25rem;
+.win-max::after {
+    left: 0.3125rem;
+    right: 0.3125rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
     background: none;
-    border: 1px solid #ffffff;
-    border-top-width: 0.1875rem;
+    border: 1px solid currentColor;
+    border-top-width: 2px;
 }
 
-.xp-close::before,
-.xp-close::after {
+.win-close::before,
+.win-close::after {
     left: 50%;
     top: 50%;
-    width: 0.6875rem;
-    height: 0.125rem;
+    width: 0.625rem;
+    height: 2px;
 }
 
-.xp-close::before {
+.win-close::before {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-.xp-close::after {
+.win-close::after {
     transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.xp-body {
-    padding: 0.5rem;
+.win-body {
+    padding: 0.375rem 0.25rem 0.25rem;
 }
 
-.xp-inset {
-    background: var(--xp-inset);
-    border: 1px solid var(--xp-inset-border);
-    padding: 0.875rem 1rem 1rem;
+.win-inset {
+    background: var(--win-inset);
+    box-shadow: var(--sunken);
+    padding: 1.125rem 1.25rem 1.25rem;
 }
 
 /* ---- Forms ---- */
@@ -999,7 +920,7 @@ body {
     background: var(--accent);
 }
 
-.map-card .xp-inset {
+.map-card .win-inset {
     display: flex;
     flex-direction: column;
 }
@@ -1186,29 +1107,17 @@ body {
 .weekly-goal-body {
     min-width: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.weekly-goal-head {
-    display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 0.75rem;
 }
 
-.weekly-goal-copy {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
 .weekly-goal-streak {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.8125rem;
+    font-family: var(--font-title);
+    font-size: 1.625rem;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--text-primary);
 }
 
 .weekly-goal-edit {
@@ -1476,12 +1385,12 @@ body {
     flex-direction: column;
 }
 
-.about-card .xp-body {
+.about-card .win-body {
     flex: 1;
     display: flex;
 }
 
-.about-card .xp-inset {
+.about-card .win-inset {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1553,7 +1462,7 @@ body {
         margin-top: 0.5rem;
     }
 
-    .about-card .xp-inset {
+    .about-card .win-inset {
         padding: 0.75rem 1.25rem;
     }
 
@@ -2326,10 +2235,10 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     padding: 0;
-    border: 3px solid var(--xp-frame);
+    border: 3px solid var(--win-frame);
     border-top: 0;
     border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
-    background: var(--xp-panel);
+    background: var(--win-panel);
     box-shadow: 0 1.5rem 3.75rem rgba(0, 0, 0, 0.32);
     outline: none;
     overscroll-behavior: contain;
@@ -2345,8 +2254,8 @@ body {
 .dialog-body {
     margin: 0.5rem;
     padding: 1.125rem 1.25rem 1.25rem;
-    background: var(--xp-inset);
-    border: 1px solid var(--xp-inset-border);
+    background: var(--win-inset);
+    border: 1px solid var(--win-inset-border);
 }
 
 .dialog-desc {
@@ -3368,6 +3277,336 @@ html {
 ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+}
+
+/* ---- Windows 98 ---- */
+
+/* The rules below restyle the shared pieces in one place. Earlier sections
+   still set layout and spacing; what changes here is the look: square
+   corners, grey raised buttons, white sunken fields, and big labels in the
+   bitmap face. */
+
+/* Windows 98 has no rounded corners anywhere — windows, buttons, fields,
+   toasts, even the confetti — so they all go in one rule rather than forty. */
+*,
+*::before,
+*::after {
+    border-radius: 0 !important;
+}
+
+/* Headings sit on the desktop, so they take its ink, not the windows'. */
+.page-header h1 {
+    font-family: var(--font-title);
+    font-weight: 700;
+    color: var(--on-background);
+}
+
+.page-header .eyebrow,
+.page-header .subhead {
+    color: var(--on-background);
+}
+
+.card {
+    background: var(--card-bg);
+    border: 0;
+    box-shadow: var(--raised);
+}
+
+.card h2,
+.card h3 {
+    font-family: var(--font-title);
+}
+
+/* Push buttons. One look for all of them, as on Windows 98; the main action
+   of a form gets the default-button black outline instead of a colour. */
+.button,
+.button.secondary,
+.button.go,
+.row-action,
+.chip,
+.toast-action,
+.set-add,
+.stepper-button,
+.set-remove {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 0;
+    box-shadow: var(--raised);
+    font-family: var(--font-title);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button {
+    font-size: 1.1875rem;
+    min-height: 2.875rem;
+    padding: 0.5rem 1.375rem;
+}
+
+.button.small,
+.row-action,
+.chip,
+.toast-action {
+    font-size: 1.0625rem;
+    min-height: 2.375rem;
+    padding: 0.25rem 0.875rem;
+}
+
+.button.large {
+    font-size: 1.375rem;
+    min-height: 3.25rem;
+}
+
+.button:hover:not(:disabled),
+.button.secondary:hover:not(:disabled),
+.button.go:hover:not(:disabled),
+.row-action:hover,
+.chip:hover,
+.toast-action:hover,
+.set-add:hover {
+    background: var(--go-hover);
+    color: var(--text-primary);
+    border-color: transparent;
+}
+
+.button:active:not(:disabled),
+.row-action:active,
+.chip:active,
+.toast-action:active,
+.set-add:active,
+.stepper-button:active,
+.set-remove:active:not(:disabled),
+.chip.active,
+.chip[aria-pressed="true"] {
+    box-shadow: var(--sunken);
+    background: color-mix(in srgb, var(--card-bg) 70%, var(--bevel-light));
+    color: var(--text-primary);
+}
+
+.button.go,
+.button[type="submit"] {
+    box-shadow: 0 0 0 2px var(--bevel-dark), var(--raised);
+}
+
+.button.danger {
+    color: var(--danger);
+    background: var(--card-bg);
+}
+
+.button:disabled {
+    color: var(--bevel-shadow);
+    text-shadow: 1px 1px 0 var(--bevel-light);
+    opacity: 1;
+}
+
+.button:focus-visible,
+.row-action:focus-visible,
+.chip:focus-visible,
+.toast-action:focus-visible,
+.set-add:focus-visible {
+    outline: 2px dotted var(--text-primary);
+    outline-offset: -6px;
+}
+
+/* Fields: white, sunken, big enough to read across a gym. */
+.form input,
+.form select,
+.set-builder input,
+.history-editor input,
+.history-editor select,
+.picker input,
+.picker select,
+.stepper input,
+.field input,
+.history-filter {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 0;
+    box-shadow: var(--sunken);
+    font-size: 1.125rem;
+}
+
+.form input:focus,
+.form select:focus,
+.set-builder input:focus,
+.history-editor input:focus,
+.picker input:focus,
+.stepper input:focus,
+.field input:focus,
+.history-filter:focus {
+    outline: 2px dotted var(--text-primary);
+    outline-offset: -5px;
+    box-shadow: var(--sunken);
+}
+
+/* Option groups: a row of push buttons, the chosen one pressed in. */
+.segmented {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    gap: 2px;
+}
+
+.segmented button {
+    background: var(--card-bg);
+    box-shadow: var(--raised);
+    color: var(--text-primary);
+    font-family: var(--font-title);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    min-height: 2.375rem;
+    padding: 0.25rem 1rem;
+}
+
+.segmented button[aria-checked="true"] {
+    box-shadow: var(--sunken);
+    background: color-mix(in srgb, var(--card-bg) 70%, var(--bevel-light));
+    color: var(--text-primary);
+}
+
+.segmented-thumb {
+    display: none;
+}
+
+/* On/off is a Windows 98 checkbox: a white sunken square with a tick. */
+.switch {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    justify-content: center;
+    background: var(--surface);
+    box-shadow: var(--sunken);
+}
+
+.switch[aria-checked="true"] {
+    background: var(--surface);
+}
+
+.switch-thumb {
+    display: none;
+}
+
+.switch[aria-checked="true"]::after {
+    content: "✓";
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+/* Toasts and pop-ups are windows too. */
+.toast {
+    background: var(--card-bg);
+    border: 0;
+    box-shadow: var(--raised), 0 0 0 1px var(--bevel-dark);
+}
+
+.toast-text strong {
+    font-family: var(--font-title);
+    font-size: 1.1875rem;
+    font-weight: 600;
+}
+
+.toast-close {
+    background: var(--card-bg);
+    box-shadow: var(--raised);
+    color: var(--text-primary);
+}
+
+.dialog-panel {
+    background: var(--card-bg);
+    border: 0;
+    padding: 3px;
+    box-shadow: var(--raised);
+}
+
+.dialog-backdrop {
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--background) 55%, transparent);
+}
+
+.skip-link {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: var(--raised);
+    font-family: var(--font-title);
+}
+
+/* Big, plain labels. Anything that is still text on a panel reads at body
+   size or larger, in the pixel font where it names something. */
+.picker-label,
+.label-big,
+.settings-text strong,
+.session-total-label {
+    font-family: var(--font-title);
+    font-size: 1.1875rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-primary);
+}
+
+.selected-text {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.history-hint,
+.session-meta,
+.settings-text span,
+.set-inline-label,
+.empty,
+.dialog-desc,
+.field-note {
+    font-size: 1.0625rem;
+    color: var(--text-primary);
+}
+
+.end-workout-clock {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+}
+
+.field-label {
+    font-family: var(--font-title);
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.segmented.small button,
+.row-danger {
+    font-size: 1rem;
+}
+
+.row-danger {
+    font-family: var(--font-title);
+    background: var(--card-bg);
+    box-shadow: var(--raised);
+    padding: 0.375rem 0.875rem;
+}
+
+@media (max-width: 420px) {
+    .nav-links a {
+        font-size: 0.9375rem;
+        padding-inline: 0.25rem;
+    }
+}
+
+.log-slot-collapsed,
+.log-slot-collapsed.add {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 0;
+    box-shadow: var(--raised);
+    font-family: var(--font-title);
+    font-size: 1.125rem;
+}
+
+.log-slot-collapsed:active {
+    box-shadow: var(--sunken);
 }
 
 @media (prefers-reduced-motion: reduce) {

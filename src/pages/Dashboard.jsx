@@ -22,14 +22,14 @@ import { WeeklyGoal } from "../components/WeeklyGoal.jsx";
 import { WorkoutBar } from "../components/WorkoutBar.jsx";
 import { WorkoutSummary } from "../components/WorkoutSummary.jsx";
 import { useToast } from "../components/Toaster.jsx";
-import { PageHeader, XpWindow } from "../components/primitives.jsx";
+import { PageHeader, AppWindow } from "../components/primitives.jsx";
 import { useCoachEnabled, useExerciseLog, useRestSeconds, useUnit, useUser } from "../hooks/useStore.js";
 import { useOnboardingGuide } from "../hooks/useOnboardingGuide.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { setLastUserId } from "../lib/store.js";
 import { recencyHeat } from "../lib/heat.js";
 import { beatsBest } from "../lib/records.js";
-import { formatDuration, relativeDay } from "../lib/time.js";
+import { formatDuration } from "../lib/time.js";
 import { describeReps, formatWeight, topWeight } from "../lib/units.js";
 
 function tourSteps(name, withNaru) {
@@ -37,32 +37,32 @@ function tourSteps(name, withNaru) {
     {
       target: null,
       title: `Welcome, ${name}.`,
-      body: "Here's how the dashboard works — about twenty seconds. Use the arrow keys, or skip any time.",
+      body: "A quick tour.",
     },
     {
       target: "[data-tour='log']",
       title: "Log what you lift",
-      body: "Search for a movement or pick a muscle group, then record each set with its own reps and weight. Your workout starts with the first one you log.",
+      body: "Pick an exercise, add your sets.",
     },
     {
       target: "[data-tour='map']",
       title: "Watch muscles light up",
-      body: "Trained muscles light up, then fade over a few weeks if you leave them — so a dim muscle is one you've been skipping. Tap one to find exercises for it.",
+      body: "Trained muscles light up. Tap one to train it.",
     },
     {
       target: "[data-tour='goal']",
       title: "Your weekly goal",
-      body: "Workouts this week, Monday to Sunday. The streak counts the weeks you've trained in a row.",
+      body: "Workouts this week.",
     },
     withNaru && {
       target: "[data-tour='plan']",
       title: "Not sure what to do?",
-      body: "Naru builds a full-body session from your own history, with starting weights from your best sets. Tap Log on any movement to start it.",
+      body: "Naru makes you a plan.",
     },
     {
       target: "[data-tour='search']",
       title: "Try it now",
-      body: "Type a movement — “bench”, “squat”, “curl” — to log your first set.",
+      body: "Search for an exercise.",
       doneLabel: "Start training",
     },
   ].filter(Boolean);
@@ -155,7 +155,7 @@ export function Dashboard() {
   }, []);
 
   const onGoalMet = useCallback(
-    (done) => toast.show({ tone: "record", title: "Weekly goal hit!", body: `${done} workouts this week. Nice work.` }),
+    (done) => toast.show({ tone: "record", title: "Weekly goal hit!" }),
     [toast]
   );
 
@@ -217,16 +217,6 @@ export function Dashboard() {
     );
   }
 
-  // What you actually want to know opening this screen is whether you're
-  // already training and, if not, how long it's been. `logs` is newest-first.
-  // No duration here: this only renders when something changes, so "· 3m"
-  // stayed "3m" for the rest of the session. The pinned bar has the live clock.
-  const eyebrow = workout
-    ? "Workout in progress"
-    : logs.length > 0
-      ? `Last trained ${relativeDay(logs[0].loggedAt)}`
-      : "Ready when you are";
-
   return (
     <motion.main
       className="page"
@@ -238,7 +228,7 @@ export function Dashboard() {
       {/* The mascot's slot: beside the title, small, so it's there on the
           screen you open most without taking space from the logger. */}
       <div className="page-header-row">
-        <PageHeader eyebrow={eyebrow} title={`${user.name}'s workout`} />
+        <PageHeader title={`${user.name}'s workout`} />
         <Mascot size="sm" />
       </div>
 
@@ -250,7 +240,7 @@ export function Dashboard() {
       />
 
       <div className="dashboard-grid">
-        <XpWindow title="body map" ext="bmp" className="map-card" data-tour="map">
+        <AppWindow title="Body map" className="map-card" data-tour="map">
           <BodyMap
             heat={heat}
             showToggle
@@ -264,10 +254,10 @@ export function Dashboard() {
             pulse={pulse}
           />
           <HeatLegend heat={heat} onPickGroup={browse} />
-        </XpWindow>
+        </AppWindow>
 
         <div className="dashboard-column">
-          <XpWindow title="log an exercise" ext="exe" className="log-card" data-tour="log">
+          <AppWindow title="Log exercise" className="log-card" data-tour="log">
             <Burst trigger={recordBurst} count={20} />
             {/* Where Naru opens from now. The corner button it replaces sat
                 over the body map and personal bests on a phone. The heading
@@ -301,7 +291,7 @@ export function Dashboard() {
                 onGroupChange={browse}
               />
             ))}
-          </XpWindow>
+          </AppWindow>
 
           <SessionPanel logs={workoutLogs} unit={unit} active={Boolean(workout)} />
         </div>
@@ -312,7 +302,6 @@ export function Dashboard() {
       {workout && (
         <WorkoutBar
           startedAt={workout.startedAt}
-          logs={workoutLogs}
           rest={rest}
           onRestAdjust={adjustRest}
           onRestSkip={() => setRest(null)}

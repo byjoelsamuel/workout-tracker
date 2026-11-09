@@ -4,6 +4,21 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — Windows 98 redesign · branch `claude/festive-hamilton-2ku295`
+
+No version bump, and nothing about how data is stored has changed.
+
+### Changed
+- **Windows 98 look.** Grey beveled windows, square corners, a navy title bar
+  and a muted slate desktop instead of the bright XP blue. Pixel font
+  (Pixelify Sans) for labels and buttons.
+- **Taskbar nav.** Four big buttons (Dashboard, History, Food, About), plus
+  Settings and a Light/Dark button.
+- **Big plain labels, no small text.** Window titles are plain words. Removed
+  the description lines under settings, the tips under the log form, the
+  per-set volume preview, Naru's explanation lines, toast body text and the
+  long tour copy. What's left is body size or larger.
+
 ## Unreleased — window chrome on the browse screens · branch `redesign/phase-2-windows`
 
 Built on the top-bar branch. No version bump, and nothing about how data is

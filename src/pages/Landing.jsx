@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Button, XpWindow } from "../components/primitives.jsx";
+import { Button, AppWindow } from "../components/primitives.jsx";
 import { pageVariants } from "../lib/motionVariants.js";
 import { getLastUserId, getUser } from "../lib/store.js";
 import { DOWNLOAD_URL } from "../lib/site.js";
@@ -70,7 +70,7 @@ export function Landing() {
       animate="animate"
       exit="exit"
     >
-      <XpWindow title="welcome" ext="exe" as="p" className="intro-window">
+      <AppWindow title="Welcome" as="p" className="intro-window">
         <Headline />
         <p className="subhead">
           Log every session, and see exactly which muscles you've been working — and
@@ -91,7 +91,7 @@ export function Landing() {
             </>
           )}
         </p>
-      </XpWindow>
+      </AppWindow>
     </motion.main>
   );
 }

@@ -11,14 +11,13 @@ import { motion } from "motion/react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { BodyMap } from "../components/BodyMap.jsx";
 import { HistoryList } from "../components/HistoryList.jsx";
-import { AnimatedList, AnimatedListItem, PageHeader, XpWindow } from "../components/primitives.jsx";
+import { AnimatedList, AnimatedListItem, PageHeader, AppWindow } from "../components/primitives.jsx";
 import { useWeekData, useExerciseLog, useUnit, useUser } from "../hooks/useStore.js";
 import { BODY_GROUPS } from "../lib/bodyGroups.js";
 import { countHeat, recencyHeat } from "../lib/heat.js";
 import { pageVariants } from "../lib/motionVariants.js";
 import { personalBests } from "../lib/records.js";
-import { relativeDay } from "../lib/time.js";
-import { formatVolume, formatWeight, totalVolume } from "../lib/units.js";
+import { formatWeight } from "../lib/units.js";
 
 export function History() {
   const userId = useSearchParams()[0].get("user");
@@ -54,18 +53,14 @@ export function History() {
       animate="animate"
       exit="exit"
     >
-      <PageHeader
-        eyebrow={`${formatVolume(totalVolume(logs), unit)} moved all time`}
-        title={`${user.name}'s history`}
-        subhead="Every set you've logged. Open a row to correct or remove it."
-      />
+      <PageHeader title={`${user.name}'s history`} />
 
       <div className="progress-grid">
         <div className="dashboard-column">
           {mine && (
-            <XpWindow title="last 7 days" ext="bmp" className="week-card">
+            <AppWindow title="Last 7 days" className="week-card">
               {/* Workouts, not log rows — see getSummary in store.js. */}
-              <p className="subhead small">
+              <p className="label-big">
                 {mine.sessions} {mine.sessions === 1 ? "session" : "sessions"}
               </p>
               {/* The toggle is needed here as much as on the dashboard: back
@@ -74,14 +69,12 @@ export function History() {
                   A flat count rather than the dashboard's decay — this is one
                   fixed week, so there is no "stale" for decay to express. */}
               <BodyMap heat={countHeat(mine.summary)} showToggle />
-            </XpWindow>
+            </AppWindow>
           )}
 
-          <XpWindow title="muscle groups" ext="dat">
-            {/* A bare column of numbers made you do the comparing yourself.
-                The bar carries the ranking, and the date is the part that
-                actually prompts action — a group last trained a month ago is
-                worth knowing about whether its count is high or low. */}
+          <AppWindow title="Muscle groups">
+            {/* A bare column of numbers made you do the comparing yourself;
+                the bar carries the ranking. */}
             <AnimatedList className="data-list group-list">
               {ranked.map((group) => (
                 <AnimatedListItem key={group.id}>
@@ -94,17 +87,14 @@ export function History() {
                   <span className={`count ${group.sessions === 0 ? "zero" : ""}`}>
                     {group.sessions}
                   </span>
-                  <span className="group-when">
-                    {group.lastTrained ? relativeDay(group.lastTrained) : "never"}
-                  </span>
                 </AnimatedListItem>
               ))}
             </AnimatedList>
-          </XpWindow>
+          </AppWindow>
 
-          <XpWindow title="personal bests" ext="sav">
+          <AppWindow title="Personal bests">
             {bests.length === 0 ? (
-              <p className="empty">Log a loaded set and your bests will show up here.</p>
+              <p className="empty">None yet.</p>
             ) : (
               <AnimatedList>
                 {bests.map((best) => (
@@ -115,10 +105,10 @@ export function History() {
                 ))}
               </AnimatedList>
             )}
-          </XpWindow>
+          </AppWindow>
 
           {others.length > 0 && (
-            <XpWindow title="everyone's week" ext="lnk">
+            <AppWindow title="Everyone's week">
               <AnimatedList>
                 {others.map((other) => (
                   <AnimatedListItem key={other.id}>
@@ -129,20 +119,20 @@ export function History() {
                   </AnimatedListItem>
                 ))}
               </AnimatedList>
-            </XpWindow>
+            </AppWindow>
           )}
         </div>
 
-        <XpWindow title="full history" ext="mdb">
+        <AppWindow title="Full history">
           <HistoryList
             logs={logs}
             unit={unit}
             onUnitChange={setUnit}
             onEdit={editEntry}
             onDelete={removeEntry}
-            empty="Nothing logged yet. Head to the dashboard to start a workout."
+            empty="Nothing logged yet."
           />
-        </XpWindow>
+        </AppWindow>
       </div>
     </motion.main>
   );

@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AnimatedList, AnimatedListItem, Button } from "./primitives.jsx";
 import { SetBuilder } from "./SetBuilder.jsx";
-import { relativeDay, sessionKey } from "../lib/time.js";
+import { sessionKey } from "../lib/time.js";
 import { checkSets, describeReps, formatVolume, formatWeight, fromKg, logVolume, toKg, topWeight, totalVolume } from "../lib/units.js";
 
 // "3 × 10 · 60 kg", or "10, 8, 8, 6 · up to 85 kg" when the sets differ.
@@ -35,7 +35,6 @@ function toEditable(log, unit) {
 }
 
 const dayFormat = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
-const timeFormat = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
 
 function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClose }) {
   const [confirming, setConfirming] = useState(false);
@@ -77,7 +76,6 @@ function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClo
         </span>
         <span className="history-meta">
           {volume > 0 && <span className="count">{formatVolume(volume, unit)}</span>}
-          <span className="log-time">{timeFormat.format(new Date(log.loggedAt))}</span>
           {editable && !editing && (
             <button
               type="button"
@@ -107,7 +105,7 @@ function Row({ log, unit, onUnitChange, onEdit, onDelete, editing, onOpen, onClo
             {/* Rows saved before sets existed open empty. Adding sets to one
                 records numbers the user supplies — never invented ones. */}
             {log.sets.length === 0 && (
-              <p className="field-note">Saved before sets were recorded. Add the sets you remember, or leave it as it is.</p>
+              <p className="empty">No sets recorded.</p>
             )}
             <SetBuilder
               sets={draft}
@@ -180,7 +178,7 @@ export function HistoryList({ logs, unit = "kg", onUnitChange, onEdit, onDelete,
   }, [logs, filter]);
 
   if (logs.length === 0) {
-    return <p className="empty">{empty ?? "Nothing logged yet — add your first exercise above."}</p>;
+    return <p className="empty">{empty ?? "Nothing logged yet."}</p>;
   }
 
   return (
@@ -189,12 +187,12 @@ export function HistoryList({ logs, unit = "kg", onUnitChange, onEdit, onDelete,
         type="search"
         className="history-filter"
         aria-label="Filter history by exercise"
-        placeholder="Filter by exercise…"
+        placeholder="Filter"
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
       />
 
-      {shown.length === 0 && <p className="empty">No entries match “{filter.trim()}”.</p>}
+      {shown.length === 0 && <p className="empty">No matches.</p>}
 
       {shown.map((group) => {
         const volume = totalVolume(group.logs);
@@ -202,10 +200,7 @@ export function HistoryList({ logs, unit = "kg", onUnitChange, onEdit, onDelete,
           <section className="history-group" key={group.key} aria-label={dayFormat.format(new Date(group.at))}>
             <header className="history-group-head">
               <strong>{dayFormat.format(new Date(group.at))}</strong>
-              <span>
-                {relativeDay(group.at)} · {group.logs.length} {group.logs.length === 1 ? "exercise" : "exercises"}
-                {volume > 0 && ` · ${formatVolume(volume, unit)}`}
-              </span>
+              {volume > 0 && <span>{formatVolume(volume, unit)}</span>}
             </header>
             <AnimatedList>
               {group.logs.map((log) => (

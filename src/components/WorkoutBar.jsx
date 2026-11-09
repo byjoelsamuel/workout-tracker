@@ -68,19 +68,14 @@ function RestTimer({ rest, now, onAdjust, onSkip }) {
   );
 }
 
-export function WorkoutBar({ startedAt, logs, rest, onRestAdjust, onRestSkip, onEnd }) {
+export function WorkoutBar({ startedAt, rest, onRestAdjust, onRestSkip, onEnd }) {
   const now = useNow(1000);
 
   return (
     <div className="card end-workout">
-      <div className="end-workout-stats">
-        <span className="eyebrow">
-          Workout in progress · <span className="num">{formatClock(now - new Date(startedAt).getTime())}</span>
-        </span>
-        <span className="end-workout-total">
-          {logs.length} {logs.length === 1 ? "exercise" : "exercises"} so far
-        </span>
-      </div>
+      <span className="end-workout-clock num" role="timer" aria-label="Workout time">
+        {formatClock(now - new Date(startedAt).getTime())}
+      </span>
 
       <AnimatePresence>
         {rest && <RestTimer key={rest.id} rest={rest} now={now} onAdjust={onRestAdjust} onSkip={onRestSkip} />}
