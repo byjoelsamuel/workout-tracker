@@ -1,4 +1,4 @@
-// Desktop app only. A moment after launch, asks whether a newer release is out
+// Desktop and Android apps. A moment after launch, asks whether a newer release is out
 // and, if so, says so once with a Download button. Silent when it's up to date
 // or offline — Settings is where you go to check on purpose.
 import { useEffect } from "react";

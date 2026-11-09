@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "desktop": "vite build && electron .",
     "dist:win": "vite build && electron-builder --win --publish never",
-    "dist:linux": "vite build && electron-builder --linux --publish never"
+    "dist:linux": "vite build && electron-builder --linux --publish never",
+    "android:sync": "vite build && cap sync android"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,11 @@
   },
   "homepage": "https://github.com/byjoelsamuel/workout-tracker#readme",
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3",
     "@fontsource-variable/pixelify-sans": "^5.3.0",
     "@fontsource-variable/rubik": "^5.3.0",
     "motion": "^13.0.0",
@@ -41,6 +47,7 @@
     "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "1.63.0",
     "@vitejs/plugin-react": "^6.0.5",

@@ -18,7 +18,7 @@ import { deleteUser, exportBackup, importBackup } from "../lib/store.js";
 import { fromProfileDraft, toProfileDraft, validateProfile } from "../lib/profile.js";
 import { UNITS } from "../lib/units.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { downloadUpdate, isDesktop, isIOS } from "../lib/platform.js";
+import { downloadUpdate, isAndroidApp, isIOS, isNativeApp, shareFileAndroid } from "../lib/platform.js";
 import { APP_VERSION } from "../lib/site.js";
 import { useUpdateCheck } from "../hooks/useUpdate.js";
 
@@ -209,6 +209,15 @@ export function Settings() {
     const stamp = new Date().toISOString().slice(0, 10);
     const name = `tsyoku-naru-backup-${stamp}.json`;
     const text = JSON.stringify(exportBackup(), null, 2);
+    // Android's WebView can't download, so the app shares the file instead.
+    if (isAndroidApp) {
+      try {
+        if (await shareFileAndroid(name, text)) toast.show({ title: "Backup exported" });
+      } catch {
+        toast.show({ title: "Export failed" });
+      }
+      return;
+    }
     // On iPhone and iPad the share sheet is the native way to hand a file off
     // (Save to Files, AirDrop, Mail), and it's the same inside a Home Screen
     // app. Everywhere else it downloads, as before.
@@ -301,7 +310,7 @@ export function Settings() {
               Start
             </Button>
           </Row>
-          {isDesktop && <UpdateRow />}
+          {isNativeApp && <UpdateRow />}
         </Section>
 
         <Section title="Backup">

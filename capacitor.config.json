@@ -1,0 +1,15 @@
+{
+  "appId": "io.github.byjoelsamuel.tsyokunaru",
+  "appName": "Tsyoku-naru",
+  "webDir": "dist",
+  "backgroundColor": "#161a1a",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}

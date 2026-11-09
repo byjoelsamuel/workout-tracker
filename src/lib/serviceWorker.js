@@ -2,10 +2,10 @@
 // gym basement), which takes a service worker — src/sw.js, built to /sw.js by
 // vite.config.js. The desktop app already serves its files from disk, and its
 // app:// scheme can't host a worker anyway.
-import { isDesktop, isInstalledWebApp } from "./platform.js";
+import { isInstalledWebApp, isNativeApp } from "./platform.js";
 
 export function registerServiceWorker() {
-  if (!import.meta.env.PROD || isDesktop || !("serviceWorker" in navigator)) return;
+  if (!import.meta.env.PROD || isNativeApp || !("serviceWorker" in navigator)) return;
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(() => {
       // No offline copy this visit; the site still works online as before.
