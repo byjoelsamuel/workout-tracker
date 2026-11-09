@@ -55,7 +55,7 @@ export function toProfileDraft(user, unit) {
 // optional, so blank always passes.
 export function validateProfile(draft, unit, { requireName = true } = {}) {
   const errors = {};
-  if (requireName && !draft.name.trim()) errors.name = "Add a name so you can find this profile later.";
+  if (requireName && !draft.name.trim()) errors.name = "Add a name.";
   const weight = LIMITS[unit];
   if (draft.bodyweight !== "" && !inRange(draft.bodyweight, weight)) {
     errors.bodyweight = `Enter a weight between ${weight[0]} and ${weight[1]} ${unit}.`;

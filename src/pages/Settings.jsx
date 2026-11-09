@@ -242,13 +242,13 @@ export function Settings() {
       toast.show({
         title: parts.length ? `Imported ${parts.join(" and ")}` : "Nothing new to import",
         body: result.skipped
-          ? `${result.skipped} ${result.skipped === 1 ? "row was" : "rows were"} already here or unreadable, and left alone.`
+          ? `${result.skipped} skipped`
           : undefined,
       });
     } catch (error) {
       toast.show({
-        title: "Couldn't import that file",
-        body: error instanceof SyntaxError ? "It isn't valid JSON." : error.message,
+        title: "Import failed",
+        body: error instanceof SyntaxError ? "Not a backup file." : error.message,
       });
     }
   }

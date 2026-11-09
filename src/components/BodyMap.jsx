@@ -32,10 +32,10 @@ import { Segmented } from "./primitives.jsx";
 // should never look like the app forgot work you actually did.
 function describe(group, sessions, lastTrained) {
   const name = GROUP_LABELS[group] ?? group;
-  if (!sessions) return `${name} — not trained yet`;
+  if (!sessions) return `${name}: not trained`;
   const plural = sessions === 1 ? "session" : "sessions";
-  if (!lastTrained) return `${name} — ${sessions} ${plural}`;
-  return `${name} — ${sessions} ${plural}, last ${relativeDay(lastTrained)}`;
+  if (!lastTrained) return `${name}: ${sessions} ${plural}`;
+  return `${name}: ${sessions} ${plural}, last ${relativeDay(lastTrained)}`;
 }
 
 const VIEWS = [

@@ -15,9 +15,7 @@ export function Food() {
       <PageHeader title="Food" />
       <AppWindow title="Food" className="food-placeholder">
         <Mascot size="lg" />
-        <p className="empty">
-          Nothing to log here yet. Meals and macros arrive after the new look is settled — your workouts come first.
-        </p>
+        <p className="empty">Coming soon.</p>
       </AppWindow>
     </motion.main>
   );

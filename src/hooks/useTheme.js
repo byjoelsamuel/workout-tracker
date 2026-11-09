@@ -55,36 +55,81 @@ function paint(theme) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? THEME_COLOR.dark : THEME_COLOR.light);
 }
 
-// The switch itself, revealed as a circle growing out of whatever was pressed.
-// View Transitions snapshot the old page and animate the new one in over it;
-// where the API is missing, or motion is reduced, the swap is instant.
-function reveal(theme, origin) {
+// The switch itself, as a blurred pixel mosaic: the new theme fills in as
+// square blocks in a random order, a few at a time, like an old console
+// dissolve, while the old page blurs out and the new one sharpens.
+// View Transitions snapshot the old page and lay the new one over it; the new
+// one is masked by a grid that gains blocks each step. Where the API is
+// missing, or motion is reduced, the swap is instant.
+const BLOCK = 48; // px per block
+const STEPS = 10;
+const DURATION = 480; // ms
+
+// One SVG mask per step, each with more blocks filled than the last. Vector,
+// so the blocks stay sharp at any size; the first is empty, the last full.
+function mosaicFrames() {
+  const cols = Math.ceil(window.innerWidth / BLOCK);
+  const rows = Math.ceil(window.innerHeight / BLOCK);
+  const order = Array.from({ length: cols * rows }, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  const size = `${cols * BLOCK}px ${rows * BLOCK}px`;
+  const svg = (cells) =>
+    `url("data:image/svg+xml,${encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${cols} ${rows}' preserveAspectRatio='none' shape-rendering='crispEdges'>${cells}</svg>`
+    )}")`;
+
+  const frames = [{ maskImage: svg(""), maskSize: size }];
+  const per = Math.ceil(order.length / STEPS);
+  let cells = "";
+  for (let step = 0; step < STEPS; step++) {
+    for (const i of order.slice(step * per, (step + 1) * per)) {
+      cells += `<rect x='${i % cols}' y='${Math.floor(i / cols)}' width='1' height='1'/>`;
+    }
+    frames.push({ maskImage: svg(cells), maskSize: size });
+  }
+  return frames;
+}
+
+function reveal(theme) {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!origin || reduced || typeof document.startViewTransition !== "function") {
+  if (reduced || typeof document.startViewTransition !== "function") {
     paint(theme);
     return;
   }
-  const { x, y } = origin;
-  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+  const frames = mosaicFrames();
   const transition = document.startViewTransition(() => paint(theme));
   transition.ready
     .then(() => {
-      document.documentElement.animate(
-        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-        { duration: 560, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" }
-      );
+      // mask-image can't tween, so each keyframe holds until the next: the
+      // blocks land in steps rather than fading.
+      const root = document.documentElement;
+      const timing = { duration: DURATION, fill: "forwards" };
+      // Blur on top of the blocks: the old page goes soft as it's covered,
+      // and the new one comes in out of focus and sharpens as it lands.
+      // Held on the last frame until the transition tears down, then dropped
+      // so nothing lingers on the document.
+      const animations = [
+        root.animate(frames, { ...timing, easing: "linear", pseudoElement: "::view-transition-new(root)" }),
+        root.animate([{ filter: "blur(12px)" }, { filter: "blur(0)" }], {
+          ...timing,
+          easing: "ease-out",
+          pseudoElement: "::view-transition-new(root)",
+        }),
+        root.animate([{ filter: "blur(0)" }, { filter: "blur(8px)" }], {
+          ...timing,
+          easing: "ease-in",
+          pseudoElement: "::view-transition-old(root)",
+        }),
+      ];
+      transition.finished.finally(() => animations.forEach((animation) => animation.cancel()));
     })
     .catch(() => {});
 }
 
-function originOf(event) {
-  const el = event?.currentTarget;
-  if (!el?.getBoundingClientRect) return null;
-  const rect = el.getBoundingClientRect();
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-}
-
-function setPreference(preference, event) {
+function setPreference(preference) {
   try {
     if (preference === "system") localStorage.removeItem(STORAGE_KEYS.theme);
     else localStorage.setItem(STORAGE_KEYS.theme, preference);
@@ -92,7 +137,7 @@ function setPreference(preference, event) {
     // Storage blocked: the choice still applies for this visit.
   }
   const theme = preference === "system" ? systemTheme() : preference;
-  if (theme !== state.theme) reveal(theme, originOf(event));
+  if (theme !== state.theme) reveal(theme);
   emit({ preference, theme });
 }
 
@@ -101,7 +146,7 @@ function setPreference(preference, event) {
 window.matchMedia(DARK_QUERY).addEventListener("change", () => {
   if (state.preference !== "system") return;
   const theme = systemTheme();
-  paint(theme);
+  reveal(theme);
   emit({ ...state, theme });
 });
 
@@ -116,6 +161,6 @@ export function useTheme() {
     theme: current.theme,
     preference: current.preference,
     setPreference,
-    toggle: (event) => setPreference(current.theme === "dark" ? "light" : "dark", event),
+    toggle: () => setPreference(current.theme === "dark" ? "light" : "dark"),
   };
 }

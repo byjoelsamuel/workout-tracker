@@ -14,7 +14,6 @@ import { Button, PageHeader, AppWindow } from "../components/primitives.jsx";
 import { useProfiles } from "../hooks/useStore.js";
 import { setLastUserId } from "../lib/store.js";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
-import { relativeDay } from "../lib/time.js";
 import { STORAGE_HOME } from "../lib/platform.js";
 
 export function Welcome() {
@@ -41,10 +40,6 @@ export function Welcome() {
                 <button type="button" className="profile-row" onClick={() => signIn(profile.id)}>
                   <span className="log-main">
                     <span className="log-name">{profile.name}</span>
-                    <span className="log-detail">
-                      {profile.lastTrained ? `Trained ${relativeDay(profile.lastTrained)}` : "No workouts yet"}
-                      {profile.entries > 0 && ` · ${profile.entries} ${profile.entries === 1 ? "entry" : "entries"}`}
-                    </span>
                   </span>
                   <span className="profile-go" aria-hidden="true">
                     →

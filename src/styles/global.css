@@ -187,7 +187,7 @@ body {
 
 .nav-brand {
     font-family: var(--font-title);
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1.625rem;
     line-height: 1.1;
     color: var(--text-primary);
@@ -216,7 +216,7 @@ body {
     color: var(--text-primary);
     font-family: var(--font-title);
     font-size: 1.125rem;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
@@ -347,7 +347,7 @@ body {
 .page-header h1 {
     font-family: var(--font-title);
     font-size: clamp(2rem, 5vw, 2.875rem);
-    font-weight: 650;
+    font-weight: 550;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
@@ -408,7 +408,7 @@ body {
     /* The second line is longer than the window is wide; balance it into two
        even lines instead of leaving "stronger." alone on the last. */
     text-wrap: balance;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.03;
     max-width: 56.25rem;
@@ -502,7 +502,7 @@ body {
 .win-title {
     font-family: var(--font-title);
     font-size: 1.375rem;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.15;
     color: #ffffff;
     min-width: 0;
@@ -1116,7 +1116,7 @@ body {
 .weekly-goal-streak {
     font-family: var(--font-title);
     font-size: 1.625rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-primary);
 }
 
@@ -3271,12 +3271,20 @@ html {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* The theme switch is revealed as a circle growing from the toggle
-   (useTheme.js); the default cross-fade would fight it. */
+/* The theme switch is a pixel mosaic (useTheme.js): the new theme is masked
+   in block by block over the old one. The default cross-fade would fight it. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+}
+
+/* Starts fully hidden, so there's no flash of the new theme before the
+   first block lands. */
+::view-transition-new(root) {
+    mask-image: linear-gradient(transparent, transparent);
+    mask-repeat: no-repeat;
+    mask-position: 0 0;
 }
 
 /* ---- Windows 98 ---- */
@@ -3297,7 +3305,7 @@ html {
 /* Headings sit on the desktop, so they take its ink, not the windows'. */
 .page-header h1 {
     font-family: var(--font-title);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--on-background);
 }
 
@@ -3315,6 +3323,7 @@ html {
 .card h2,
 .card h3 {
     font-family: var(--font-title);
+    font-weight: 500;
 }
 
 /* Push buttons. One look for all of them, as on Windows 98; the main action
@@ -3333,7 +3342,7 @@ html {
     border: 0;
     box-shadow: var(--raised);
     font-family: var(--font-title);
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     cursor: pointer;
 }
@@ -3454,7 +3463,7 @@ html {
     color: var(--text-primary);
     font-family: var(--font-title);
     font-size: 1.0625rem;
-    font-weight: 600;
+    font-weight: 500;
     min-height: 2.375rem;
     padding: 0.25rem 1rem;
 }
@@ -3505,7 +3514,7 @@ html {
 .toast-text strong {
     font-family: var(--font-title);
     font-size: 1.1875rem;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .toast-close {
@@ -3541,7 +3550,7 @@ html {
 .session-total-label {
     font-family: var(--font-title);
     font-size: 1.1875rem;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0;
     text-transform: none;
     color: var(--text-primary);
@@ -3550,7 +3559,7 @@ html {
 .selected-text {
     font-family: var(--font-title);
     font-size: 1.5rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .history-hint,
@@ -3569,10 +3578,57 @@ html {
     font-size: 1.5rem;
 }
 
-.field-label {
+/* Plain bold is a step lighter, to sit with the pixel font. */
+strong,
+b,
+dt {
+    font-weight: 600;
+}
+
+.summary-hero-label,
+.stat-label,
+.summary-section h3,
+.about-points dt {
     font-family: var(--font-title);
     font-size: 1.125rem;
     font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-primary);
+}
+
+.summary-hero-value,
+.stat-value {
+    font-weight: 600;
+}
+
+.log-detail,
+.about-meta {
+    font-size: 1rem;
+}
+
+.intro-meaning,
+.intro-download {
+    font-size: 1.0625rem;
+    color: var(--text-primary);
+}
+
+.toast-text span,
+.rest-text {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.rest-text {
+    font-family: var(--font-title);
+    font-weight: 400;
+}
+
+.field-label,
+.form .field-label {
+    font-family: var(--font-title);
+    font-size: 1.125rem;
+    font-weight: 400;
     color: var(--text-primary);
 }
 

@@ -239,15 +239,3 @@ export function planWorkout(logs = [], { now = new Date(), nonce = 0 } = {}) {
   };
 }
 
-// One line explaining why this plan looks the way it does. Naru should be able
-// to justify itself — a plan you can't interrogate is just a random list.
-export function explainPlan({ sessions, stalest }) {
-  const name = PATTERNS[stalest]?.label.toLowerCase() ?? stalest;
-  if (sessions === 0) {
-    return "Nothing logged yet, so this is a balanced first session — one push, one pull, one leg movement, and some core.";
-  }
-  if (sessions < 6) {
-    return `Kept light while you're finding your footing. Extra ${name} work, since that's had the least attention lately.`;
-  }
-  return `Weighted toward ${name} — that's what your body map says has gone stalest. Loads come from your own best sets, backed off about 10%.`;
-}

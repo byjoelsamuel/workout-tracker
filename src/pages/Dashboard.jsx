@@ -316,12 +316,12 @@ export function Dashboard() {
         title="End this workout?"
         body={
           workout
-            ? `${workoutLogs.length} ${workoutLogs.length === 1 ? "exercise" : "exercises"} over ${formatDuration(
+            ? `${workoutLogs.length} ${workoutLogs.length === 1 ? "exercise" : "exercises"} · ${formatDuration(
                 workout.startedAt
-              )}. Once it's ended it can't be reopened — your sets stay in your history.`
+              )}`
             : ""
         }
-        confirmLabel="End & see summary"
+        confirmLabel="End workout"
         cancelLabel="Keep going"
         onConfirm={endWorkout}
         onCancel={() => setConfirmingEnd(false)}

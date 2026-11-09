@@ -110,16 +110,16 @@ export function checkSets(sets, { timed = false, bodyweight = false, unit = "kg"
   for (const set of sets) {
     const reps = Number(set.reps);
     if (set.reps === "" || !Number.isFinite(reps) || reps < 1) {
-      return timed ? "Every set needs a hold time of at least a second." : "Every set needs at least one rep.";
+      return timed ? "Add a time to every set." : "Add reps to every set.";
     }
-    if (!Number.isInteger(reps)) return timed ? "Hold times are whole seconds." : "Reps are whole numbers.";
+    if (!Number.isInteger(reps)) return timed ? "Use whole seconds." : "Use whole numbers.";
     if (reps > (timed ? MAX_SECONDS : MAX_REPS)) {
-      return timed ? "A hold over an hour looks like a typo." : `More than ${MAX_REPS} reps in one set looks like a typo.`;
+      return timed ? "Time is too high." : "Too many reps.";
     }
     if (bodyweight || set.weight === "" || set.weight == null) continue;
     const weight = Number(set.weight);
     if (!Number.isFinite(weight) || weight < 0) return "Weight can't be negative.";
-    if (toKg(weight, unit) > MAX_KG) return `More than ${formatWeight(MAX_KG, unit)} on one set looks like a typo.`;
+    if (toKg(weight, unit) > MAX_KG) return "Weight is too high.";
   }
   return "";
 }
