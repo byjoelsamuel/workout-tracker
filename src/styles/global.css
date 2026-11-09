@@ -3271,12 +3271,20 @@ html {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* The theme switch is revealed as a circle growing from the toggle
-   (useTheme.js); the default cross-fade would fight it. */
+/* The theme switch is a pixel mosaic (useTheme.js): the new theme is masked
+   in block by block over the old one. The default cross-fade would fight it. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+}
+
+/* Starts fully hidden, so there's no flash of the new theme before the
+   first block lands. */
+::view-transition-new(root) {
+    mask-image: linear-gradient(transparent, transparent);
+    mask-repeat: no-repeat;
+    mask-position: 0 0;
 }
 
 /* ---- Windows 98 ---- */

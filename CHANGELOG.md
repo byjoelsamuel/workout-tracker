@@ -20,6 +20,11 @@ No version bump, and nothing about how data is stored has changed.
 
 - **Home page headline** is now "Show up. Get stronger." with no description
   under it.
+- **Pixel mosaic theme switch.** Switching light/dark now fills the new
+  theme in as random square blocks over about half a second, in place of the
+  circle that grew from the toggle. Works from the nav button, Settings and
+  when the OS theme changes; instant with reduced motion or in browsers
+  without View Transitions.
 - **README links to the Netlify site** (tsyoku-naru.netlify.app) instead of
   Vercel.
 
