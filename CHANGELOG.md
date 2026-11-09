@@ -18,6 +18,11 @@ No version bump, and nothing about how data is stored has changed.
 - **No small text left.** Field labels, summary labels, toast details, the rest
   timer and the About footers are all 1rem or larger.
 
+- **Home page headline** is now "Show up. Get stronger." with no description
+  under it.
+- **README links to the Netlify site** (tsyoku-naru.netlify.app) instead of
+  Vercel.
+
 ### Removed
 - Naru's unused `explainPlan` sentence builder.
 

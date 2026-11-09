@@ -3599,6 +3599,12 @@ dt {
     font-size: 1rem;
 }
 
+.intro-meaning,
+.intro-download {
+    font-size: 1.0625rem;
+    color: var(--text-primary);
+}
+
 .toast-text span,
 .rest-text {
     font-size: 1rem;

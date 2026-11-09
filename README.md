@@ -10,7 +10,7 @@ Log every set, and an anatomical body map shows which muscles you've trained
 lately — and which you've been skipping. Free, private, no account: everything
 stays on your device.
 
-**[Open the app →](https://workout-tracker-alpha-two-23.vercel.app/)** ·
+**[Open the app →](https://tsyoku-naru.netlify.app/)** ·
 [Download for desktop](https://github.com/byjoelsamuel/workout-tracker/releases/latest) ·
 [What's new](CHANGELOG.md)
 
@@ -41,7 +41,7 @@ stays on your device.
 
 | Where | How |
 |---|---|
-| **Web** | [workout-tracker-alpha-two-23.vercel.app](https://workout-tracker-alpha-two-23.vercel.app/) — also mirrored at [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/). Both deploy from `main`. |
+| **Web** | [tsyoku-naru.netlify.app](https://tsyoku-naru.netlify.app/). Deploys from `main`. |
 | **iPhone / iPad** | Open the website in Safari → **Share → Add to Home Screen**. Works offline. |
 | **Android** | Open the website in Chrome → menu → **Install app**. |
 | **Windows 11** | [`Tsyoku-naru-Setup-x64.exe`](https://github.com/byjoelsamuel/workout-tracker/releases/latest/download/Tsyoku-naru-Setup-x64.exe). Not code-signed, so choose **More info → Run anyway** if SmartScreen asks. |

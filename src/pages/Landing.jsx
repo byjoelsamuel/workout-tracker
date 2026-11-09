@@ -18,8 +18,8 @@ function ShareGlyph() {
 }
 
 const LINES = [
-  [{ text: "Train" }, { text: "hard." }],
-  [{ text: "Watch" }, { text: "yourself" }, { text: "get", accent: true }, { text: "stronger.", accent: true }],
+  [{ text: "Show" }, { text: "up." }],
+  [{ text: "Get", accent: true }, { text: "stronger.", accent: true }],
 ];
 
 // Each word rises out of its own mask, one after another, so the headline
