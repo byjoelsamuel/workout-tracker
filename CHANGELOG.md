@@ -4,6 +4,23 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`; anything under **Unreleased**
 is on a branch and has not shipped.
 
+## Unreleased — plainer copy, lighter type · branch `claude/festive-hamilton-2ku295`
+
+No version bump, and nothing about how data is stored has changed.
+
+### Changed
+- **Plain copy everywhere.** Rewrote the leftover chatty sentences as short
+  labels: the end-workout dialog, the Food tab ("Coming soon."), onboarding,
+  the profile list, the home page, About, the workout summary, form errors and
+  import messages.
+- **Lighter type.** Every pixel-font label is one weight step lighter, and
+  plain bold text drops from 700 to 600.
+- **No small text left.** Field labels, summary labels, toast details, the rest
+  timer and the About footers are all 1rem or larger.
+
+### Removed
+- Naru's unused `explainPlan` sentence builder.
+
 ## Unreleased — Windows 98 redesign · branch `claude/festive-hamilton-2ku295`
 
 No version bump, and nothing about how data is stored has changed.

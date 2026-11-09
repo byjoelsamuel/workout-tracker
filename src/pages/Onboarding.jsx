@@ -25,40 +25,35 @@ const QUESTION_COUNT = STEPS.length - 1;
 const NAME_MAX = 30;
 
 const GOALS = [
-  { n: 1, why: "One session a week is a real start — and the streak counts it." },
-  { n: 2, why: "Two full-body sessions hits every muscle twice a week." },
-  { n: 3, why: "Three full-body sessions is plenty for most people. It's the default for a reason." },
-  { n: 4, why: "Four sessions leaves room to push one movement each time." },
-  { n: 5, why: "Five a week — make sure the rest days still happen." },
-  { n: 6, why: "Six sessions. Naru will keep spreading the load around." },
-  { n: 7, why: "Seven a week. Ambitious — you can lower it any time." },
+  { n: 1 },
+  { n: 2 },
+  { n: 3 },
+  { n: 4 },
+  { n: 5 },
+  { n: 6 },
+  { n: 7 },
 ];
 
 const UNIT_OPTIONS = [
-  { id: "kg", title: "Kilograms", example: "100 kg on the bar" },
-  { id: "lb", title: "Pounds", example: "225 lb on the bar" },
+  { id: "kg", title: "Kilograms" },
+  { id: "lb", title: "Pounds" },
 ];
 
 const QUESTIONS = {
   name: (hasProfiles) => ({
-    title: hasProfiles ? "Who's joining?" : "Tell us about you",
-    subhead: hasProfiles ? "Start with their name." : "First, what should we call you?",
+    title: hasProfiles ? "New profile" : "What's your name?",
   }),
   goal: () => ({
     title: "How often will you train?",
-    subhead: "Your weekly goal, counted Monday to Sunday. You can change it any time.",
   }),
   unit: () => ({
     title: "Kilograms or pounds?",
-    subhead: "How weights are shown. Switching later never changes your history.",
   }),
   body: () => ({
-    title: "A few details",
-    subhead: "Optional — they only show on your profile. Skip any you'd rather not share.",
+    title: "Body stats (optional)",
   }),
   ready: (_, name) => ({
     title: `You're all set, ${name}.`,
-    subhead: "Here's what we've got. Change any of it later in Settings.",
   }),
 };
 
@@ -152,7 +147,7 @@ export function Onboarding() {
 
   function validate() {
     let next = {};
-    if (id === "name" && !name) next = { name: "Add a name so you can find your profile later." };
+    if (id === "name" && !name) next = { name: "Add a name." };
     if (id === "body") next = validateProfile(form, form.unit, { requireName: false });
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -228,11 +223,7 @@ export function Onboarding() {
                   <Field
                     label="Name"
                     error={errors.name}
-                    hint={
-                      duplicate
-                        ? `There's already a ${name} here. That's fine — an initial helps tell you apart.`
-                        : "This is how your profile shows up. You can change it later."
-                    }
+                    hint={duplicate ? "Name taken. Add an initial." : undefined}
                   >
                     {(props) => (
                       <input
@@ -265,10 +256,7 @@ export function Onboarding() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.18 }}
                     >
-                      <strong>
-                        {goal.n} {goal.n === 1 ? "workout" : "workouts"} a week.
-                      </strong>{" "}
-                      {goal.why}
+                      {goal.n} {goal.n === 1 ? "workout" : "workouts"} a week
                     </motion.p>
                   </>
                 )}
@@ -284,7 +272,6 @@ export function Onboarding() {
                       <>
                         <span className="choice-number">{option.id}</span>
                         <span className="choice-title">{option.title}</span>
-                        <span className="choice-example">{option.example}</span>
                       </>
                     )}
                   />

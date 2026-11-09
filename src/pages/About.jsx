@@ -10,10 +10,10 @@ import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platf
 const WHERE = isDesktop ? "on this computer" : hasOwnStorage ? "in this app" : "in this browser";
 
 const HOW = [
-  ["Log", "Pick an exercise and enter the reps and weight for each set. If you've done it before, your last session is filled in for you."],
-  ["Body map", "Muscles light up when you train them and fade over the next few weeks. A dim muscle is one you haven't worked in a while."],
-  ["History", "Your last 7 days, sessions per muscle group, your personal bests and your full history. You can edit or delete any entry."],
-  ["Naru", "Optional. It builds a full-body workout from your history and suggests starting weights based on your best sets."],
+  ["Log", "Pick an exercise, add your sets."],
+  ["Body map", "Trained muscles light up, then fade."],
+  ["History", "Past workouts, bests and edits."],
+  ["Naru", "Makes a workout plan for you."],
 ];
 
 // The one point that differs between website, desktop app and phone.
@@ -21,33 +21,30 @@ function otherDevices() {
   if (isDesktop) {
     return (
       <>
-        You'll get a prompt here when a new version is out. On iPhone, open{" "}
-        <a href={SITE_URL}>the website</a> in Safari and tap Share, then Add to Home Screen.
+        iPhone: open <a href={SITE_URL}>the website</a> in Safari, Share, Add to Home Screen.
       </>
     );
   }
-  if (isInstalledWebApp) return "This is the installed version. It works offline and updates along with the website.";
+  if (isInstalledWebApp) return "Installed. Works offline.";
   const desktop = <a href={DOWNLOAD_URL}>desktop app</a>;
   return isIOS ? (
-    <>Tap Share, then Add to Home Screen, to use it as an app that works offline. There's also a {desktop} for Windows 11 and Fedora.</>
+    <>Share, Add to Home Screen. Or get the {desktop}.</>
   ) : (
-    <>There's a {desktop} for Windows 11 and Fedora. On iPhone, open this site in Safari and tap Share, then Add to Home Screen.</>
+    <>Get the {desktop} for Windows and Fedora.</>
   );
 }
 
 const DATA = [
   [
     "Private",
-    `Everything is saved ${WHERE}. There's no account and no server, and History only lists profiles saved here.${
-      isDesktop ? " The only thing the app sends online is a check for new versions." : ""
-    }`,
+    `Saved ${WHERE}. No account.`,
   ],
   [
     "Backup",
-    "Settings → Backup saves a file you can import into any copy of the app. Keep one, because clearing this data deletes your history.",
+    "Export a file in Settings.",
   ],
   ["Other devices", otherDevices()],
-  ["Free", "No ads or tracking. The code is open source under the MIT licence."],
+  ["Free", "No ads. Open source."],
 ];
 
 function Points({ items }) {

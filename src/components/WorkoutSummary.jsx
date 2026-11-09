@@ -51,29 +51,24 @@ export function WorkoutSummary({ workout, allLogs = [], unit, onClose }) {
   const seconds = totalSeconds(logs);
   const records = useMemo(() => (workout ? sessionRecords(workout, allLogs) : []), [workout, allLogs]);
 
-  // The other unit, shown alongside rather than behind a toggle — the whole
-  // point of the summary is to be read at a glance.
-  const otherUnit = unit === "kg" ? "lb" : "kg";
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
       title={workout ? `${logs.length} ${logs.length === 1 ? "exercise" : "exercises"} · ${formatDuration(workout.startedAt, workout.endedAt)}` : ""}
-      description="Workout complete"
       className="summary-dialog"
     >
       {logs.length === 0 ? (
-        <p className="empty">Nothing was logged in this session, so there's nothing to add up.</p>
+        <p className="empty">Nothing logged.</p>
       ) : (
         <div className="summary">
           <div className="summary-hero">
             <Burst trigger={open ? workout.id : null} count={24} />
-            <span className="summary-hero-label">Total weight moved</span>
+            <span className="summary-hero-label">Total</span>
             <span className="summary-hero-value">
               <CountUp value={volume} from={0} format={(n) => `${Math.round(fromKg(n, unit)).toLocaleString()} ${unit}`} />
             </span>
-            <span className="summary-hero-alt">{formatVolume(volume, otherUnit)}</span>
           </div>
 
           <div className="stat-row">
@@ -102,7 +97,7 @@ export function WorkoutSummary({ workout, allLogs = [], unit, onClose }) {
                   transition={{ type: "spring", stiffness: 300, damping: 22, delay: 0.3 + i * 0.12 }}
                 >
                   <span>
-                    New best — <strong>{r.name}</strong>, {formatWeight(r.weight, unit)}
+                    New best: <strong>{r.name}</strong> {formatWeight(r.weight, unit)}
                   </span>
                 </motion.p>
               ))}
@@ -111,9 +106,7 @@ export function WorkoutSummary({ workout, allLogs = [], unit, onClose }) {
 
           {top && (
             <p className="summary-top">
-              Worked <strong>{GROUP_LABELS[top.group] ?? top.group}</strong> the most
-              {top.volume > 0 && <> — {formatVolume(top.volume, unit)} across {countSets(top.sets)}</>}
-              {top.volume === 0 && <> — {countSets(top.sets)}</>}
+              Most worked: <strong>{GROUP_LABELS[top.group] ?? top.group}</strong>
             </p>
           )}
 

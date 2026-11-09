@@ -72,22 +72,18 @@ export function Landing() {
     >
       <AppWindow title="Welcome" as="p" className="intro-window">
         <Headline />
-        <p className="subhead">
-          Log every session, and see exactly which muscles you've been working — and
-          which ones you've been avoiding.
-        </p>
         <Button to={returning ? `/dashboard?user=${lastUserId}` : "/welcome"} size="large">
           {returning ? "Back to your dashboard" : "Get started"}
         </Button>
-        <p className="intro-meaning">強くなる — tsuyoku naru — "to become stronger"</p>
+        <p className="intro-meaning">強くなる: become stronger</p>
         <p className="intro-download">
           {isIOS ? (
             <>
-              Make it an app: tap <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>
+              <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>
             </>
           ) : (
             <>
-              Also on Windows 11 and Fedora — <a href={DOWNLOAD_URL}>download the app</a>
+              <a href={DOWNLOAD_URL}>Download the app</a>
             </>
           )}
         </p>

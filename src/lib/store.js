@@ -423,7 +423,7 @@ export function importBackup(data) {
     throw new Error("That file isn't a Tsyoku-naru backup.");
   }
   if (data.app && data.app !== "tsyoku-naru") {
-    throw new Error("That backup came from a different app.");
+    throw new Error("Not a backup file.");
   }
 
   const users = read(STORAGE_KEYS.users);
