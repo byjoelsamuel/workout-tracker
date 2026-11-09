@@ -29,6 +29,7 @@ export function Coach({ open, onClose, userId, logs, workoutLogs, unit, onPick }
   // Frozen while the sheet is open: computed from the logs as they were when
   // it opened (see the note above), so ticking a movement off can't reshuffle.
   // `logs` is left out of the deps on purpose; `open` stands in for it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const plan = useMemo(() => planWorkout(logs, { nonce }), [open, nonce]);
   const done = new Set(workoutLogs.map((log) => log.exerciseName));
 

@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { PageHeader, AppWindow } from "../components/primitives.jsx";
 import { listItemVariants, listVariants, pageVariants } from "../lib/motionVariants.js";
 import { APP_VERSION, DOWNLOAD_URL, publicOrigin, REPO_URL, SITE_URL } from "../lib/site.js";
-import { hasOwnStorage, isDesktop, isInstalledWebApp, isIOS } from "../lib/platform.js";
+import { hasOwnStorage, isAndroidApp, isDesktop, isInstalledWebApp, isIOS, isNativeApp } from "../lib/platform.js";
 
 const WHERE = isDesktop ? "on this computer" : hasOwnStorage ? "in this app" : "in this browser";
 
@@ -25,12 +25,19 @@ function otherDevices() {
       </>
     );
   }
+  if (isAndroidApp) {
+    return (
+      <>
+        Also on <a href={DOWNLOAD_URL}>Windows and Fedora</a>.
+      </>
+    );
+  }
   if (isInstalledWebApp) return "Installed. Works offline.";
-  const desktop = <a href={DOWNLOAD_URL}>desktop app</a>;
+  const apps = <a href={DOWNLOAD_URL}>Android, Windows and Fedora</a>;
   return isIOS ? (
-    <>Share, Add to Home Screen. Or get the {desktop}.</>
+    <>Share, Add to Home Screen. Also on {apps}.</>
   ) : (
-    <>Get the {desktop} for Windows and Fedora.</>
+    <>Apps for {apps}.</>
   );
 }
 
@@ -88,8 +95,8 @@ export function About() {
               Version {APP_VERSION} · <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</a> ·{" "}
               <a href={REPO_URL}>Source</a>
               {/* The validators fetch the public website, so there's nothing for
-                  them to check from inside the desktop app. */}
-              {!isDesktop && (
+                  them to check from inside a downloaded app. */}
+              {!isNativeApp && (
                 <>
                   {" "}
                   · Validate <a href={`https://validator.w3.org/nu/?doc=${site}`}>HTML</a> ·{" "}

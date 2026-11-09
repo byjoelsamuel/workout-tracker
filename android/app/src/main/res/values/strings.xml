@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tsyoku-naru</string>
+    <string name="title_activity_main">Tsyoku-naru</string>
+    <string name="package_name">io.github.byjoelsamuel.tsyokunaru</string>
+    <string name="custom_url_scheme">io.github.byjoelsamuel.tsyokunaru</string>
+</resources>

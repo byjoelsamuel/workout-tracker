@@ -63,6 +63,7 @@ export function LogForm({
     if (!selected) return;
     setSets(last ? setsFrom(last, unit) : [newSet(undefined, { timed })]);
     setError("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.bodyGroup, selected?.name]);
 
   // Folded away. This comes after every hook above on purpose: the component

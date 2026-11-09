@@ -1,8 +1,8 @@
-name: Desktop app
+name: Apps
 
-# Builds the Windows 11 installer and the Fedora/Linux packages from the same
-# Vite build as the website, and publishes them as a GitHub Release — which is
-# where the website's "download the app" link points.
+# Builds the Windows 11 installer, the Fedora/Linux packages and the Android
+# APK from the same Vite build as the website, and publishes them as a GitHub
+# Release — which is where the website's "download the app" link points.
 #
 #   pull request     -> both are built and attached to the run as artifacts, so
 #                       a change that breaks packaging fails before release
@@ -23,6 +23,8 @@ on:
       - "public/**"
       - "index.html"
       - "electron-builder.yml"
+      - "android/**"
+      - "capacitor.config.json"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/desktop.yml"
@@ -122,9 +124,85 @@ jobs:
             release/*.AppImage
           if-no-files-found: error
 
+  android:
+    name: Build (Android)
+    needs: plan
+    if: github.event_name != 'push' || needs.plan.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      # Set in the repo's Actions secrets (see README → Android signing). Empty
+      # on forks, and before they're added.
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Capacitor 8 builds with JDK 21. The runner already has the Android SDK.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Copy the web build into the Android project
+        run: npx cap sync android
+
+      - name: Unpack signing key
+        id: key
+        shell: bash
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No Android signing key in this repo's secrets, so only a debug APK is built and nothing is attached to a release."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Signed release build, named so /releases/latest/download/ links keep
+      # working across versions.
+      - name: Build signed APK
+        if: steps.key.outputs.signed == 'true'
+        working-directory: android
+        run: |
+          ./gradlew --no-daemon assembleRelease
+          mkdir -p ../apk && cp app/build/outputs/apk/release/app-release.apk ../apk/Tsyoku-naru.apk
+
+      - uses: actions/upload-artifact@v4
+        if: steps.key.outputs.signed == 'true'
+        with:
+          name: Tsyoku-naru-Android
+          path: apk/Tsyoku-naru.apk
+          if-no-files-found: error
+
+      # Without a key, still prove the project builds. Kept out of releases.
+      - name: Build debug APK
+        if: steps.key.outputs.signed != 'true'
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        if: steps.key.outputs.signed != 'true'
+        with:
+          name: android-debug-build
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
   release:
     name: Publish release
-    needs: [plan, build]
+    needs: [plan, build, android]
     if: needs.plan.outputs.release == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -133,6 +211,8 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+          # The signed builds only; a debug APK never ships.
+          pattern: Tsyoku-naru-*
           merge-multiple: true
 
       # Creates the tag at this commit if it doesn't exist yet (the push-to-
@@ -149,9 +229,13 @@ jobs:
 
             | System | File |
             |---|---|
+            | **Android** | `Tsyoku-naru.apk` |
             | **Windows 11** | `Tsyoku-naru-Setup-x64.exe` |
             | **Fedora** | `Tsyoku-naru-x86_64.rpm` |
             | Other Linux | `Tsyoku-naru-x86_64.AppImage` |
+
+            **Android:** open `Tsyoku-naru.apk` on your phone and allow installing from
+            your browser when asked. Later versions install over it.
 
             **Windows:** run the installer. It isn't code-signed, so Windows may show
             "Windows protected your PC" — choose **More info → Run anyway**.
@@ -162,6 +246,6 @@ jobs:
             **AppImage:** `chmod +x Tsyoku-naru-x86_64.AppImage` and run it. On Fedora
             this needs FUSE 2: `sudo dnf install fuse-libs`.
 
-            Your workouts are stored on your computer, separately from the website.
+            Each app keeps your workouts on the device, separately from the website.
             To bring your history across, use **Settings → Backup → Export** on the
             website and **Import** in the app.

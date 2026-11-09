@@ -13,7 +13,7 @@ import { Food } from "../pages/Food.jsx";
 import { Settings } from "../pages/Settings.jsx";
 import { About } from "../pages/About.jsx";
 import { getLastUserId, getUser } from "../lib/store.js";
-import { isApp, isDesktop } from "../lib/platform.js";
+import { isApp, isNativeApp } from "../lib/platform.js";
 
 // An app — desktop, or installed to a home screen — has no landing page to
 // land on: it opens where you left off, or on the profile picker.
@@ -98,7 +98,7 @@ export function Layout() {
           Skip to content
         </a>
         <Nav />
-        {isDesktop && <UpdatePrompt />}
+        {isNativeApp && <UpdatePrompt />}
         {/* Both pages animate at once so the transition reads like a
             workspace switch rather than a queue. They have to overlap to do
             that, and AnimatePresence's popLayout can't arrange it here — it

@@ -36,10 +36,18 @@ let state = {
   preference: readPreference(),
   theme: document.documentElement.getAttribute("data-theme") || systemTheme(),
 };
+syncSystemBars(state.theme);
 
 function emit(next) {
   state = next;
   for (const listener of listeners) listener();
+}
+
+// In the Android app, the status bar's icons follow the app's theme rather
+// than the phone's, so they stay readable on the nav behind them. DARK means
+// light icons for a dark background.
+function syncSystemBars(theme) {
+  window.Capacitor?.Plugins?.SystemBars?.setStyle?.({ style: theme === "dark" ? "DARK" : "LIGHT" })?.catch?.(() => {});
 }
 
 function paint(theme) {
@@ -53,6 +61,7 @@ function paint(theme) {
   setTimeout(() => root.removeAttribute("data-theme-switching"), 1);
   // Tints the browser chrome on mobile and the title bar of an installed app.
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? THEME_COLOR.dark : THEME_COLOR.light);
+  syncSystemBars(theme);
 }
 
 // The switch itself, as a blurred pixel mosaic: the new theme fills in as

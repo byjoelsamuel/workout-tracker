@@ -1,4 +1,4 @@
-// Desktop only: is there a newer release? The startup prompt and the row in
+// Desktop and Android apps: is there a newer release? The startup prompt and the row in
 // Settings share one answer, so opening Settings right after launch shows what
 // the prompt already found instead of asking GitHub a second time.
 import { useCallback, useEffect, useState } from "react";
