@@ -112,3 +112,26 @@ export async function shareFileAndroid(name, text) {
     throw error;
   }
 }
+
+// ---- Back button ----
+
+// Android's back button, the way Android apps behave: close an open dialog or
+// the walkthrough first (the same as Escape, which both handle), else go back
+// a page, else send the app to the background. Without a handler, back on the
+// first screen did nothing at all.
+export async function setUpAndroidBackButton() {
+  if (!isAndroidApp) return;
+  const { App } = await import("@capacitor/app");
+  App.addListener("backButton", ({ canGoBack }) => {
+    // Dialogs mark the page modal-open; the walkthrough is its own overlay.
+    const overlay = document.documentElement.classList.contains("modal-open") || document.querySelector(".tour");
+    if (overlay) {
+      const target = document.activeElement ?? document.body;
+      target.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    } else if (canGoBack) {
+      window.history.back();
+    } else {
+      App.minimizeApp();
+    }
+  });
+}

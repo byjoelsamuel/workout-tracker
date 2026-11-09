@@ -3585,6 +3585,46 @@ html {
     font-size: 1.5rem;
 }
 
+/* The last of the small uppercase captions: same plain pixel label as the
+   rest, at a size that reads without squinting. */
+.eyebrow,
+.legend-caption,
+.weekly-goal-of,
+.tour-count,
+.picker-group,
+.set-head-title,
+.set-inline-label,
+.coach-pattern {
+    font-family: var(--font-title);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-primary);
+}
+
+.weekly-goal-of {
+    font-size: 0.875rem;
+}
+
+.history-group-head {
+    font-family: var(--font-title);
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.history-group-head span {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* Beats `.selected-exercise strong` from the base styles. */
+.selected-exercise .selected-text {
+    font-family: var(--font-title);
+    font-size: 1.375rem;
+    font-weight: 500;
+}
+
 /* Plain bold is a step lighter, to sit with the pixel font. */
 strong,
 b,

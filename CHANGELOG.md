@@ -1,10 +1,40 @@
 # Changelog
 
 All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
-`version` in `package.json` and merging to `main`; anything under **Unreleased**
-is on a branch and has not shipped.
+`version` in `package.json` and merging to `main`. Sections marked **Website**
+went live on the website when merged and reached the apps in the next release.
 
-## Unreleased — plainer copy, lighter type · branch `claude/festive-hamilton-2ku295`
+## 1.4.0 — 9 Nov 2026 · Android app, tests and CI
+
+The first release with the Windows 98 look in the desktop app; everything in
+the **Website** sections below ships with it.
+
+### Added
+- **Android app.** The same build wrapped with Capacitor 8, published as
+  `Tsyoku-naru.apk` on each release. It keeps its own history like the desktop
+  app, tells you when a new version is out, exports backups through Android's
+  share sheet, follows the back button, and keeps the status bar icons readable
+  in either theme.
+- **Unit tests** (Vitest, 50 tests) for units, records, weekly streaks, the
+  body map's fade, profiles, Naru's planner and the store: every older shape of
+  saved data, unreadable storage, workouts and backups.
+- **Browser tests** (Playwright): create a profile, log a set, end the workout,
+  find it in History, switch the theme, at desktop and phone sizes.
+- **CI** on every pull request: lint, unit tests, build, browser tests.
+- **Linting** with ESLint, and the few things it found fixed.
+
+### Changed
+- The release workflow builds the Android APK alongside the Windows and Linux
+  packages, signed with a key from the repo's secrets.
+- The nav clears the status bar on edge-to-edge phone screens.
+- The last small uppercase captions (set count, Reps/kg, "of 3", History's day
+  headers, the tour counter) are plain pixel labels at a readable size, and the
+  selected exercise's name is bigger.
+- README: new screenshots of the redesign, a GIF of the theme switch, Android
+  in the download table, and how to set up Android signing.
+- Pixelify Sans credited in `THIRD-PARTY.md`.
+
+## Website — plainer copy, lighter type (in the apps from 1.4.0)
 
 No version bump, and nothing about how data is stored has changed.
 
@@ -32,7 +62,7 @@ No version bump, and nothing about how data is stored has changed.
 ### Removed
 - Naru's unused `explainPlan` sentence builder.
 
-## Unreleased — Windows 98 redesign · branch `claude/festive-hamilton-2ku295`
+## Website — Windows 98 redesign (in the apps from 1.4.0)
 
 No version bump, and nothing about how data is stored has changed.
 
@@ -47,7 +77,7 @@ No version bump, and nothing about how data is stored has changed.
   per-set volume preview, Naru's explanation lines, toast body text and the
   long tour copy. What's left is body size or larger.
 
-## Unreleased — window chrome on the browse screens · branch `redesign/phase-2-windows`
+## Website — window chrome on the browse screens (in the apps from 1.4.0)
 
 Built on the top-bar branch. No version bump, and nothing about how data is
 stored has changed.
@@ -70,7 +100,7 @@ stored has changed.
   in use.
 - README screenshots retaken (they show the Rubik fallback).
 
-## Unreleased — a new top bar · branch `redesign/phase-2-nav`
+## Website — a new top bar (in the apps from 1.4.0)
 
 Built on the window-chrome branch. No version bump, and nothing about how data is
 stored has changed.
@@ -87,7 +117,7 @@ stored has changed.
 - On phones the `SYS://` label is dropped so all four pages still fit on one line
   at a comfortable tap size.
 
-## Unreleased — redesign, phase 2 (look), step 2: window chrome on History · branch `redesign/phase-2-chrome`
+## Website — redesign, phase 2 (look), step 2: window chrome on History (in the apps from 1.4.0)
 
 First trial of the Windows XP look, on the History screen only. Built on the
 History branch. No version bump, and nothing about how data is stored has changed.
@@ -101,7 +131,7 @@ History branch. No version bump, and nothing about how data is stored has change
   XP's red-orange close button would bring orange back.
 - The dark theme gets the same windows in navy.
 
-## Unreleased — History replaces Progress and Compare · branch `redesign/history-page`
+## Website — History replaces Progress and Compare (in the apps from 1.4.0)
 
 Structure only, built on the phase 2 branch. No version bump, and nothing about
 how data is stored has changed.
@@ -116,7 +146,7 @@ how data is stored has changed.
 - Old `/progress` and `/compare` links still work: they land on History, on the
   same profile.
 
-## Unreleased — redesign, phase 2 (look), step 1: colours · branch `redesign/phase-2-look`
+## Website — redesign, phase 2 (look), step 1: colours (in the apps from 1.4.0)
 
 Colour only. Type, window chrome and the shape of the stickers come next. No
 version bump, and nothing about how data is stored has changed. This branch is
@@ -143,7 +173,7 @@ built on the phase 1 branch, so the two land together unless phase 1 merges firs
   the page, so there is no flash of the old colour while it loads.
 - README screenshots retaken.
 
-## Unreleased — redesign, phase 1 (layout) · branch `redesign/phase-1-layout`
+## Website — redesign, phase 1 (layout) (in the apps from 1.4.0)
 
 Layout and structure only. The new look (colours, type, window chrome, stickers)
 is phase 2, and the food log itself is phase 3. No version bump, and nothing

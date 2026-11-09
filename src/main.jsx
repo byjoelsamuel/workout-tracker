@@ -6,8 +6,10 @@ import "@fontsource-variable/rubik";
 import "@fontsource-variable/pixelify-sans";
 import "./styles/global.css";
 import { registerServiceWorker } from "./lib/serviceWorker.js";
+import { setUpAndroidBackButton } from "./lib/platform.js";
 
 registerServiceWorker();
+setUpAndroidBackButton();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
