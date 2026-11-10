@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tsyoku-naru has moved</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://tsyoku-naru.netlify.app/" />
+    <!-- Without JavaScript, this still forwards to the home page. -->
+    <meta http-equiv="refresh" content="3; url=https://tsyoku-naru.netlify.app/" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --desktop: #5c7a7a;
+        --face: #c0c0c0;
+        --text: #000;
+        --bar: linear-gradient(90deg, #0a246a, #3a6ea5);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --desktop: #161a1a;
+          --face: #3c3c3c;
+          --text: #fff;
+          --bar: linear-gradient(90deg, #1b2a52, #44608f);
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        box-sizing: border-box;
+        background: var(--desktop);
+        color: var(--text);
+        font: 1.125rem/1.5 Tahoma, "Segoe UI", system-ui, sans-serif;
+      }
+      .window {
+        width: min(30rem, 100%);
+        background: var(--face);
+        box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+        padding: 3px;
+      }
+      .title {
+        background: var(--bar);
+        color: #fff;
+        font-weight: bold;
+        padding: 0.375rem 0.625rem;
+      }
+      .body {
+        padding: 1.25rem;
+      }
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+      a.button {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        background: var(--face);
+        color: var(--text);
+        text-decoration: none;
+        box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+        outline: 2px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="window">
+      <div class="title">Tsyoku-naru</div>
+      <div class="body">
+        <h1>Tsyoku-naru has moved</h1>
+        <p>The app now lives at tsyoku-naru.netlify.app. Taking you there…</p>
+        <a class="button" id="go" href="https://tsyoku-naru.netlify.app/">Open Tsyoku-naru</a>
+      </div>
+    </main>
+    <script>
+      // Keeps the page you asked for: /workout-tracker/dashboard?user=x goes
+      // to /dashboard?user=x on the new site. The first version's .html pages
+      // map to the routes that replaced them.
+      (function () {
+        var OLD = { "/index.html": "/", "/dashboard.html": "/dashboard", "/onboarding.html": "/welcome", "/compare.html": "/history" };
+        var path = location.pathname.replace(/^\/workout-tracker/, "") || "/";
+        path = OLD[path] || path;
+        var target = "https://tsyoku-naru.netlify.app" + path + location.search + location.hash;
+        document.getElementById("go").href = target;
+        setTimeout(function () {
+          location.replace(target);
+        }, 1500);
+      })();
+    </script>
+  </body>
+</html>

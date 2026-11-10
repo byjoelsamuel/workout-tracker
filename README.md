@@ -136,7 +136,9 @@ Then add four secrets under **Settings → Secrets and variables → Actions**:
 `ANDROID_KEY_PASSWORD`. Keep the `.jks` file and passwords somewhere safe:
 every future update has to be signed with the same key. Without the secrets,
 CI still builds a debug APK to prove the project compiles, but nothing is
-attached to the release.
+attached to the release. To add the APK to a release that went out without
+it, run the **Apps** workflow by hand from the Actions tab with **publish**
+ticked.
 
 ## Credits & license
 
