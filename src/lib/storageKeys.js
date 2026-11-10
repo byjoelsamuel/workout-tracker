@@ -16,6 +16,8 @@ export const STORAGE_KEYS = {
   coach: "workoutTracker.coach",
   // Rest timer length in seconds. Global for the same reason as unit.
   restSeconds: "workoutTracker.restSeconds",
+  // Food log entries for every profile, like logs. Added in 1.5.0.
+  food: "workoutTracker.food",
   // Per-profile, so a second profile still gets its own first-run guide.
   hasSeenGuide: (userId) => `workoutTracker.hasSeenGuide.${userId}`,
   // The workout currently in progress, if any. Per-profile so two people

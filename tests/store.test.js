@@ -141,7 +141,7 @@ describe("backups", () => {
     seedOneProfile();
     const backup = JSON.parse(JSON.stringify(exportBackup()));
     localStorage.clear();
-    expect(importBackup(backup)).toEqual({ users: 1, logs: 1, skipped: 0 });
+    expect(importBackup(backup)).toEqual({ users: 1, logs: 1, food: 0, skipped: 0 });
     expect(get(STORAGE_KEYS.logs)).toEqual(backup.logs);
   });
 
@@ -149,7 +149,7 @@ describe("backups", () => {
     const user = seedOneProfile();
     const backup = exportBackup();
     updateUser(user.id, { name: "Joel S" });
-    expect(importBackup(backup)).toEqual({ users: 0, logs: 0, skipped: 2 });
+    expect(importBackup(backup)).toEqual({ users: 0, logs: 0, food: 0, skipped: 2 });
     expect(getUser(user.id).name).toBe("Joel S");
   });
 
@@ -163,7 +163,7 @@ describe("backups", () => {
         { id: "l3", userId: "u1", bodyGroup: "chest", exerciseName: "Bench Press (Barbell)", loggedAt: "not a date" },
       ],
     });
-    expect(result).toEqual({ users: 1, logs: 1, skipped: 3 });
+    expect(result).toEqual({ users: 1, logs: 1, food: 0, skipped: 3 });
   });
 
   it("rejects files that aren't backups", () => {

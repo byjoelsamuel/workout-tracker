@@ -14,6 +14,7 @@ const HOW = [
   ["Body map", "Trained muscles light up, then fade."],
   ["History", "Past workouts, bests and edits."],
   ["Naru", "Makes a workout plan for you."],
+  ["Food", "Scan or search, then log calories and macros."],
 ];
 
 // The one point that differs between website, desktop app and phone.
@@ -44,7 +45,7 @@ function otherDevices() {
 const DATA = [
   [
     "Private",
-    `Saved ${WHERE}. No account.`,
+    `Saved ${WHERE}. No account. Food searches go to Open Food Facts.`,
   ],
   [
     "Backup",
@@ -83,7 +84,8 @@ export function About() {
             <Points items={HOW} />
             <p className="about-meta">
               Built with React, Vite and <a href="https://motion.dev">Motion</a> · body map from{" "}
-              <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a>
+              <a href="https://github.com/giavinh79/react-body-highlighter">react-body-highlighter</a> · food data from{" "}
+              <a href="https://world.openfoodfacts.org">Open Food Facts</a> (ODbL)
             </p>
           </AppWindow>
         </motion.div>

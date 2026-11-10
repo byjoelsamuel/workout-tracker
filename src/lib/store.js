@@ -138,6 +138,8 @@ export function deleteUser(id) {
   if (remaining.length === users.length) return false;
   write(STORAGE_KEYS.users, remaining);
   write(STORAGE_KEYS.logs, read(STORAGE_KEYS.logs).filter((log) => log.userId !== id));
+  const food = read(STORAGE_KEYS.food);
+  if (food.length) write(STORAGE_KEYS.food, food.filter((entry) => entry.userId !== id));
   localStorage.removeItem(STORAGE_KEYS.activeWorkout(id));
   localStorage.removeItem(STORAGE_KEYS.hasSeenGuide(id));
   if (getLastUserId() === id) localStorage.removeItem(STORAGE_KEYS.lastUserId);
@@ -395,6 +397,7 @@ export function exportBackup() {
     exportedAt: new Date().toISOString(),
     users: read(STORAGE_KEYS.users),
     logs: read(STORAGE_KEYS.logs),
+    food: read(STORAGE_KEYS.food),
   };
 }
 
@@ -405,6 +408,13 @@ const isDate = (v) => isText(v) && !Number.isNaN(new Date(v).getTime());
 // legacy row with `sets: 4` in a backup is as valid as one in storage.
 function isUserRow(u) {
   return u && isText(u.id) && isText(u.name);
+}
+
+function isFoodRow(entry) {
+  return (
+    entry && isText(entry.id) && isText(entry.userId) && isText(entry.name) &&
+    isDate(entry.loggedAt) && Number.isFinite(entry.kcal)
+  );
 }
 
 function isLogRow(log) {
@@ -430,7 +440,7 @@ export function importBackup(data) {
   const logs = read(STORAGE_KEYS.logs);
   const userIds = new Set(users.map((u) => u.id));
   const logIds = new Set(logs.map((l) => l.id));
-  const result = { users: 0, logs: 0, skipped: 0 };
+  const result = { users: 0, logs: 0, food: 0, skipped: 0 };
 
   for (const user of data.users) {
     if (!isUserRow(user) || userIds.has(user.id)) {
@@ -451,9 +461,93 @@ export function importBackup(data) {
     result.logs += 1;
   }
 
+  // Backups made before the food log have no `food`; that's fine.
+  if (Array.isArray(data.food)) {
+    const food = read(STORAGE_KEYS.food);
+    const foodIds = new Set(food.map((entry) => entry.id));
+    for (const entry of data.food) {
+      if (!isFoodRow(entry) || foodIds.has(entry.id) || !userIds.has(entry.userId)) {
+        result.skipped += 1;
+        continue;
+      }
+      food.push(entry);
+      foodIds.add(entry.id);
+      result.food += 1;
+    }
+    if (result.food) write(STORAGE_KEYS.food, food);
+  }
+
   if (result.users) write(STORAGE_KEYS.users, users);
   if (result.logs) write(STORAGE_KEYS.logs, logs);
   return result;
+}
+
+/* ---- Food ---- */
+
+// One row per thing eaten. The totals are worked out when it's logged and
+// stored with it, along with the per-100 g values they came from, so a later
+// change in the food database can't rewrite what you ate.
+export function addFood(userId, { food, grams, meal, loggedAt = new Date().toISOString() }) {
+  const rows = read(STORAGE_KEYS.food);
+  const g = Math.max(0, Number(grams) || 0);
+  const scale = g / 100;
+  const part = (value) => (value == null ? null : Math.round(value * scale * 10) / 10);
+  const entry = {
+    id: newId(),
+    userId,
+    loggedAt,
+    meal,
+    name: String(food.name).trim(),
+    brand: food.brand ?? null,
+    barcode: food.barcode ?? null,
+    source: food.source ?? "manual",
+    grams: g,
+    per100: food.per100,
+    kcal: Math.round((food.per100.kcal ?? 0) * scale),
+    protein: part(food.per100.protein),
+    carbs: part(food.per100.carbs),
+    fat: part(food.per100.fat),
+  };
+  rows.push(entry);
+  write(STORAGE_KEYS.food, rows);
+  return entry;
+}
+
+export function deleteFood(userId, entryId) {
+  const rows = read(STORAGE_KEYS.food);
+  const remaining = rows.filter((entry) => !(entry.id === entryId && entry.userId === userId));
+  if (remaining.length === rows.length) return false;
+  write(STORAGE_KEYS.food, remaining);
+  return true;
+}
+
+// Newest first, like getLogsForUser.
+export function getFoodForUser(userId) {
+  return read(STORAGE_KEYS.food)
+    .filter((entry) => entry.userId === userId)
+    .sort((a, b) => new Date(b.loggedAt) - new Date(a.loggedAt));
+}
+
+// Foods logged before, most recent first and one per name, for one-tap
+// re-logging.
+export function getRecentFoods(userId, limit = 8) {
+  const seen = new Map();
+  for (const entry of getFoodForUser(userId)) {
+    const key = entry.name.toLowerCase();
+    if (!seen.has(key) && entry.per100) {
+      seen.set(key, {
+        id: `recent:${key}`,
+        source: entry.source,
+        name: entry.name,
+        brand: entry.brand,
+        barcode: entry.barcode,
+        per100: entry.per100,
+        serving: entry.grams ? { label: `${entry.grams} g`, grams: entry.grams } : null,
+      });
+    }
+    if (seen.size >= limit) break;
+  }
+  return [...seen.values()];
 }
 
 /* ---- Preferences ---- */
