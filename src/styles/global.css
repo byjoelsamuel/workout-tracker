@@ -3717,6 +3717,44 @@ html {
     background: var(--surface);
 }
 
+/* ---- Mascot icons (from the hand-drawn sketches) ---- */
+
+.nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logo {
+    width: 2.75rem;
+    height: auto;
+}
+
+.toast-icon {
+    width: 2.25rem;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.summary-thumb {
+    width: 4.5rem;
+    height: auto;
+    margin-bottom: 0.25rem;
+}
+
+.summary-done {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.end-workout-cat {
+    width: 3.25rem;
+    height: auto;
+    flex-shrink: 0;
+}
+
 /* Beats `.selected-exercise strong` from the base styles. */
 .selected-exercise .selected-text {
     font-family: var(--font-title);

@@ -30,6 +30,7 @@ export function Nav() {
     <nav className="nav" aria-label="Main">
       <div className="nav-top">
         <Link to="/" className="nav-brand">
+          <img src="/lifting-cat.svg" alt="" aria-hidden="true" className="nav-logo" />
           Tsyoku-naru
         </Link>
 

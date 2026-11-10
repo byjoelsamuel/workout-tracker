@@ -65,6 +65,16 @@ export function WorkoutSummary({ workout, allLogs = [], unit, onClose }) {
         <div className="summary">
           <div className="summary-hero">
             <Burst trigger={open ? workout.id : null} count={24} />
+            <motion.img
+              src="/thumbs-up.svg"
+              alt=""
+              aria-hidden="true"
+              className="summary-thumb"
+              initial={{ scale: 0.3, rotate: -25 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 380, damping: 12, delay: 0.15 }}
+            />
+            <span className="summary-done">Workout done!</span>
             <span className="summary-hero-label">Total</span>
             <span className="summary-hero-value">
               <CountUp value={volume} from={0} format={(n) => `${Math.round(fromKg(n, unit)).toLocaleString()} ${unit}`} />

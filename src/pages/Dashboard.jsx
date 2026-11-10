@@ -178,6 +178,7 @@ export function Dashboard() {
     toast.show({
       key: "log",
       tone: record ? "record" : "success",
+      icon: "thumbs-up",
       title: record ? `New best: ${entry.exerciseName}` : `Logged ${entry.exerciseName}`,
       body: record ? `${formatWeight(topWeight(created), unit)} · ${reps}` : reps ?? undefined,
       action: {
