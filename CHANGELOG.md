@@ -4,6 +4,13 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`. Sections marked **Website**
 went live on the website when merged and reached the apps in the next release.
 
+## Website — GitHub Pages redirects to Netlify
+
+GitHub Pages was still serving a build from 6 Aug that needed a server Pages
+can't run. It now serves a small "moved" page (`pages-redirect/`, deployed by
+`.github/workflows/pages.yml`) that forwards every old address to the same page
+on tsyoku-naru.netlify.app, including the first version's `.html` pages.
+
 ## 1.5.0 — 10 Nov 2026 · food log, first version
 
 ### Added
