@@ -26,7 +26,8 @@ const DIST = path.join(__dirname, "..", "dist");
 const BACKGROUND = { dark: "#161a1a", light: "#5c7a7a" };
 
 // Everything the app needs and nothing else: its own scripts and styles, no
-// remote code, no frames, no plugins. Motion and React set styles through the
+// remote code, no frames, no plugins. The one outside connection is the food
+// database the Food tab searches (lib/food.js). Motion and React set styles through the
 // CSSOM, which CSP doesn't restrict, so 'unsafe-inline' is only for the few
 // style attributes in the built HTML.
 const CSP = [
@@ -35,7 +36,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://world.openfoodfacts.org",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",

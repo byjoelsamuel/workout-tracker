@@ -244,3 +244,11 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 ```
+
+## Open Food Facts
+
+Food search and barcode lookups query the [Open Food Facts](https://world.openfoodfacts.org)
+database at run time. Nothing from it is bundled. The data is available under
+the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/)
+and individual product contents under the
+[Database Contents License](https://opendatacommons.org/licenses/dbcl/1-0/).

@@ -248,8 +248,9 @@ export function Settings() {
       const parts = [];
       if (result.users) parts.push(`${result.users} ${result.users === 1 ? "profile" : "profiles"}`);
       if (result.logs) parts.push(`${result.logs} ${result.logs === 1 ? "entry" : "entries"}`);
+      if (result.food) parts.push(`${result.food} ${result.food === 1 ? "food" : "foods"}`);
       toast.show({
-        title: parts.length ? `Imported ${parts.join(" and ")}` : "Nothing new to import",
+        title: parts.length ? `Imported ${parts.join(", ")}` : "Nothing new to import",
         body: result.skipped
           ? `${result.skipped} skipped`
           : undefined,

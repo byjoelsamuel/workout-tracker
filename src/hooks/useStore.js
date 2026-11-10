@@ -4,12 +4,16 @@
 // always originate from one component.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  addFood,
   addLog,
+  deleteFood,
   deleteLog,
   discardWorkoutIfEmpty,
   endWorkout,
   getActiveWorkout,
   getCoachEnabled,
+  getFoodForUser,
+  getRecentFoods,
   getWeekData,
   getLogsForUser,
   getRecentExercises,
@@ -177,4 +181,36 @@ export function useRestSeconds() {
     return saved;
   }, []);
   return [seconds, change];
+}
+
+// The food log for one profile, newest first, plus foods logged before for
+// one-tap re-logging. Same refresh-after-write shape as useExerciseLog.
+export function useFoodLog(userId) {
+  const readAll = useCallback(
+    () => ({ entries: getFoodForUser(userId), recents: getRecentFoods(userId) }),
+    [userId]
+  );
+  const [state, setState] = useState(readAll);
+  useEffect(() => {
+    setState(readAll());
+  }, [readAll]);
+
+  const add = useCallback(
+    (entry) => {
+      const created = addFood(userId, entry);
+      setState(readAll());
+      return created;
+    },
+    [userId, readAll]
+  );
+
+  const remove = useCallback(
+    (entryId) => {
+      deleteFood(userId, entryId);
+      setState(readAll());
+    },
+    [userId, readAll]
+  );
+
+  return { ...state, add, remove };
 }

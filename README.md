@@ -30,6 +30,10 @@ Android app and a desktop app for Windows and Fedora.
   itself, undo after every log, and a call-out when you beat a personal best.
 - **Get a plan.** **Naru**, an optional planner, builds a full-body session
   from your own history, on your device.
+- **Log food.** Scan a barcode (Android app) or search, pick the amount, and
+  see the day's calories and macros. Packaged food comes from
+  [Open Food Facts](https://world.openfoodfacts.org); about 50 common whole
+  foods (rice, eggs, chicken) are built in.
 - **Make it yours.** kg or lb, light or dark (switched with a pixel mosaic),
   keyboard-friendly, and it respects reduced-motion settings.
 
@@ -54,8 +58,8 @@ Android app and a desktop app for Windows and Fedora.
 
 ## Your data stays with you
 
-There's no account and no server. Workouts are saved on the device, and nothing
-leaves it.
+There's no account and no server. Workouts and meals are saved on the device.
+The only thing that goes out is a food search or barcode, to Open Food Facts.
 
 - **Each install keeps its own history.** The website, the Android app, the
   desktop app and an iPhone Home Screen app don't share data. Move it with
@@ -73,7 +77,7 @@ leaves it.
 | **1 · Layout** | Two-exercise logger, a Food tab, a spot for the mascot | Done |
 | **2 · Look** | Windows 98 style: beveled windows, pixel type, big plain labels, muted colours | Done |
 | **3 · Apps & quality** | Android app, unit and browser tests, CI on every pull request | Done (1.4.0) |
-| **4 · Food log** | Meals and macros next to workouts, with targets from your profile | Next |
+| **4 · Food log** | Barcode scan and search, calories and macros per meal, a protein target from your bodyweight | First version (1.5.0) |
 
 Details of every change are in the [changelog](CHANGELOG.md).
 
@@ -137,7 +141,8 @@ attached to the release.
 ## Credits & license
 
 Body map geometry from [react-body-highlighter](https://github.com/giavinh79/react-body-highlighter)
-(MIT). Typefaces [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) and
+(MIT). Food data from [Open Food Facts](https://world.openfoodfacts.org)
+(ODbL). Typefaces [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) and
 [Rubik](https://github.com/googlefonts/rubik) (OFL). See
 [`THIRD-PARTY.md`](THIRD-PARTY.md). Released under the MIT License; see
 [`LICENSE`](LICENSE).

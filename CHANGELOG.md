@@ -4,6 +4,31 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`. Sections marked **Website**
 went live on the website when merged and reached the apps in the next release.
 
+## 1.5.0 — 10 Nov 2026 · food log, first version
+
+### Added
+- **Food log** on the Food tab, replacing "Coming soon":
+  - **Scan a barcode** in the Android app (Google's code scanner, so no camera
+    permission), or type the number in on any device.
+  - **Search** packaged food in Open Food Facts, and about 50 common whole foods
+    built into the app (fruit, eggs, meat, rice, oats and so on, approximate
+    values per 100 g).
+  - **Pick the amount** in grams or by serving, and the meal. Calories and
+    macros update as you change it.
+  - **Add by hand** with a name and calories.
+  - **Today's totals**: calories, protein (against 1.6 g per kg of bodyweight
+    when your profile has one), carbs and fat, grouped by meal. Step back to
+    earlier days; undo after adding.
+  - Recent foods for one-tap re-logging.
+- Food is part of backups. Older backups without it still import.
+- Unit tests for the food code and a browser test of the food flow, with the
+  database mocked.
+
+### Changed
+- The desktop app may now connect to Open Food Facts, its only outside
+  connection besides the update check.
+- About and the README say where food searches go, and credit Open Food Facts.
+
 ## 1.4.0 — 9 Nov 2026 · Android app, tests and CI
 
 The first release with the Windows 98 look in the desktop app; everything in
