@@ -73,6 +73,7 @@ export function WorkoutBar({ startedAt, rest, onRestAdjust, onRestSkip, onEnd })
 
   return (
     <div className="card end-workout">
+      <img src="/lifting-cat.svg" alt="" aria-hidden="true" className="end-workout-cat" />
       <span className="end-workout-clock num" role="timer" aria-label="Workout time">
         {formatClock(now - new Date(startedAt).getTime())}
       </span>

@@ -4,6 +4,17 @@ All notable changes to Tsyoku-naru. Newest first. Releases are cut by bumping
 `version` in `package.json` and merging to `main`. Sections marked **Website**
 went live on the website when merged and reached the apps in the next release.
 
+## 1.5.1 — 10 Nov 2026 · the lifting cat
+
+### Changed
+- **New app icon:** the hand-drawn cat lifting a barbell, traced from the
+  original sketch into a vector, on the app's slate background. Used for the
+  website, the installed web app, the desktop app and the Android launcher and
+  splash screen. It's also the logo in the top bar.
+- **Thumbs-up** (from the same sketches) pops into the toast when you log a set
+  and above "Workout done!" in the workout summary.
+- The cat sits next to the timer while a workout is in progress.
+
 ## Website — GitHub Pages redirects to Netlify
 
 GitHub Pages was still serving a build from 6 Aug that needed a server Pages

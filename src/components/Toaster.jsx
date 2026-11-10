@@ -7,12 +7,30 @@
 // toast once without it stealing focus from the form being filled in.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { toastVariants } from "../lib/motionVariants.js";
 
 const ToastContext = createContext(null);
 const MAX_VISIBLE = 3;
 let nextId = 1;
+
+// The thumbs-up from the mascot sketches, for "that counted": a set logged.
+// It pops in once rather than sitting still, unless motion is reduced.
+function ToastIcon({ name }) {
+  const reduced = useReducedMotion();
+  if (name !== "thumbs-up") return null;
+  return (
+    <motion.img
+      src="/thumbs-up.svg"
+      alt=""
+      aria-hidden="true"
+      className="toast-icon"
+      initial={reduced ? false : { scale: 0.3, rotate: -25 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 420, damping: 14 }}
+    />
+  );
+}
 
 function Toast({ toast, onDismiss }) {
   const [paused, setPaused] = useState(false);
@@ -44,6 +62,7 @@ function Toast({ toast, onDismiss }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
+      {toast.icon && <ToastIcon name={toast.icon} />}
       <span className="toast-text">
         <strong>{toast.title}</strong>
         {toast.body && <span>{toast.body}</span>}
